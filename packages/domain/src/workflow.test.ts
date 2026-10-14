@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { Actor } from './context';
 import { closeDemoAuction, payEmd, placeBid } from './operations';
 import { createSeed, type DemoState } from './seed';
 import { sellerTrackRecord } from './trackRecord';
@@ -30,8 +31,10 @@ function wonLot0891() {
 }
 
 function upToChecked(observed: number) {
-  let { s, txId } = wonLot0891();
-  const run = (a: TxAction, actor = RAHUL, media: LotMedia[] = []) => (s = ok(runTxAction(s, txId, a, actor, t(1), media)).state);
+  const won = wonLot0891();
+  const txId = won.txId;
+  let s = won.s;
+  const run = (a: TxAction, actor: Actor = RAHUL, media: LotMedia[] = []) => (s = ok(runTxAction(s, txId, a, actor, t(1), media)).state);
   run({ type: 'pay_balance' });
   run({ type: 'propose_lifting', at: t(24), vehicle: 'MH 04 GP 8812' });
   run({ type: 'confirm_lifting' }, SURESH);
