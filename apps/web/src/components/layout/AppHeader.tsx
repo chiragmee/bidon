@@ -8,6 +8,7 @@ import type { Role } from '@auctionit/domain';
 import { ButtonLink, DemoModePill } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { useSession } from '@/lib/SessionProvider';
+import { NotificationBell } from './NotificationBell';
 import { RoleSwitcher } from './RoleSwitcher';
 
 export const NAV: Record<Role, { href: string; label: string }[]> = {
@@ -109,6 +110,7 @@ export function AppHeader({ showNav = true }: { showNav?: boolean }) {
               </span>
             </>
           )}
+          <NotificationBell />
           <RoleSwitcher />
         </div>
       </div>

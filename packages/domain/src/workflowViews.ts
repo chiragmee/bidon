@@ -55,17 +55,33 @@ function actorName(state: DemoState, id: string): string {
   return u.role === 'ops' ? `${u.name}, Operations` : `${u.name}${c ? `, ${c.name}` : ''}`;
 }
 
+/**
+ * One action can audit two entities (the claim and its transaction); show it once. Entries with the
+ * same label, actor and time collapse into one.
+ */
+function dedupe<T extends TimelineEntry>(entries: T[]): T[] {
+  const seen = new Set<string>();
+  return entries.filter((e) => {
+    const k = `${e.label}|${e.actor}|${e.at}`;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
 export function timeline(state: DemoState, entityIds: string[]): TimelineEntry[] {
-  return state.audit
-    .filter((a) => entityIds.includes(a.entityId))
-    .sort((a, b) => ms(a.at) - ms(b.at))
-    .map((a: AuditEntry) => ({
-      id: a.id,
-      at: a.at,
-      label: ACTION_LABEL[a.action] ?? a.action.replace(/_/g, ' '),
-      actor: actorName(state, a.actorId),
-      reason: a.reason,
-    }));
+  return dedupe(
+    state.audit
+      .filter((a) => entityIds.includes(a.entityId))
+      .sort((a, b) => ms(a.at) - ms(b.at))
+      .map((a: AuditEntry) => ({
+        id: a.id,
+        at: a.at,
+        label: ACTION_LABEL[a.action] ?? a.action.replace(/_/g, ' '),
+        actor: actorName(state, a.actorId),
+        reason: a.reason,
+      })),
+  );
 }
 
 function companyName(state: DemoState, userId: string): string {
@@ -386,10 +402,11 @@ export function opsOverview(state: DemoState, now: Iso): OpsOverviewView {
         };
       })
       .sort((a, b) => Number(b.overdue) - Number(a.overdue)),
-    recent: [...state.audit]
-      .sort((a, b) => ms(b.at) - ms(a.at))
-      .slice(0, 10)
-      .map((a) => ({ id: a.id, at: a.at, label: ACTION_LABEL[a.action] ?? a.action.replace(/_/g, ' '), actor: actorName(state, a.actorId), reason: a.reason, entity: a.entityId })),
+    recent: dedupe(
+      [...state.audit]
+        .sort((a, b) => ms(b.at) - ms(a.at))
+        .map((a) => ({ id: a.id, at: a.at, label: ACTION_LABEL[a.action] ?? a.action.replace(/_/g, ' '), actor: actorName(state, a.actorId), reason: a.reason, entity: a.entityId })),
+    ).slice(0, 10),
   };
 }
 

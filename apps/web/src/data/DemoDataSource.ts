@@ -1,5 +1,13 @@
 import {
   buyerDashboard,
+  claimReview,
+  opsDecide,
+  opsOverview,
+  runTxAction,
+  sellerRespond,
+  submitClaim,
+  transactionDetail,
+  type LotMedia,
   closeDemoAuction,
   listLots,
   lotDetail,
@@ -15,6 +23,7 @@ import {
 } from '@auctionit/domain';
 import type { DataSource, DsResult } from './DataSource';
 import { loadState, resetState, saveState, subscribe } from './demoStore';
+import { kindOf, previewUrl, validateUpload } from '@/lib/uploads';
 
 /**
  * sessionStorage key: operation name (or "*") that fails with a simulated network error until the
@@ -22,6 +31,7 @@ import { loadState, resetState, saveState, subscribe } from './demoStore';
  */
 export const FAIL_KEY = 'auctionit:fail-next';
 
+const actor = (v: Viewer) => ({ id: v.id ?? 'guest', role: v.role });
 const delay = () => new Promise((r) => setTimeout(r, 150 + Math.random() * 250));
 const now = () => new Date().toISOString();
 
@@ -84,6 +94,42 @@ export class DemoDataSource implements DataSource {
 
   buyerDashboard = (viewer: Viewer) => read('buyerDashboard', (s) => (viewer.id ? buyerDashboard(s, viewer.id, now()) : null));
   transactionSummary = (id: string, viewer: Viewer) => read('transactionSummary', (s) => transactionSummary(s, id, viewer));
+
+  transactionDetail = (id: string, viewer: Viewer) => read('transactionDetail', (s) => transactionDetail(s, id, viewer, now()));
+
+  txAction = (id: string, action: Parameters<typeof runTxAction>[2], viewer: Viewer, media: LotMedia[] = []) =>
+    write('txAction', (s) => runTxAction(s, id, action, actor(viewer), now(), media));
+
+  submitClaim = (txId: string, input: Parameters<typeof submitClaim>[2], viewer: Viewer, media: LotMedia[]) =>
+    write('submitClaim', (s) => submitClaim(s, txId, input, actor(viewer), now(), media));
+
+  respondClaim = (claimId: string, response: Parameters<typeof sellerRespond>[2], viewer: Viewer, media: LotMedia[]) =>
+    write('respondClaim', (s) => sellerRespond(s, claimId, response, actor(viewer), now(), media));
+
+  decideClaim = (claimId: string, decision: Parameters<typeof opsDecide>[2], viewer: Viewer) =>
+    write('decideClaim', (s) => opsDecide(s, claimId, decision, actor(viewer), now()));
+
+  claimReview = (claimId: string, viewer: Viewer) => read('claimReview', (s) => claimReview(s, claimId, viewer, now()));
+  opsOverview = (viewer: Viewer) => read('opsOverview', (s) => (viewer.role === 'ops' ? opsOverview(s, now()) : null));
+
+  uploadMedia = async (file: File, stage: LotMedia['stage']): Promise<DsResult<LotMedia>> => {
+    await delay();
+    const failed = injectedFailure('uploadMedia');
+    if (failed && !failed.ok) return { ok: false, error: { ...failed.error, what: `The upload of ${file.name} was interrupted.`, next: 'Retry the upload. Nothing else was changed.' } };
+    const problem = validateUpload(file);
+    if (problem) return { ok: false, error: { kind: 'rule', code: 'invalid_file', what: problem, next: 'Choose a different file.' } };
+    return {
+      ok: true,
+      data: {
+        id: `M-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
+        kind: kindOf(file.type) ?? 'document',
+        url: await previewUrl(file),
+        caption: file.name,
+        stage,
+        uploadedAt: now(),
+      },
+    };
+  };
 
   registerBuyer = (input: Parameters<typeof registerBuyer>[1]) => write('registerBuyer', (s) => registerBuyer(s, input, now()));
 

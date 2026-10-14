@@ -35,3 +35,22 @@ export function action(page: Page, name: string | RegExp) {
 }
 
 export const isMobile = (page: Page) => (page.viewportSize()?.width ?? 1440) < 1024;
+
+/** Switch role mid-test the way a presenter would, keeping the current page. */
+export async function switchTo(page: Page, role: keyof typeof DEMO) {
+  await signIn(page.context(), role);
+  await page.reload();
+}
+
+/** A tiny valid PNG for evidence uploads. */
+export const PNG = {
+  name: 'lifting-photo.png',
+  mimeType: 'image/png',
+  buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64'),
+};
+
+export async function upload(page: Page, group: string, files: { name: string; mimeType: string; buffer: Buffer }[]) {
+  const g = page.getByRole('group', { name: group });
+  await g.getByLabel('Choose files').setInputFiles(files);
+  await expect(g.getByText(`${files.length} file${files.length === 1 ? '' : 's'} attached`)).toBeVisible();
+}

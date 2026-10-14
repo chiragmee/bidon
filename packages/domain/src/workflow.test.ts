@@ -130,6 +130,8 @@ describe('journey A 13 claim branch → seller response → Ops (journey C)', ()
     const r = ok(opsDecide(s, 'CLM-1042-01', { outcome: 'approve_adjustment', reason: 'Lifting photos support slag below the top layer.' }, OPS, NOW));
     expect(r.value.opsDecision?.amount).toBe(83_376);
     expect(r.state.transactions.find((x) => x.id === 'TX-1042')).toMatchObject({ status: 'resolved', finalPayable: 13_89_600 - 83_376 });
+    const labels = timeline(r.state, ['CLM-1042-01', 'TX-1042']).map((e) => e.label);
+    expect(labels.filter((l) => l === 'Assurance claim opened')).toHaveLength(1);
     expect(timeline(r.state, ['CLM-1042-01']).at(-1)).toMatchObject({ label: 'Operations approved a price adjustment', actor: 'Devendra Nath, Operations' });
     expect(opsOverview(r.state, NOW).stats.openClaims).toBe(0);
     expect(opsOverview(r.state, NOW).decided[0]?.claimId).toBe('CLM-1042-01');

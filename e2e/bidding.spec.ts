@@ -73,5 +73,5 @@ test('a won lot links to its transaction', async ({ page }) => {
   await page.goto('/auctions/LOT-2025-0861');
   await action(page, 'Go to your transaction').click();
   await expect(page).toHaveURL(/\/transactions\/TX-1038$/);
-  await expect(page.getByText(/Pay balance of/)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Pay ₹8,45,000 balance (simulated)' })).toBeVisible();
 });

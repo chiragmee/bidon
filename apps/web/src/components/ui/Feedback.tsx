@@ -118,7 +118,11 @@ export function DemoModePill({ className }: { className?: string }) {
       )}
     >
       <FlaskConical className="size-3.5" aria-hidden />
-      Demo Mode
+      {/* Short label on phones so the header fits; screen readers always hear "Demo Mode". */}
+      <span className="sm:hidden" aria-hidden>
+        Demo
+      </span>
+      <span className="sr-only sm:not-sr-only">Demo Mode</span>
     </span>
   );
 }

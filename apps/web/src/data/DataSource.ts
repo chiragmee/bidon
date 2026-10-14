@@ -1,6 +1,16 @@
 import type {
   BuyerDashboardView,
   BuyerRegistration,
+  Claim,
+  ClaimInput,
+  ClaimReviewView,
+  LotMedia,
+  OpsDecision,
+  OpsOverviewView,
+  SellerResponse,
+  Transaction,
+  TxAction,
+  TxDetailView,
   Company,
   EmdRecord,
   LotDetailView,
@@ -39,6 +49,18 @@ export interface DataSource {
 
   buyerDashboard(viewer: Viewer): Promise<DsResult<BuyerDashboardView | null>>;
   transactionSummary(id: string, viewer: Viewer): Promise<DsResult<TransactionCardView | null>>;
+
+  transactionDetail(id: string, viewer: Viewer): Promise<DsResult<TxDetailView | null>>;
+  /** One transaction step; `media` are files uploaded for it (weighbridge ticket, lifting photos). */
+  txAction(id: string, action: TxAction, viewer: Viewer, media?: LotMedia[]): Promise<DsResult<Transaction>>;
+  submitClaim(txId: string, input: ClaimInput, viewer: Viewer, media: LotMedia[]): Promise<DsResult<Claim>>;
+  respondClaim(claimId: string, response: Pick<SellerResponse, 'decision' | 'explanation'>, viewer: Viewer, media: LotMedia[]): Promise<DsResult<Claim>>;
+  decideClaim(claimId: string, decision: { outcome: OpsDecision['outcome']; reason: string }, viewer: Viewer): Promise<DsResult<Claim>>;
+  claimReview(claimId: string, viewer: Viewer): Promise<DsResult<ClaimReviewView | null>>;
+  opsOverview(viewer: Viewer): Promise<DsResult<OpsOverviewView | null>>;
+
+  /** Validate and store one evidence file; it is attached when the action using it succeeds. */
+  uploadMedia(file: File, stage: LotMedia['stage']): Promise<DsResult<LotMedia>>;
 
   registerBuyer(input: BuyerRegistration): Promise<DsResult<{ user: User; company: Company }>>;
   getUser(id: string): Promise<DsResult<{ user: User; company: Company | null } | null>>;

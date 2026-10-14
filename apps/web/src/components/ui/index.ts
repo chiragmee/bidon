@@ -9,3 +9,4 @@ export * from './LotCard';
 export * from './LotImage';
 export * from './Stepper';
 export * from './Toast';
+export * from './EvidenceUploader';

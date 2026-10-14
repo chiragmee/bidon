@@ -88,8 +88,8 @@ const WORKSPACE_NAV: Record<Exclude<Role, 'guest'>, { href: string; label: strin
   ],
   ops: [
     { href: '/ops', label: 'Overview', Icon: LayoutDashboard },
-    { href: '/auctions', label: 'Auctions', Icon: Gavel },
-    { href: '/lot-assurance', label: 'Lot Assurance', Icon: ArrowLeftRight },
+    { href: '/ops/auctions', label: 'Auctions', Icon: Gavel },
+    { href: '/auctions', label: 'Marketplace', Icon: ArrowLeftRight },
   ],
 };
 
