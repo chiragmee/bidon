@@ -1,33 +1,12 @@
 import Link from 'next/link';
 import { MapPin, Store } from 'lucide-react';
-import type { CategoryId, DerivedStatus } from '@auctionit/domain';
+import type { LotCardData } from '@auctionit/domain';
 import { formatINR, formatMt, policyFor } from '@auctionit/domain';
 import { AuctionStatusBadge, LotAssuranceBadge } from './Badge';
 import { Countdown } from './Countdown';
 import { LotImage } from './LotImage';
 
-export interface LotCardData {
-  id: string;
-  href: string;
-  title: string;
-  category: CategoryId;
-  grade: string;
-  city: string;
-  state: string;
-  estimatedQtyMt: number;
-  status: DerivedStatus;
-  startAt: string;
-  endAt: string;
-  highestBidPerMt: number | null;
-  /** null when the seller keeps the reserve hidden. */
-  reservePerMt: number | null;
-  bidCount: number;
-  assured: boolean;
-  sellerName: string;
-  /** e.g. "6 completed sales · 1 resolved claim"; null when there is not enough history. */
-  trackRecord: string | null;
-  imageUrl: string | null;
-}
+export type { LotCardData };
 
 /**
  * Catalogue card. The whole card is the link; there is no orange button on it so the page keeps

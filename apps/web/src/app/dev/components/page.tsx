@@ -2,10 +2,7 @@ import type { Metadata } from 'next';
 import { Inbox } from 'lucide-react';
 import {
   createSeed,
-  deriveAuctionStatus,
-  describeTrackRecord,
-  highestBid,
-  sellerTrackRecord,
+  toLotCard,
   TX_STEPS,
   type DemoState,
   type Lot,
@@ -39,29 +36,7 @@ export const metadata: Metadata = { title: 'UI components' };
 export const dynamic = 'force-dynamic';
 
 function toCard(s: DemoState, lot: Lot, now: string): LotCardData {
-  const bids = s.bids.filter((b) => b.lotId === lot.id);
-  const company = s.companies.find((c) => c.id === lot.sellerCompanyId);
-  const record = sellerTrackRecord(lot.sellerId, s.transactions, s.claims);
-  return {
-    id: lot.id,
-    href: '#lot-cards',
-    title: lot.title,
-    category: lot.category,
-    grade: lot.grade,
-    city: lot.location.city,
-    state: lot.location.state,
-    estimatedQtyMt: lot.estimatedQtyMt,
-    status: deriveAuctionStatus(lot, now),
-    startAt: lot.startAt,
-    endAt: lot.endAt,
-    highestBidPerMt: highestBid(bids)?.amountPerMt ?? null,
-    reservePerMt: lot.reserveVisible ? lot.reservePerMt : null,
-    bidCount: bids.length,
-    assured: lot.assurance.enabled,
-    sellerName: company?.name ?? 'Seller',
-    trackRecord: record.hasHistory ? describeTrackRecord(record) : null,
-    imageUrl: lot.media.find((m) => m.kind === 'photo')?.url ?? null,
-  };
+  return { ...toLotCard(s, lot, now), href: '#lot-cards' };
 }
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
