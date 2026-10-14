@@ -4,3 +4,4 @@
 - 2026-10-15 · Gate 3 approved; added PLAN §6 per-phase tasks (T-items, gates) so each phase is executable from files alone. Files: docs/PLAN.md, docs/DECISIONS.md
 - 2026-10-15 · Adopted user's CLAUDE.md update + PHASES.md: moved PHASES.md → docs/, PLAN §1 now the 7-phase checklist, removed old §6, unified /transactions/[id], seed adds new seller/history/40-min lot/default case, D-010–D-014. Files: CLAUDE.md, docs/PHASES.md, docs/PLAN.md, docs/DECISIONS.md
 - 2026-10-15 · Phase 1.3: packages/domain — types, policy (demo), formatters, auction/listing/transaction/assurance rules, track record; 139 tests, 100% lines. Decisions D-016–D-025. Files: packages/domain/src/*, docs/DECISIONS.md
+- 2026-10-15 · Phase 1.4: packages/domain/src/seed.ts — canonical relative-time seed (PLAN §4) + 26 consistency tests; fictional companies (D-026–D-028). Files: packages/domain/src/seed*.ts, docs/DECISIONS.md

@@ -7,3 +7,4 @@ export * from './listing';
 export * from './transaction';
 export * from './assurance';
 export * from './trackRecord';
+export * from './seed';
