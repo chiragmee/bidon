@@ -8,3 +8,5 @@ export * from './transaction';
 export * from './assurance';
 export * from './trackRecord';
 export * from './seed';
+export * from './operations';
+export * from './views';

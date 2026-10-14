@@ -236,7 +236,7 @@ export interface Claim {
 
 export interface AuditEntry {
   id: string;
-  entity: 'lot' | 'transaction' | 'claim' | 'emd' | 'bid';
+  entity: 'lot' | 'transaction' | 'claim' | 'emd' | 'bid' | 'user';
   entityId: string;
   action: string;
   actorId: string;

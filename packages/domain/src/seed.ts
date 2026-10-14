@@ -33,6 +33,8 @@ export interface DemoState {
   claims: Claim[];
   audit: AuditEntry[];
   notifications: Notification[];
+  /** Per-prefix counters for ids created after reset (TX-2000, BID-2000 …). */
+  counters: Record<string, number>;
 }
 
 export const SEED_VERSION = 1;
@@ -475,7 +477,7 @@ export function createSeed(nowIso: Iso = new Date().toISOString()): DemoState {
   notify('U-RAHUL', 'bid_accepted', 'Bid placed on LOT-2025-0899', 'You are leading at ₹6,10,000/MT.', '/auctions/LOT-2025-0899', -2, true);
 
   lots.sort((a, b) => b.id.localeCompare(a.id));
-  return { version: SEED_VERSION, seededAt: nowIso, companies, users, lots, bids, emds, transactions, claims, audit, notifications };
+  return { version: SEED_VERSION, seededAt: nowIso, companies, users, lots, bids, emds, transactions, claims, audit, notifications, counters: {} };
 }
 
 /** Seed lookups that must exist; throws instead of silently producing a broken seed. */
