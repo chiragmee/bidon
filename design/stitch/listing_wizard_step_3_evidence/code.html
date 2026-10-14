@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"status-success":"#15803D","text-strong":"#0F172A","surface-muted":"#F1F4F7","tertiary-container":"#753200","primary-fixed-dim":"#9acee1","surface-container-lowest":"#ffffff","tertiary-fixed-dim":"#ffb68e","on-tertiary-container":"#ff9b60","surface-tint":"#306576","on-trust-tier-3":"#FFFFFF","outline-variant":"#c0c8cb","trust-tier-3":"#0F4C5C","trust-tier-2":"#FFFFFF","surface":"#FFFFFF","on-secondary":"#ffffff","status-danger":"#B91C1C","on-tertiary-fixed-variant":"#773300","inverse-on-surface":"#e9f1ff","surface-container-highest":"#d5e4f9","primary":"#003441","status-danger-container":"#FEF2F2","surface-container-low":"#eef4ff","canvas":"#F7F8FA","on-action-container":"#9A4413","trust-tier-1":"#F1F4F7","text-base":"#1E293B","primary-hover":"#0B3B48","on-trust-tier-2":"#145466","on-primary-container":"#87bbce","tertiary":"#522100","secondary-fixed-dim":"#ffb694","on-trust-tier-1":"#334155","on-secondary-fixed-variant":"#7b2f00","inverse-surface":"#243141","surface-dim":"#cddbf0","border-strong":"#CBD5E1","status-success-container":"#F0FDF4","secondary":"#a14000","primary-fixed":"#b6ebfe","action-hover":"#9A4413","on-primary-fixed":"#001f28","action-container":"#FEF4EC","error":"#ba1a1a","primary-container":"#0f4c5c","on-tertiary-fixed":"#331200","on-error":"#ffffff","background":"#f8f9ff","error-container":"#ffdad6","inverse-primary":"#9acee1","tertiary-fixed":"#ffdbca","text-secondary":"#5F6E82","on-surface-variant":"#40484b","surface-variant":"#d5e4f9","on-surface":"#0e1c2c","on-secondary-fixed":"#351000","status-warning":"#B45309","primary-line":"#1C5F6D","surface-container-high":"#dbe9ff","on-background":"#0e1c2c","secondary-fixed":"#ffdbcc","outline":"#70787c","on-tertiary":"#ffffff","on-primary-fixed-variant":"#114d5d","on-primary":"#ffffff","secondary-container":"#fd8446","surface-container":"#e4efff","surface-bright":"#f8f9ff","status-warning-container":"#FFFBEB","border-hairline":"#E2E8F0","on-secondary-container":"#692700","border-control":"#7C8A9D","on-error-container":"#93000a"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"margin":"1.5rem","gutter-mobile":"1rem","gutter":"1.5rem","space-lg":"1.5rem","space-xl":"2rem","space-xs":"0.25rem","space-sm":"0.5rem","margin-mobile":"1rem","space-md":"1rem","space-2xl":"3rem"},"fontFamily":{"body-md":["Inter"],"headline-lg-mobile":["Inter"],"label-md":["Inter"],"body-lg":["Inter"],"headline-sm":["Inter"],"caption":["Inter"],"overline":["Inter"],"headline-lg":["Inter"],"headline-md":["Inter"],"display":["Inter"],"price-xl":["Inter"],"price-md":["Inter"]},"fontSize":{"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"label-md":["14px",{"lineHeight":"20px","fontWeight":"500"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-sm":["18px",{"lineHeight":"28px","fontWeight":"600"}],"caption":["12px",{"lineHeight":"16px","fontWeight":"500"}],"overline":["11px",{"lineHeight":"16px","letterSpacing":"0.06em","fontWeight":"600"}],"headline-lg":["30px",{"lineHeight":"38px","letterSpacing":"-0.015em","fontWeight":"600"}],"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"display":["40px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"600"}],"price-xl":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"600"}],"price-md":["18px",{"lineHeight":"24px","fontWeight":"600"}]}}}};</script></head><body class="bg-canvas font-body-md text-text-base antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full h-16 bg-surface border-b border-border-hairline z-50 shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="max-w-7xl mx-auto h-full px-space-lg flex items-center justify-between"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs"><span class="text-headline-sm font-headline-sm tracking-tight text-primary font-bold">Auction<span class="text-secondary">IT</span></span></div><span class="bg-action-container text-on-action-container font-overline text-overline px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-border-hairline">DEMO MODE</span></div><nav class="flex items-center gap-space-lg" data-active-classes="text-primary font-semibold"><a class="font-label-md text-label-md text-text-secondary hover:text-text-strong transition-colors" data-path="listing-wizard-guidelines" href="#">Listing Guidelines</a><a class="font-label-md text-label-md text-text-secondary hover:text-text-strong transition-colors" data-path="lot-creation-help" href="#">Help Center</a><a class="font-label-md text-label-md text-trust-tier-3 hover:text-primary transition-colors flex items-center gap-1 font-semibold" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[18px]">arrow_back</span>Exit to Dashboard</a></nav><div class="flex items-center gap-space-sm pl-space-md border-l border-border-hairline"><div class="flex flex-col text-right"><span class="font-caption text-caption text-text-strong font-medium">Shree Balaji Steels</span><span class="font-overline text-overline text-text-secondary uppercase">Seller Console</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-canvas flex-1"><div class="flex flex-col w-full">
+<!-- Stepper Bar Sub-Header -->
+<section class="w-full bg-surface shadow-sm">
+<div class="max-w-7xl mx-auto px-space-lg py-space-md">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<!-- Lot Identification Context -->
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-muted flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[22px]">inventory_2</span>
+</div>
+<div class="truncate">
+<div class="flex items-center gap-2">
+<span class="font-overline text-overline uppercase tracking-wider text-text-secondary">Lot Ref: SBS-RPR-2025-048</span>
+<span class="bg-surface-muted text-text-strong font-caption text-caption px-2 py-0.5 rounded">Raipur Yard #4</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-text-strong truncate">HMS 1 &amp; 2 Heavy Melting Steel Scrap (~40 MT)</h2>
+</div>
+</div>
+<!-- Stepper -->
+<div class="flex items-center gap-2">
+<!-- Step 1: Basic Details -->
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-trust-tier-3 text-on-trust-tier-3 flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<span class="font-label-md text-label-md text-text-strong hidden xl:inline">Basic Details</span>
+</div>
+<div class="w-6 h-0.5 bg-trust-tier-3 hidden sm:block"></div>
+<!-- Step 2: Quantity & Condition -->
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-trust-tier-3 text-on-trust-tier-3 flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<span class="font-label-md text-label-md text-text-strong hidden xl:inline">Quantity &amp; Condition</span>
+</div>
+<div class="w-6 h-0.5 bg-trust-tier-3 hidden sm:block"></div>
+<!-- Step 3: Evidence (Active) -->
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-action-container flex items-center justify-center">
+<div class="w-3.5 h-3.5 rounded-full bg-secondary"></div>
+</div>
+<span class="font-label-md text-label-md text-on-action-container font-semibold">Evidence</span>
+</div>
+<div class="w-6 h-0.5 bg-surface-muted hidden sm:block"></div>
+<!-- Step 4: Auction & Assurance -->
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-surface-muted text-text-secondary flex items-center justify-center font-caption text-caption">
+              4
+            </div>
+<span class="font-label-md text-label-md text-text-secondary hidden xl:inline">Auction &amp; Assurance</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Wizard Content Surface -->
+<div class="w-full max-w-7xl mx-auto px-space-lg py-space-lg mb-24">
+<!-- Header Content Block -->
+<div class="flex flex-col gap-1 pb-space-lg">
+<div class="flex items-center gap-2 text-text-secondary font-caption text-caption">
+<a class="hover:text-primary transition-colors" href="#">Create Lot</a>
+<span>/</span>
+<span class="text-text-strong font-medium">Step 3 of 4: Yard Inspection Evidence</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-text-strong">Upload Yard Inspection Evidence</h1>
+<p class="font-body-md text-body-md text-text-secondary max-w-3xl">
+        Provide verifiable visual &amp; weight confirmation media before auction publishing to qualify for institutional Tier 2/3 Assurance and unlock pre-cleared bids.
+      </p>
+</div>
+<!-- Assurance Target & Verification Progress Card -->
+<section class="bg-surface-container-low rounded-xl p-space-lg shadow-sm mb-space-lg">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-lg">
+<div class="flex items-start gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-lg bg-surface flex items-center justify-center text-trust-tier-3 shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[28px]">verified</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2 flex-wrap">
+<span class="font-headline-sm text-headline-sm text-text-strong">Pilot Requirement: 6 Geotagged Media Assets</span>
+<span class="bg-trust-tier-3 text-on-trust-tier-3 font-caption text-caption px-2 py-0.5 rounded flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[14px]">shield</span> Level 2 Assurance Target
+              </span>
+</div>
+<p class="font-body-md text-body-md text-text-secondary">
+              5 of 6 mandatory verifiable items accepted. Complete tare weighment calibration to activate institutional syndicates.
+            </p>
+</div>
+</div>
+<!-- Visual Progress Ring & Metric -->
+<div class="flex items-center gap-space-md shrink-0 self-end lg:self-auto">
+<div class="relative w-16 h-16 flex items-center justify-center">
+<svg class="w-16 h-16 transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-muted" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<path class="text-trust-tier-3 transition-all duration-700 ease-out" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="83, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<span class="absolute font-label-md text-label-md font-bold text-trust-tier-3">83%</span>
+</div>
+<div class="flex flex-col">
+<span class="font-overline text-overline uppercase text-text-secondary">Completion Rate</span>
+<span class="font-price-md text-price-md text-text-strong">5 / 6 Assets</span>
+<span class="font-caption text-caption text-status-success font-medium flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Geolocation Match
+            </span>
+</div>
+</div>
+</div>
+<!-- Checklist Pills Ribbon -->
+<div class="mt-space-md pt-space-md bg-surface/60 -mx-space-lg -mb-space-lg p-space-md rounded-b-xl flex flex-wrap gap-space-sm items-center">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-surface text-status-success font-caption text-caption rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>4 Yard pile photos validated</span>
+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-surface text-status-success font-caption text-caption rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-[16px]">videocam</span>
+<span>1 Walkthrough 360° video (0:45) validated</span>
+</span>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-status-warning-container text-status-warning font-caption text-caption rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-[16px]">pending</span>
+<span>1 Scale calibration photo pending validation</span>
+</span>
+</div>
+</section>
+<!-- Upload Dropzone Area -->
+<div class="relative bg-surface rounded-xl p-space-xl text-center shadow-sm mb-space-lg hover:shadow-md transition-shadow group cursor-pointer" id="dropzone-area">
+<div class="max-w-xl mx-auto flex flex-col items-center">
+<div class="w-16 h-16 rounded-full bg-surface-container-low text-primary flex items-center justify-center mb-space-sm group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[32px]">cloud_upload</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-strong mb-1">
+          Drag and drop inspection photos &amp; video walkthroughs
+        </h3>
+<p class="font-body-md text-body-md text-text-secondary mb-space-md">
+          Supports JPG, PNG, and MP4 files up to 50 MB each.
+        </p>
+<div class="flex items-center gap-3">
+<button class="h-10 px-space-lg rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-hover transition-colors inline-flex items-center gap-2 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">add_photo_alternate</span>
+<span>Browse Computer Files</span>
+</button>
+<button class="h-10 px-space-md rounded-lg bg-surface-muted text-text-strong font-label-md text-label-md hover:bg-surface-variant transition-colors inline-flex items-center gap-2" type="button">
+<span class="material-symbols-outlined text-[18px]">photo_camera</span>
+<span>Capture with Terminal Cam</span>
+</button>
+</div>
+<div class="mt-space-md inline-flex items-center gap-2 bg-canvas px-space-md py-1.5 rounded-full text-text-secondary font-caption text-caption">
+<span class="material-symbols-outlined text-[16px] text-trust-tier-3">location_on</span>
+<span>Automated matching against Raipur Yard #4 (21.2514° N, 81.6296° E ±500m tolerance)</span>
+</div>
+</div>
+</div>
+<!-- Media Grid Section -->
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-headline-sm text-text-strong">Attached Visual Evidence</h3>
+<span class="font-caption text-caption bg-surface-muted px-2 py-0.5 rounded text-text-strong font-semibold">6 Files Attached</span>
+</div>
+<div class="flex items-center gap-2 text-text-secondary font-caption text-caption">
+<span class="material-symbols-outlined text-[16px] text-status-success">lock</span>
+<span>Cryptographically timestamped &amp; indexed to Indian Standard Time (IST)</span>
+</div>
+</div>
+<!-- Upload Grid: 3 columns desktop -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg">
+<!-- Card 1: Yard Pile Overhead (Success) -->
+<div class="bg-surface rounded-xl overflow-hidden shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div class="relative w-full h-48 bg-surface-muted">
+<img class="w-full h-full object-cover" data-alt="Overhead aerial perspective photo of industrial steel scrap yard pile showing heavy melting steel HMS grade 1 and 2 stacked in Raipur yard bay under bright daylight with high tonal contrast and sharp industrial details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZBGipQvdTukGzQ0dnYnji5BzNCKG7lS7iGD-m0jV3272YCRXYl_ECZ9KvujytZfBM_ozERz9JIZmNCoEUqZuZho1vnfpX2AukvbFiFVhwQIrop614BOpjR2KN5IX3K19X9VQCefxXASU4wZx-beTQoxcAoMQuTOoCOYanWBcCgh7dFCxq74rgnvbcCBOIvTA8BsKbTONZ5WQIvyhMnF1SPu2MLs8EOD9TGwyEmbtzUgnB0GZWz0NY"/>
+<div class="absolute top-2 left-2 flex items-center gap-1 bg-surface/90 backdrop-blur-sm px-2 py-0.5 rounded font-overline text-overline text-trust-tier-3 font-semibold">
+<span class="material-symbols-outlined text-[13px]">my_location</span>
+<span>21.2514° N, 81.6296° E</span>
+</div>
+<div class="absolute top-2 right-2 bg-status-success text-surface rounded-full p-1 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]">done</span>
+</div>
+<div class="absolute bottom-2 left-2 bg-text-strong/85 text-surface font-caption text-caption px-2 py-0.5 rounded">
+            Bay 3 Overhead Pile
+          </div>
+</div>
+<div class="p-space-md flex flex-col gap-space-xs flex-1 justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-semibold text-text-strong truncate">Yard_pile_overhead_bay3.jpg</span>
+<span class="font-caption text-caption text-text-secondary shrink-0">12.4 MB</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 text-status-success font-caption text-caption">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span class="font-medium">Geotag &amp; EXIF match verified</span>
+</div>
+</div>
+<div class="pt-space-sm mt-space-sm bg-canvas -mx-space-md -mb-space-md px-space-md py-2 flex items-center justify-between">
+<button class="text-trust-tier-3 hover:text-primary font-caption text-caption font-semibold flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span> Preview EXIF
+            </button>
+<button class="text-text-secondary hover:text-status-danger font-caption text-caption flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">delete</span> Remove
+            </button>
+</div>
+</div>
+</div>
+<!-- Card 2: Sheared Plate Thickness Gauge (Success) -->
+<div class="bg-surface rounded-xl overflow-hidden shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div class="relative w-full h-48 bg-surface-muted">
+<img class="w-full h-full object-cover" data-alt="Macro close-up shot of a vernier caliper and ultrasonic thickness gauge clamped onto heavy industrial sheared steel plate scrap confirming thickness above 6mm in an industrial warehouse setting with sharp metal textures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBV5uE5oEx44CMTfkvZv9Mk1oIJGEFVk2jw0CLnyD-oB-g8wKPBfHtOynIgx3mULVYfknayFYhI95o2tU-mekBRHfCzfsql_PBvcF77yV0Q-hmkR2bIFUi76LzcRZDK3c9Tlp5-EsjCR7UglrhzFvS5S_yW20QfWjTg3HFjKgXNhrtFR3BxtPGJRVwxC5w7tbq3MDy4FsXZJrvUHnC8MYnbMYZaEcwkbnrvEA3qjW4dY5yAEKJrlgbv"/>
+<div class="absolute top-2 left-2 flex items-center gap-1 bg-surface/90 backdrop-blur-sm px-2 py-0.5 rounded font-overline text-overline text-trust-tier-3 font-semibold">
+<span class="material-symbols-outlined text-[13px]">my_location</span>
+<span>21.2515° N, 81.6294° E</span>
+</div>
+<div class="absolute top-2 right-2 bg-status-success text-surface rounded-full p-1 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]">done</span>
+</div>
+<div class="absolute bottom-2 left-2 bg-text-strong/85 text-surface font-caption text-caption px-2 py-0.5 rounded">
+            Thickness Gauge (&gt;6mm)
+          </div>
+</div>
+<div class="p-space-md flex flex-col gap-space-xs flex-1 justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-semibold text-text-strong truncate">Sheared_plate_thickness_gauge.jpg</span>
+<span class="font-caption text-caption text-text-secondary shrink-0">8.1 MB</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 text-status-success font-caption text-caption">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span class="font-medium">DIN EN 10204 Scrap Gauge Verified</span>
+</div>
+</div>
+<div class="pt-space-sm mt-space-sm bg-canvas -mx-space-md -mb-space-md px-space-md py-2 flex items-center justify-between">
+<button class="text-trust-tier-3 hover:text-primary font-caption text-caption font-semibold flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span> Preview EXIF
+            </button>
+<button class="text-text-secondary hover:text-status-danger font-caption text-caption flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">delete</span> Remove
+            </button>
+</div>
+</div>
+</div>
+<!-- Card 3: Magnet Crane Loading Test (Success) -->
+<div class="bg-surface rounded-xl overflow-hidden shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div class="relative w-full h-48 bg-surface-muted">
+<img class="w-full h-full object-cover" data-alt="Industrial crane with large electro-magnetic lifter hoisting heavy ferrous HMS scrap metal bundles in Raipur plant yard with industrial gantries in the background under crisp daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuyAH1D3EUOsnlTavoBygJ56pvdIA5Cz59eBwFGrOQGzfCwU6ksXZWdpM58670M2aBpFWPIHcLI4H4c4czxeXTi2ksaNowTHOb9ld6rcGJArWIZH8MlKMsXUC5a0Eci1D2IYo3Lql2DBpPlZJ2qmbxcAiIPZ1nNnWYdJOuvt1v-g0OtJcWrMhuJRh3sJxdqHcHOP3gkbtOuxacQTvXr5nNCcYH12-N4d8TtlyJAuQMCmodjLUMH_4T"/>
+<div class="absolute top-2 left-2 flex items-center gap-1 bg-surface/90 backdrop-blur-sm px-2 py-0.5 rounded font-overline text-overline text-trust-tier-3 font-semibold">
+<span class="material-symbols-outlined text-[13px]">my_location</span>
+<span>21.2512° N, 81.6298° E</span>
+</div>
+<div class="absolute top-2 right-2 bg-status-success text-surface rounded-full p-1 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]">done</span>
+</div>
+<div class="absolute bottom-2 left-2 bg-text-strong/85 text-surface font-caption text-caption px-2 py-0.5 rounded">
+            Magnet Lift Proof
+          </div>
+</div>
+<div class="p-space-md flex flex-col gap-space-xs flex-1 justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-semibold text-text-strong truncate">Magnet_crane_loading_test.jpg</span>
+<span class="font-caption text-caption text-text-secondary shrink-0">15.2 MB</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 text-status-success font-caption text-caption">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span class="font-medium">Ferrous content magnetic test clear</span>
+</div>
+</div>
+<div class="pt-space-sm mt-space-sm bg-canvas -mx-space-md -mb-space-md px-space-md py-2 flex items-center justify-between">
+<button class="text-trust-tier-3 hover:text-primary font-caption text-caption font-semibold flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">visibility</span> Preview EXIF
+            </button>
+<button class="text-text-secondary hover:text-status-danger font-caption text-caption flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">delete</span> Remove
+            </button>
+</div>
+</div>
+</div>
+<!-- Card 4: Walkthrough Inspection Video (Success with Video Player Tag) -->
+<div class="bg-surface rounded-xl overflow-hidden shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div class="relative w-full h-48 bg-text-strong flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-70" data-alt="Wide panoramic still shot of an industrial scrapyard walkway showing continuous 360 degree inspection angle of stacked steel scrap piles and weighment bridges under clear daytime lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBV6xvf2H6DAtsj_xefSO7mxYAGEVoUcsIiy9jfnswIbwH9Z3_INYgUpQV10QPdiSp30k2PtERKnY448oCSwzp5cIlScqwRgpXREFIfj5MPTwMLgQLQHpNg4c8SE9WMfu-18ZCmO5jzdvJWj4XAeqlyr8NyKAPPiGlVuLU80NYBWEYYJI9ufExyy4t9GCRtFHbeyMWmZDDahTnkzM20m9GkrcjqtsE-UGU8gGyFMc1lFUvlF9kBP_Il"/>
+<div class="absolute inset-0 bg-gradient-to-t from-text-strong/90 via-transparent to-transparent"></div>
+<!-- Play Trigger Button Overlay -->
+<div class="absolute w-12 h-12 rounded-full bg-surface/90 hover:bg-surface text-primary flex items-center justify-center cursor-pointer shadow-md transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined text-[28px] pl-0.5">play_arrow</span>
+</div>
+<div class="absolute top-2 left-2 flex items-center gap-1 bg-surface/90 backdrop-blur-sm px-2 py-0.5 rounded font-overline text-overline text-primary font-semibold">
+<span class="material-symbols-outlined text-[13px]">videocam</span>
+<span>1080p MP4 • 0:45s</span>
+</div>
+<div class="absolute top-2 right-2 bg-status-success text-surface rounded-full p-1 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]">done</span>
+</div>
+<div class="absolute bottom-2 left-2 bg-action-container text-on-action-container font-caption text-caption px-2 py-0.5 rounded font-semibold">
+            Yard Walkthrough 360°
+          </div>
+</div>
+<div class="p-space-md flex flex-col gap-space-xs flex-1 justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-semibold text-text-strong truncate">Yard_walkthrough_video_360.mp4</span>
+<span class="font-caption text-caption text-text-secondary shrink-0">24.8 MB</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 text-status-success font-caption text-caption">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span class="font-medium">Continuous unedited pan certified</span>
+</div>
+</div>
+<div class="pt-space-sm mt-space-sm bg-canvas -mx-space-md -mb-space-md px-space-md py-2 flex items-center justify-between">
+<button class="text-trust-tier-3 hover:text-primary font-caption text-caption font-semibold flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">play_circle</span> Watch Video
+            </button>
+<button class="text-text-secondary hover:text-status-danger font-caption text-caption flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">delete</span> Remove
+            </button>
+</div>
+</div>
+</div>
+<!-- Card 5: Tare Gross Scale (In-Progress State) -->
+<div class="bg-surface rounded-xl overflow-hidden shadow-sm flex flex-col justify-between">
+<div class="relative w-full h-48 bg-surface-container-low flex flex-col items-center justify-center p-space-md text-center">
+<div class="w-12 h-12 rounded-full border-4 border-surface-muted border-t-primary animate-spin mb-space-sm"></div>
+<span class="font-label-md text-label-md font-semibold text-text-strong">Extracting EXIF &amp; Geotag</span>
+<span class="font-caption text-caption text-text-secondary mt-0.5">3.2 MB / 4.8 MB • 68% Uploaded</span>
+<div class="w-3/4 bg-surface-muted h-2 rounded-full overflow-hidden mt-3 shadow-inner">
+<div class="bg-primary h-full rounded-full transition-all duration-300" style="width: 68%;"></div>
+</div>
+</div>
+<div class="p-space-md flex flex-col gap-space-xs flex-1 justify-between">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-semibold text-text-strong truncate">Tare_gross_scale_gate2.jpg</span>
+<span class="font-caption text-caption text-text-secondary shrink-0">4.8 MB</span>
+</div>
+<div class="flex items-center gap-1.5 mt-1 text-primary-line font-caption text-caption">
+<span class="material-symbols-outlined text-[14px] animate-pulse">sync</span>
+<span>Validating weighbridge certificate OCR...</span>
+</div>
+</div>
+<div class="pt-space-sm mt-space-sm bg-canvas -mx-space-md -mb-space-md px-space-md py-2 flex items-center justify-between">
+<span class="text-text-secondary font-caption text-caption italic">Processing stream</span>
+<button class="text-text-secondary hover:text-status-danger font-caption text-caption flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">cancel</span> Cancel
+            </button>
+</div>
+</div>
+</div>
+<!-- Card 6: FAILED UPLOAD CARD (Crucial Requirement) -->
+<div class="bg-status-danger-container rounded-xl overflow-hidden shadow-sm flex flex-col justify-between">
+<div class="relative w-full h-48 bg-status-danger/10 flex flex-col items-center justify-center p-space-md text-center">
+<div class="w-12 h-12 rounded-full bg-status-danger text-surface flex items-center justify-center mb-space-xs shadow-sm">
+<span class="material-symbols-outlined text-[28px]">error</span>
+</div>
+<span class="font-label-md text-label-md font-bold text-status-danger">Unsupported Format</span>
+<span class="font-caption text-caption text-status-danger/90 mt-1 max-w-xs font-medium">
+            PDF documents cannot be inspected via automated EXIF geotagging.
+          </span>
+</div>
+<div class="p-space-md flex flex-col gap-space-xs flex-1 justify-between bg-surface">
+<div>
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md font-semibold text-text-strong truncate line-through opacity-70">
+                Material_test_certificate.pdf
+              </span>
+<span class="font-caption text-caption text-status-danger font-bold uppercase">REJECTED</span>
+</div>
+<p class="text-status-danger font-caption text-caption mt-1 font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">info</span>
+<span>File type not supported. Use JPG, PNG or MP4 under 50 MB.</span>
+</p>
+</div>
+<div class="pt-space-sm mt-space-sm bg-status-danger-container/50 -mx-space-md -mb-space-md px-space-md py-2 flex items-center justify-between">
+<button class="text-primary hover:text-primary-hover font-caption text-caption font-semibold flex items-center gap-1 bg-surface px-2.5 py-1 rounded shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px]">replay</span> Retry as JPG / PNG
+            </button>
+<button class="text-status-danger hover:text-status-danger/80 font-caption text-caption font-semibold flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">delete_forever</span> Remove File
+            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Institutional Quality Mandate Callout Box -->
+<div class="mt-space-lg bg-surface rounded-xl p-space-md shadow-sm flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-lg bg-trust-tier-1 text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">policy</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<span class="font-label-md text-label-md font-semibold text-text-strong">DIN EN 10204 3.1 &amp; ISRI 200–206 Geotagging Guidelines</span>
+<p class="font-caption text-caption text-text-secondary leading-relaxed">
+          Geotagged photos must be taken within 500 meters of the registered yard coordinates (Raipur Yard #4) within the last 72 hours. Synthetic EXIF injections, screenshot captures, and recycled images are automatically quarantined by the Settlement Terminal and will degrade seller reliability ratings.
+        </p>
+</div>
+</div>
+</div>
+<!-- Persistent Wizard Action Footer -->
+<footer class="fixed bottom-0 left-0 w-full bg-surface shadow-[0_-2px_10px_rgba(0,0,0,0.06)] z-40">
+<div class="max-w-7xl mx-auto px-space-lg h-16 flex items-center justify-between">
+<!-- Left Action -->
+<button class="h-10 px-space-md rounded-lg text-text-secondary hover:text-text-strong hover:bg-surface-muted font-label-md text-label-md transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">bookmark_border</span>
+<span>Save Lot as Draft</span>
+</button>
+<!-- Right Wizard Progression Actions -->
+<div class="flex items-center gap-space-md">
+<!-- Back Secondary Button: white with teal border #1C5F6D -->
+<a class="h-10 px-space-lg rounded-lg bg-surface text-trust-tier-3 hover:bg-surface-muted font-label-md text-label-md transition-colors inline-flex items-center justify-center gap-1.5 shadow-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>Back</span>
+</a>
+<!-- Exactly ONE Primary Action Button: solid orange #BD5418 -->
+<button class="h-10 px-space-xl rounded-lg bg-action-hover hover:bg-tertiary-container text-on-primary font-label-md text-label-md font-semibold transition-all inline-flex items-center justify-center gap-2 shadow-sm" type="button">
+<span>Next: Auction &amp; Assurance</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</footer>
+</div>
+<script>
+  // Simple interactive UI feedback for demo mode dropzone
+  const dropzone = document.getElementById('dropzone-area');
+  if (dropzone) {
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('bg-surface-container-low');
+    });
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('bg-surface-container-low');
+    });
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('bg-surface-container-low');
+    });
+  }
+</script></main><footer class="w-full bg-surface border-t border-border-hairline py-space-md"><div class="max-w-7xl mx-auto px-space-lg flex flex-col md:flex-row items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm text-text-secondary"><span class="material-symbols-outlined text-[16px] text-trust-tier-3">verified_user</span><span class="font-caption text-caption">Industrial Asset Disposition &amp; Auction Guarantee Standard DIN EN 10204 3.1</span></div><div class="font-caption text-caption text-text-secondary">© 2025 AuctionIT Institutional Settlement Terminal. Strict Enterprise Clearance Protocol.</div></div></footer></body></html>

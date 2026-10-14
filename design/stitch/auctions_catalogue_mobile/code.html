@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"on-tertiary-container":"#ff9b60","status-danger-container":"#FEF2F2","surface-bright":"#f8f9ff","on-primary":"#ffffff","outline":"#70787c","error":"#ba1a1a","secondary-container":"#fd8446","surface":"#FFFFFF","outline-variant":"#c0c8cb","status-warning":"#B45309","status-danger":"#B91C1C","trust-tier-1":"#F1F4F7","on-secondary":"#ffffff","primary-fixed-dim":"#9acee1","surface-container-high":"#dbe9ff","surface-container-highest":"#d5e4f9","surface-container-lowest":"#ffffff","surface-dim":"#cddbf0","primary-line":"#1C5F6D","tertiary":"#522100","inverse-on-surface":"#e9f1ff","on-secondary-container":"#692700","trust-tier-3":"#0F4C5C","surface-muted":"#F1F4F7","on-primary-fixed-variant":"#114d5d","text-base":"#1E293B","on-primary-container":"#0B3B48","surface-tint":"#306576","tertiary-fixed":"#ffdbca","on-tertiary-fixed":"#331200","on-tertiary-fixed-variant":"#773300","surface-container-low":"#eef4ff","on-trust-tier-1":"#334155","secondary-fixed":"#ffdbcc","inverse-surface":"#243141","canvas":"#F7F8FA","on-error":"#ffffff","inverse-primary":"#9acee1","border-control":"#7C8A9D","text-strong":"#0F172A","on-error-container":"#93000a","status-success-container":"#F0FDF4","surface-variant":"#d5e4f9","on-action-container":"#9A4413","primary-hover":"#0B3B48","status-success":"#15803D","primary-container":"#EFF6F7","border-hairline":"#E2E8F0","action-hover":"#9A4413","primary-fixed":"#b6ebfe","surface-container":"#e4efff","trust-tier-2":"#FFFFFF","secondary":"#a14000","status-warning-container":"#FFFBEB","border-strong":"#CBD5E1","tertiary-container":"#753200","on-tertiary":"#ffffff","error-container":"#ffdad6","text-secondary":"#5F6E82","secondary-fixed-dim":"#ffb694","primary":"#003441","tertiary-fixed-dim":"#ffb68e","on-secondary-fixed-variant":"#7b2f00","on-trust-tier-2":"#145466","action-container":"#FEF4EC","on-primary-fixed":"#001f28","on-secondary-fixed":"#351000","on-trust-tier-3":"#FFFFFF","background":"#f8f9ff","on-background":"#0e1c2c","on-surface":"#0e1c2c","on-surface-variant":"#40484b"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-sm":"0.5rem","margin":"1.5rem","gutter-mobile":"1rem","space-xl":"2rem","space-lg":"1.5rem","space-md":"1rem","gutter":"1.5rem","space-xs":"0.25rem","space-2xl":"3rem","margin-mobile":"1rem"},"fontFamily":{"headline-md":["Inter"],"price-xl":["Inter"],"body-md":["Inter"],"price-md":["Inter"],"body-lg":["Inter"],"label-md":["Inter"],"overline":["Inter"],"headline-lg-mobile":["Inter"],"headline-sm":["Inter"],"display":["Inter"],"caption":["Inter"],"headline-lg":["Inter"]},"fontSize":{"headline-md":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"price-xl":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"20px","fontWeight":"400"}],"price-md":["18px",{"lineHeight":"24px","fontWeight":"600"}],"body-lg":["16px",{"lineHeight":"24px","fontWeight":"400"}],"label-md":["14px",{"lineHeight":"20px","fontWeight":"500"}],"overline":["11px",{"lineHeight":"16px","letterSpacing":"0.06em","fontWeight":"600"}],"headline-lg-mobile":["24px",{"lineHeight":"32px","letterSpacing":"-0.01em","fontWeight":"600"}],"headline-sm":["18px",{"lineHeight":"28px","fontWeight":"600"}],"display":["40px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"600"}],"caption":["12px",{"lineHeight":"16px","fontWeight":"500"}],"headline-lg":["30px",{"lineHeight":"38px","letterSpacing":"-0.015em","fontWeight":"600"}]}}}};</script><style>@layer base{html,body{width:100%;margin:0;padding:0;overflow-x:hidden;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}}::-webkit-scrollbar{display:none;}</style></head><body class="bg-canvas text-text-base font-body-md antialiased min-h-screen flex flex-col"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-[60px] px-gutter-mobile flex items-center justify-between gap-space-xs"><div class="flex items-center gap-space-sm"><div class="flex items-center"><span class="font-headline-sm text-headline-sm font-bold tracking-tight text-text-strong">Auction</span><span class="font-headline-sm text-headline-sm font-bold tracking-tight text-trust-tier-3">IT</span></div><div class="px-2 py-0.5 rounded-full bg-primary-container text-trust-tier-3 font-overline text-overline uppercase tracking-wider">DEMO</div></div><div class="flex items-center gap-space-xs"><button class="w-11 h-11 flex items-center justify-center text-text-secondary hover:text-text-strong active:scale-95 transition-transform"><span class="material-symbols-outlined text-[22px]">search</span></button><button class="w-11 h-11 flex items-center justify-center text-text-secondary hover:text-text-strong active:scale-95 transition-transform relative"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-secondary"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-1 flex-shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 w-full pt-[60px] pb-[64px] bg-canvas flex flex-col"><div class="flex flex-col w-full pb-6 relative overflow-hidden">
+<!-- Search & Filter Controls -->
+<section class="w-full px-gutter-mobile pt-3 pb-2 flex flex-col gap-2.5">
+<div class="flex items-center gap-2 w-full">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-text-secondary text-[20px] pointer-events-none">search</span>
+<input class="w-full h-10 pl-9 pr-3 rounded-lg bg-surface text-text-base placeholder-text-secondary font-body-md text-body-md outline-none focus:ring-2 focus:ring-trust-tier-3 shadow-sm transition-all" placeholder="Search lots, grades, yards..." type="text"/>
+</div>
+<button aria-label="Filter lots" class="h-10 px-3 bg-primary-container text-trust-tier-3 rounded-lg font-label-md text-label-md flex items-center gap-1.5 active:scale-95 transition-transform flex-shrink-0 shadow-sm" id="openFilterBtn" type="button">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+<span>Filters</span>
+<span class="w-4 h-4 rounded-full bg-trust-tier-3 text-on-trust-tier-3 font-caption text-[10px] flex items-center justify-center font-bold">2</span>
+</button>
+</div>
+<!-- Active Quick Filter Pills -->
+<div class="flex items-center gap-1.5 flex-wrap">
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface text-text-strong font-caption text-caption shadow-sm">
+<span>Ferrous (HMS)</span>
+<button class="text-text-secondary hover:text-text-strong flex items-center" type="button"><span class="material-symbols-outlined text-[14px]">close</span></button>
+</div>
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-trust-tier-3 text-on-trust-tier-3 font-caption text-caption shadow-sm">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+<span>Assured Only</span>
+<button class="text-on-trust-tier-3/80 hover:text-on-trust-tier-3 flex items-center" type="button"><span class="material-symbols-outlined text-[14px]">close</span></button>
+</div>
+<div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface text-text-strong font-caption text-caption shadow-sm">
+<span>Raipur Yard</span>
+<button class="text-text-secondary hover:text-text-strong flex items-center" type="button"><span class="material-symbols-outlined text-[14px]">close</span></button>
+</div>
+</div>
+</section>
+<!-- Live Auction Count & Sorting Bar -->
+<div class="px-gutter-mobile py-1 flex items-center justify-between text-text-secondary">
+<div class="flex items-center gap-1 font-caption text-caption uppercase tracking-wider">
+<span class="w-2 h-2 rounded-full bg-status-success inline-block"></span>
+<span class="font-bold text-text-strong">14 Lots Available</span>
+</div>
+<div class="flex items-center gap-1 font-caption text-caption">
+<span>Sort:</span>
+<button class="font-bold text-trust-tier-3 flex items-center gap-0.5">Ending Soonest <span class="material-symbols-outlined text-[14px]">expand_more</span></button>
+</div>
+</div>
+<!-- Single-Column Card Feed -->
+<div class="px-gutter-mobile flex flex-col gap-3.5 mt-1">
+<!-- Card 1: Live HMS Lot -->
+<article class="w-full bg-surface rounded-xl overflow-hidden shadow-sm flex flex-col group">
+<!-- Scrap Yard Image with Badges -->
+<div class="relative w-full aspect-[16/10] bg-canvas overflow-hidden">
+<img alt="HMS Scrap Yard" class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300" data-alt="Heavy industrial scrap metal yard in Raipur India under clear bright sky. Piles of shredded heavy melting steel HMS 1 and HMS 2 neatly sorted with an industrial excavator claw in background. Professional documentary photography tone, crisp metal textures, corporate salvage facility." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1hR8FhJngDZlxXFHCO34rOFUqGHKenq1XY-Hw_eKZImHhDoruDOWmPpJ8od-yCrL7as7Dg6GUxzlRfK_AoyCyePwYpNFgvE4JcQ8LdpCThjpdVsI_Glbcu3_0sh9-HJwbxHroLM-Cf3vNgaAWNflArP_xJazJ8TTyAvHaWJBieokgJjtjQjVQKWj7Zr-LpOKG-g7eGaNoizz8ppZVup0W8anGhA0EAlxJyb7omUTp0nFPJlxDc11m"/>
+<!-- Top Left: Live Status Chip -->
+<div class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-action-container text-on-action-container flex items-center gap-1.5 shadow-sm">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</span>
+<span class="font-overline text-overline uppercase tracking-wider font-bold">LIVE</span>
+</div>
+<!-- Top Right: Tier 3 Assured Badge -->
+<div class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-trust-tier-3 text-on-trust-tier-3 flex items-center gap-1 font-caption text-[11px] font-semibold shadow-sm">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+<span>Assured Tier 3</span>
+</div>
+</div>
+<!-- Content Details -->
+<div class="p-3.5 flex flex-col gap-2.5">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-text-strong leading-tight">HMS 1 &amp; 2 Heavy Melting Steel (~40 MT)</h2>
+<p class="font-caption text-caption text-text-secondary mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+<span>Ferrous · Raipur Yard #4 · Shree Balaji Steels</span>
+</p>
+</div>
+<!-- Metrics Bento Row -->
+<div class="grid grid-cols-2 gap-2 p-2.5 rounded-lg bg-canvas">
+<div class="flex flex-col">
+<span class="font-caption text-[11px] text-text-secondary uppercase">Current Leading Bid</span>
+<span class="font-price-md text-price-md font-bold text-trust-tier-3">₹34,500<span class="text-caption font-normal text-text-secondary">/MT</span></span>
+<span class="font-caption text-[11px] text-text-secondary">Est. ₹13,80,000 total</span>
+</div>
+<div class="flex flex-col items-end justify-between">
+<span class="px-2 py-0.5 rounded bg-surface text-text-strong font-caption text-caption shadow-xs">12 Bids Placed</span>
+<div class="flex items-center gap-1 text-secondary font-caption text-caption font-semibold mt-1">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+<span>Closes 03:42:18</span>
+</div>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full h-10 rounded-lg bg-primary-container text-trust-tier-3 hover:bg-trust-tier-3 hover:text-on-trust-tier-3 font-label-md text-label-md flex items-center justify-center gap-1.5 transition-colors active:scale-[0.99]" type="button">
+<span>View Lot &amp; Place Bid</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Card 2: Armoured Copper Cable Scrap -->
+<article class="w-full bg-surface rounded-xl overflow-hidden shadow-sm flex flex-col group">
+<div class="relative w-full aspect-[16/10] bg-canvas overflow-hidden">
+<img alt="Copper Cable Scrap" class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300" data-alt="Industrial copper salvage yard showing dense spools and coiled piles of heavy armored high-voltage electrical cable scrap. Bright metallic coppery gleam under diffused warehouse lighting with industrial weighing scales visible in background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnUPlWUBg0Ag4_kgzxjhQDaK7nJ9fn3OIfrMylEm8tlb4e1AMa7KkkhGo6ugpcxr_Dy2vcnogpjoPF6RjPeyIGBZiokrFxWyHeBQGhQc2OzBGQeu1ALFnEq0wkQWjFeCMgI8AFzijRco21KLh0MaTSDyO1jGcsQz_9an5UbGzjIYJJhCG10Go9ozB2pfuSmsdgmwatoazKmhrOzuDisOUg7uCoj0QEQP__trMWMIawQ0Vb0NhUY_sV"/>
+<div class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-action-container text-on-action-container flex items-center gap-1.5 shadow-sm">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</span>
+<span class="font-overline text-overline uppercase tracking-wider font-bold">LIVE</span>
+</div>
+<div class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-trust-tier-3 text-on-trust-tier-3 flex items-center gap-1 font-caption text-[11px] font-semibold shadow-sm">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+<span>Assured Tier 3</span>
+</div>
+</div>
+<div class="p-3.5 flex flex-col gap-2.5">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-text-strong leading-tight">Armoured Copper Cable Scrap (~15 MT)</h2>
+<p class="font-caption text-caption text-text-secondary mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+<span>Non-Ferrous · Bhilai Yard #2 · National Smelters</span>
+</p>
+</div>
+<div class="grid grid-cols-2 gap-2 p-2.5 rounded-lg bg-canvas">
+<div class="flex flex-col">
+<span class="font-caption text-[11px] text-text-secondary uppercase">Current Leading Bid</span>
+<span class="font-price-md text-price-md font-bold text-trust-tier-3">₹6,12,000<span class="text-caption font-normal text-text-secondary">/MT</span></span>
+<span class="font-caption text-[11px] text-text-secondary">Est. ₹91,80,000 total</span>
+</div>
+<div class="flex flex-col items-end justify-between">
+<span class="px-2 py-0.5 rounded bg-surface text-text-strong font-caption text-caption shadow-xs">8 Bids Placed</span>
+<div class="flex items-center gap-1 text-secondary font-caption text-caption font-semibold mt-1">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+<span>Closes 06:15:40</span>
+</div>
+</div>
+</div>
+<button class="w-full h-10 rounded-lg bg-primary-container text-trust-tier-3 hover:bg-trust-tier-3 hover:text-on-trust-tier-3 font-label-md text-label-md flex items-center justify-center gap-1.5 transition-colors active:scale-[0.99]" type="button">
+<span>View Lot &amp; Place Bid</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Card 3: Upcoming Aluminium Dross -->
+<article class="w-full bg-surface rounded-xl overflow-hidden shadow-sm flex flex-col group opacity-95">
+<div class="relative w-full aspect-[16/10] bg-canvas overflow-hidden">
+<img alt="Aluminium Dross Scrap" class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300" data-alt="Industrial metallurgical recycling facility containing bulk crates of granulated aluminium dross and furnace skimmings. Neutral factory lighting with clear identification tags and safety signage in an organized industrial depot." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCnvmaewc0YF8O1-ak0j4lOf0B579vTwR7dLFU1sHNS6etk5IDChOA3uAGoHqbxz2pzVT1xQx4jh4ZF7pbKg8lqXRL-nry-owvYzBW79yK8XN-Jww1KpB2NV0Eg-6XiLKl-0np0qVS8qFJ0710znaBjdccFAIgVjY7Rjl0Ufy8HGEMgmAI8vjRgIr-pMkgdqQc_EEUjoa921htsxqtm6iFlS-56gnQ-sICu5b133xUH1BVAMsSm0YsE"/>
+<div class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-surface-muted text-on-trust-tier-1 flex items-center gap-1 font-overline text-overline uppercase tracking-wider font-bold shadow-sm">
+<span class="material-symbols-outlined text-[13px]">schedule</span>
+<span>UPCOMING</span>
+</div>
+<div class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-surface text-text-secondary flex items-center gap-1 font-caption text-[11px] font-medium shadow-sm">
+<span class="material-symbols-outlined text-[13px]">format_quote</span>
+<span>Standard Lot</span>
+</div>
+</div>
+<div class="p-3.5 flex flex-col gap-2.5">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-text-strong leading-tight">Aluminium Dross &amp; Skimmings (~25 MT)</h2>
+<p class="font-caption text-caption text-text-secondary mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+<span>Non-Ferrous · Rourkela Yard #1 · Jindal Alloys</span>
+</p>
+</div>
+<div class="grid grid-cols-2 gap-2 p-2.5 rounded-lg bg-canvas">
+<div class="flex flex-col">
+<span class="font-caption text-[11px] text-text-secondary uppercase">Reserve Floor Price</span>
+<span class="font-price-md text-price-md font-bold text-text-strong">₹1,45,000<span class="text-caption font-normal text-text-secondary">/MT</span></span>
+<span class="font-caption text-[11px] text-text-secondary">Est. ₹36,25,000 total</span>
+</div>
+<div class="flex flex-col items-end justify-between">
+<span class="px-2 py-0.5 rounded bg-surface-muted text-text-secondary font-caption text-caption">Opens Tomorrow</span>
+<div class="flex items-center gap-1 text-text-secondary font-caption text-caption font-medium mt-1">
+<span class="material-symbols-outlined text-[14px]">event</span>
+<span>10:00 AM IST</span>
+</div>
+</div>
+</div>
+<button class="w-full h-10 rounded-lg bg-canvas text-text-secondary font-label-md text-label-md flex items-center justify-center gap-1.5 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">notifications_none</span>
+<span>Set Auction Reminder</span>
+</button>
+</div>
+</article>
+<!-- Empty State Context Card / Discovery Prompt -->
+<div class="w-full p-4 rounded-xl bg-surface-container-low shadow-sm flex items-start gap-3 mt-1">
+<div class="w-9 h-9 rounded-full bg-surface flex items-center justify-center text-trust-tier-3 flex-shrink-0 shadow-xs">
+<span class="material-symbols-outlined text-[20px]">precision_manufacturing</span>
+</div>
+<div class="flex-1 flex flex-col gap-0.5">
+<h3 class="font-label-md text-label-md font-bold text-text-strong">Looking for machinery scrap?</h3>
+<p class="font-caption text-caption text-text-secondary">No current lots match your yard or grade filters.</p>
+<div class="flex items-center gap-3 mt-1.5">
+<button class="text-secondary font-caption text-caption font-bold hover:underline flex items-center gap-0.5" type="button">
+            Clear all filters
+            <span class="material-symbols-outlined text-[13px]">refresh</span>
+</button>
+<span class="text-text-secondary font-caption">·</span>
+<button class="text-trust-tier-3 font-caption text-caption font-semibold hover:underline" type="button">
+            Request lot alert
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Sheet Overlay & Modal Drawer -->
+<div aria-hidden="true" class="fixed inset-0 bg-inverse-surface/40 z-50 transition-opacity duration-300 opacity-0 pointer-events-none" id="filterSheetBackdrop"></div>
+<section aria-labelledby="filterTitle" class="fixed bottom-0 left-0 right-0 max-w-[440px] mx-auto z-50 bg-surface rounded-t-2xl shadow-xl transform translate-y-full transition-transform duration-300 ease-out flex flex-col max-h-[82vh]" id="filterSheetDrawer" role="dialog">
+<!-- Drawer Handle -->
+<div class="w-full pt-3 pb-1 flex justify-center cursor-grab active:cursor-grabbing">
+<div class="w-10 h-1.2 rounded-full bg-outline-variant"></div>
+</div>
+<!-- Header -->
+<div class="px-gutter-mobile py-2.5 flex items-center justify-between">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-text-strong font-bold" id="filterTitle">Filters &amp; Yard Locality</h2>
+<span class="font-caption text-caption text-text-secondary">Refine auction catalog parameters</span>
+</div>
+<button class="w-8 h-8 rounded-full bg-canvas text-text-secondary flex items-center justify-center hover:text-text-strong active:scale-95" id="closeFilterBtn" type="button">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<!-- Scrollable Filter Options -->
+<div class="px-gutter-mobile py-2 overflow-y-auto flex flex-col gap-4 text-text-base flex-1">
+<!-- Section 1: Commodity Category -->
+<div class="flex flex-col gap-2">
+<label class="font-overline text-overline uppercase tracking-wider text-text-secondary font-bold">Commodity Class</label>
+<div class="grid grid-cols-2 gap-2">
+<label class="flex items-center gap-2 p-2 rounded-lg bg-canvas text-text-strong font-label-md text-label-md cursor-pointer">
+<input checked="" class="w-4 h-4 rounded text-trust-tier-3 accent-trust-tier-3" type="checkbox"/>
+<span>Ferrous (HMS)</span>
+</label>
+<label class="flex items-center gap-2 p-2 rounded-lg bg-canvas text-text-strong font-label-md text-label-md cursor-pointer">
+<input class="w-4 h-4 rounded text-trust-tier-3 accent-trust-tier-3" type="checkbox"/>
+<span>Cast Iron Scrap</span>
+</label>
+<label class="flex items-center gap-2 p-2 rounded-lg bg-canvas text-text-strong font-label-md text-label-md cursor-pointer">
+<input checked="" class="w-4 h-4 rounded text-trust-tier-3 accent-trust-tier-3" type="checkbox"/>
+<span>Copper &amp; Wire</span>
+</label>
+<label class="flex items-center gap-2 p-2 rounded-lg bg-canvas text-text-strong font-label-md text-label-md cursor-pointer">
+<input class="w-4 h-4 rounded text-trust-tier-3 accent-trust-tier-3" type="checkbox"/>
+<span>Aluminium</span>
+</label>
+</div>
+</div>
+<!-- Section 2: Assurance Level -->
+<div class="flex flex-col gap-2">
+<label class="font-overline text-overline uppercase tracking-wider text-text-secondary font-bold">Assurance Guarantee Tier</label>
+<div class="flex flex-col gap-1.5">
+<label class="flex items-start gap-2.5 p-2 rounded-lg bg-primary-container text-trust-tier-3 cursor-pointer">
+<input checked="" class="w-4 h-4 mt-0.5 rounded text-trust-tier-3 accent-trust-tier-3" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">verified</span>
+                Confirmed at Lifting (Tier 3)
+              </span>
+<span class="font-caption text-[11px] text-text-secondary">Full tare weight &amp; chemical grade guarantee backed by AuctionIT escrow.</span>
+</div>
+</label>
+<label class="flex items-start gap-2.5 p-2 rounded-lg bg-canvas text-text-strong cursor-pointer">
+<input class="w-4 h-4 mt-0.5 rounded text-trust-tier-3 accent-trust-tier-3" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">photo_camera</span>
+                Evidence Attached (Tier 2)
+              </span>
+<span class="font-caption text-[11px] text-text-secondary">High-res yard weighing slips and lab spectrometer report.</span>
+</div>
+</label>
+<label class="flex items-start gap-2.5 p-2 rounded-lg bg-canvas text-text-strong cursor-pointer">
+<input class="w-4 h-4 mt-0.5 rounded text-trust-tier-3 accent-trust-tier-3" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">format_quote</span>
+                Seller Declared (Tier 1)
+              </span>
+<span class="font-caption text-[11px] text-text-secondary">Standard liquidation terms based on visual inspection.</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Section 3: Yard Locality -->
+<div class="flex flex-col gap-2">
+<label class="font-overline text-overline uppercase tracking-wider text-text-secondary font-bold">Yard Region</label>
+<div class="flex flex-wrap gap-1.5">
+<button class="px-3 py-1.5 rounded-lg bg-trust-tier-3 text-on-trust-tier-3 font-caption text-caption font-semibold" type="button">Raipur Hub</button>
+<button class="px-3 py-1.5 rounded-lg bg-canvas text-text-secondary font-caption text-caption font-medium" type="button">Bhilai Hub</button>
+<button class="px-3 py-1.5 rounded-lg bg-canvas text-text-secondary font-caption text-caption font-medium" type="button">Rourkela</button>
+<button class="px-3 py-1.5 rounded-lg bg-canvas text-text-secondary font-caption text-caption font-medium" type="button">Jamshedpur</button>
+<button class="px-3 py-1.5 rounded-lg bg-canvas text-text-secondary font-caption text-caption font-medium" type="button">Nagpur Industrial Area</button>
+</div>
+</div>
+</div>
+<!-- Sheet Action Tray -->
+<div class="p-gutter-mobile bg-surface shadow-[0_-2px_10px_rgba(0,0,0,0.05)] flex items-center gap-2">
+<button class="px-4 h-12 rounded-lg bg-canvas text-text-secondary font-label-md text-label-md hover:text-text-strong active:scale-95 transition-all" id="resetFiltersBtn" type="button">
+        Reset
+      </button>
+<button class="flex-1 h-12 rounded-lg bg-secondary text-on-secondary font-label-md text-label-md font-bold hover:bg-action-hover active:scale-[0.99] transition-all flex items-center justify-center gap-2 shadow-sm" id="applyFiltersBtn" type="button">
+<span>Apply Filters (14 lots)</span>
+<span class="material-symbols-outlined text-[18px]">check</span>
+</button>
+</div>
+</section>
+</div>
+<script>
+  (function initFiltersSheet() {
+    const openBtn = document.getElementById('openFilterBtn');
+    const closeBtn = document.getElementById('closeFilterBtn');
+    const applyBtn = document.getElementById('applyFiltersBtn');
+    const resetBtn = document.getElementById('resetFiltersBtn');
+    const backdrop = document.getElementById('filterSheetBackdrop');
+    const drawer = document.getElementById('filterSheetDrawer');
+
+    function openDrawer() {
+      if (!backdrop || !drawer) return;
+      backdrop.classList.remove('opacity-0', 'pointer-events-none');
+      backdrop.classList.add('opacity-100', 'pointer-events-auto');
+      drawer.classList.remove('translate-y-full');
+      drawer.classList.add('translate-y-0');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+      if (!backdrop || !drawer) return;
+      backdrop.classList.remove('opacity-100', 'pointer-events-auto');
+      backdrop.classList.add('opacity-0', 'pointer-events-none');
+      drawer.classList.remove('translate-y-0');
+      drawer.classList.add('translate-y-full');
+      document.body.style.overflow = '';
+    }
+
+    if (openBtn) openBtn.addEventListener('click', openDrawer);
+    if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+    if (backdrop) backdrop.addEventListener('click', closeDrawer);
+    if (applyBtn) applyBtn.addEventListener('click', closeDrawer);
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function() {
+        const inputs = drawer.querySelectorAll('input[type="checkbox"]');
+        inputs.forEach(input => input.checked = false);
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/95 backdrop-blur-xl shadow-[0_-2px_8px_rgba(0,0,0,0.04)]" data-active-classes="text-trust-tier-3 font-semibold"><div class="h-[64px] grid grid-cols-4 items-center px-space-xs"><a aria-current="page" class="flex flex-col items-center justify-center h-full min-w-[44px] min-h-[44px] transition-colors gap-0.5 group text-trust-tier-3 font-semibold" data-path="auction-catalogue" href="#"><div class="flex items-center justify-center w-8 h-6 relative"><span class="material-symbols-outlined text-[22px]">gavel</span></div><span class="font-caption text-caption text-center leading-none tracking-tight">Catalogue</span></a><a class="flex flex-col items-center justify-center h-full min-w-[44px] min-h-[44px] text-text-secondary hover:text-text-strong transition-colors gap-0.5 group" data-path="my-bids" href="#"><div class="flex items-center justify-center w-8 h-6 relative"><span class="material-symbols-outlined text-[22px]">trending_up</span></div><span class="font-caption text-caption text-center leading-none tracking-tight">My Bids</span></a><a class="flex flex-col items-center justify-center h-full min-w-[44px] min-h-[44px] text-text-secondary hover:text-text-strong transition-colors gap-0.5 group" data-path="bidder-dashboard" href="#"><div class="flex items-center justify-center w-8 h-6 relative"><span class="material-symbols-outlined text-[22px]">dashboard</span></div><span class="font-caption text-caption text-center leading-none tracking-tight">Dashboard</span></a><a class="flex flex-col items-center justify-center h-full min-w-[44px] min-h-[44px] text-text-secondary hover:text-text-strong transition-colors gap-0.5 group" data-path="assurance-wallet" href="#"><div class="flex items-center justify-center w-8 h-6 relative"><span class="material-symbols-outlined text-[22px]">verified_user</span></div><span class="font-caption text-caption text-center leading-none tracking-tight">Assurance</span></a></div></nav></body></html>

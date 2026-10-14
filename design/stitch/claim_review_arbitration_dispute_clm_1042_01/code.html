@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "error": "#ba1a1a", "status-danger-container": "#FEF2F2", "on-secondary": "#ffffff", "primary-hover": "#0B3B48", "on-error": "#ffffff", "tertiary-container": "#753200", "on-primary": "#ffffff", "status-success-container": "#F0FDF4", "status-warning-container": "#FFFBEB", "on-secondary-fixed-variant": "#7b2f00", "tertiary": "#522100", "trust-tier-2": "#FFFFFF", "border-control": "#7C8A9D", "surface-container-low": "#eef4ff", "surface-container-high": "#dbe9ff", "inverse-surface": "#243141", "status-warning": "#B45309", "on-trust-tier-3": "#FFFFFF", "on-background": "#0e1c2c", "on-action-container": "#9A4413", "on-primary-fixed-variant": "#114d5d", "on-tertiary-fixed": "#331200", "on-error-container": "#93000a", "inverse-primary": "#9acee1", "surface-variant": "#d5e4f9", "primary-fixed-dim": "#9acee1", "outline": "#70787c", "surface-container": "#e4efff", "tertiary-fixed-dim": "#ffb68e", "action-container": "#FEF4EC", "status-success": "#15803D", "surface-dim": "#cddbf0", "on-secondary-fixed": "#351000", "surface-container-highest": "#d5e4f9", "secondary": "#a14000", "on-primary-container": "#87bbce", "on-trust-tier-1": "#334155", "on-surface-variant": "#40484b", "surface-bright": "#f8f9ff", "on-trust-tier-2": "#145466", "error-container": "#ffdad6", "primary-container": "#0f4c5c", "on-primary-fixed": "#001f28", "on-surface": "#0e1c2c", "text-strong": "#0F172A", "trust-tier-3": "#0F4C5C", "text-secondary": "#5F6E82", "tertiary-fixed": "#ffdbca", "status-danger": "#B91C1C", "background": "#f8f9ff", "border-hairline": "#E2E8F0", "secondary-fixed-dim": "#ffb694", "canvas": "#F7F8FA", "trust-tier-1": "#F1F4F7", "inverse-on-surface": "#e9f1ff", "outline-variant": "#c0c8cb", "on-tertiary": "#ffffff", "surface-tint": "#306576", "on-tertiary-fixed-variant": "#773300", "action-hover": "#9A4413", "surface": "#FFFFFF", "primary-line": "#1C5F6D", "surface-muted": "#F1F4F7", "primary-fixed": "#b6ebfe", "on-secondary-container": "#692700", "primary": "#003441", "text-base": "#1E293B", "border-strong": "#CBD5E1", "on-tertiary-container": "#ff9b60", "secondary-container": "#fd8446", "surface-container-lowest": "#ffffff", "secondary-fixed": "#ffdbcc" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-2xl": "3rem", "space-md": "1rem", "margin-mobile": "1rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "space-xl": "2rem", "margin": "1.5rem", "gutter": "1.5rem", "space-lg": "1.5rem", "gutter-mobile": "1rem" }, "fontFamily": { "headline-sm": ["Inter"], "caption": ["Inter"], "headline-lg-mobile": ["Inter"], "body-md": ["Inter"], "headline-md": ["Inter"], "body-lg": ["Inter"], "label-md": ["Inter"], "headline-lg": ["Inter"], "price-xl": ["Inter"], "overline": ["Inter"], "display": ["Inter"], "price-md": ["Inter"] }, "fontSize": { "headline-sm": ["18px", { "lineHeight": "28px", "fontWeight": "600" }], "caption": ["12px", { "lineHeight": "16px", "fontWeight": "500" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }], "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "price-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "overline": ["11px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "600" }], "display": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "price-md": ["18px", { "lineHeight": "24px", "fontWeight": "600" }] } } } };</script></head><body class="bg-canvas text-on-surface font-body-md text-body-md"><aside class="fixed left-0 top-0 h-full w-[240px] bg-primary-container text-on-primary z-50 flex flex-col justify-between select-none shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col"><div class="h-16 px-space-lg flex items-center gap-space-sm bg-primary/40"><span class="material-symbols-outlined text-secondary-container text-[24px]">token</span><div class="flex flex-col"><span class="font-label-md text-label-md tracking-tight uppercase text-on-primary font-bold">AuctionIT</span><span class="font-overline text-overline uppercase tracking-wider text-primary-fixed-dim">Ops Console</span></div></div><div class="px-space-md py-space-sm"><span class="px-space-sm font-overline text-overline uppercase tracking-wider text-primary-fixed-dim/70">Workstation</span></div><nav class="flex flex-col gap-1 px-space-sm" data-active-classes="bg-primary text-on-primary font-label-md"><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-primary-fixed-dim hover:bg-primary-hover hover:text-on-primary transition-colors" data-path="dashboard-overview" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">grid_view</span><span class="font-label-md text-label-md">Overview</span></div></a><a aria-current="page" class="flex items-center justify-between px-space-md py-space-sm rounded-lg transition-colors bg-primary text-on-primary font-label-md" data-path="assurance-queue" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">verified</span><span class="font-label-md text-label-md">Assurance Queue</span></div><span class="px-space-xs py-0.5 rounded text-[11px] font-bold bg-action-container text-on-action-container">1</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-primary-fixed-dim hover:bg-primary-hover hover:text-on-primary transition-colors" data-path="auctions" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">gavel</span><span class="font-label-md text-label-md">Auctions</span></div></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-primary-fixed-dim hover:bg-primary-hover hover:text-on-primary transition-colors" data-path="transactions" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">receipt_long</span><span class="font-label-md text-label-md">Transactions</span></div></a><div class="my-space-sm mx-space-sm border-t border-primary-line/40"></div><div class="px-space-sm pb-space-xs"><span class="font-overline text-overline uppercase tracking-wider text-primary-fixed-dim/70">Simulations</span></div><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-primary-fixed-dim hover:bg-primary-hover hover:text-on-primary transition-colors" data-path="demo-controls" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[20px]">tune</span><span class="font-label-md text-label-md">Demo Controls</span></div></a></nav></div><div class="p-space-md bg-primary/30"><div class="flex items-center justify-between px-space-sm py-space-xs"><div class="flex flex-col"><span class="font-caption text-caption text-primary-fixed-dim">Terminal Node</span><span class="font-overline text-overline text-on-primary uppercase">BLR-OPS-04</span></div><div class="w-2 h-2 rounded-full bg-status-success"></div></div></div></aside><div class="pl-[240px]"><header class="fixed top-0 left-[240px] right-0 h-16 bg-surface/90 backdrop-blur-xl z-40 px-space-lg flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center gap-space-md w-96"><div class="flex items-center w-full px-space-md py-space-xs bg-surface-muted rounded-lg text-text-secondary"><span class="material-symbols-outlined text-[20px] mr-space-sm text-text-secondary">search</span><span class="font-body-md text-body-md text-text-secondary select-none">Search lots, manifests, settlement IDs...</span></div></div><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs px-space-md py-1 rounded-full bg-action-container text-on-action-container font-overline text-overline tracking-wider uppercase font-semibold"><span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span><span>Demo Mode Active</span></div><div class="h-6 w-px bg-border-hairline"></div><div class="flex items-center gap-space-sm"><div class="flex flex-col text-right"><span class="font-label-md text-label-md font-semibold text-text-strong">Devendra Nath</span><span class="font-caption text-caption text-text-secondary">Operations Lead</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="relative pt-16 bg-canvas min-h-screen"><div class="flex flex-col w-full">
+<!-- Main Arbitration Workspace -->
+<div class="px-space-lg py-space-xl max-w-[1280px] mx-auto w-full flex flex-col gap-space-xl">
+<!-- Breadcrumb & Header Section -->
+<div class="flex flex-col gap-space-sm">
+<nav class="flex items-center gap-space-xs text-caption font-caption text-text-secondary">
+<span class="hover:text-primary cursor-pointer transition-colors">Operations Desk</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="hover:text-primary cursor-pointer transition-colors">Assurance Queue</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-text-strong font-semibold">Claim CLM-1042-01</span>
+</nav>
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md pt-space-xs">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-space-sm flex-wrap">
+<h1 class="font-headline-lg text-headline-lg text-text-strong tracking-tight">
+              Claim Arbitration: LOT-2025-0891 <span class="font-normal text-text-secondary">(HMS 1 &amp; 2 Steel Scrap)</span>
+</h1>
+<span class="px-space-sm py-0.5 rounded bg-status-warning-container text-status-warning font-overline text-overline uppercase flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-status-warning"></span>
+              Under Operations Review
+            </span>
+<span class="px-space-sm py-0.5 rounded bg-surface-muted text-on-trust-tier-1 font-overline text-overline uppercase">
+              Open for 2d 4h
+            </span>
+<span class="px-space-sm py-0.5 rounded-full bg-action-container text-on-action-container font-overline text-overline uppercase font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+              Demo Mode
+            </span>
+</div>
+<p class="font-body-md text-body-md text-text-secondary">
+            Transaction TX-1042 · Dispute escalated by buyer <strong class="text-text-strong font-medium">Tata Projects Ltd</strong> against seller <strong class="text-text-strong font-medium">Shree Balaji Steels</strong>.
+          </p>
+</div>
+<!-- Escrow Vault Callout Pill -->
+<div class="bg-primary/5 rounded-lg p-space-md flex items-center gap-space-md">
+<div class="w-10 h-10 rounded bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+</div>
+<div class="flex flex-col">
+<span class="font-overline text-overline uppercase text-primary tracking-wider">Escrow Node #4 Liquidity Lock</span>
+<span class="font-label-md text-label-md font-semibold text-text-strong">
+              ₹1,00,000 EMD + ₹12,96,000 Advance
+            </span>
+</div>
+</div>
+</div>
+</div>
+<!-- Three-Column Evidence & Position Matrix -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter items-start">
+<!-- COLUMN 1: Seller Declaration & Listing Evidence -->
+<div class="bg-surface rounded-xl p-space-lg flex flex-col gap-space-md shadow-sm">
+<div class="flex items-center justify-between pb-space-sm border-b border-border-hairline">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary-line text-[20px]">inventory_2</span>
+<h2 class="font-headline-sm text-headline-sm text-text-strong">Seller Declaration</h2>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-trust-tier-1 text-on-trust-tier-1 font-caption text-caption flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">format_quote</span>
+            Seller Declared
+          </span>
+</div>
+<div class="flex flex-col gap-space-xs bg-surface-muted p-space-md rounded-lg">
+<span class="font-overline text-overline uppercase text-text-secondary">Declared Baseline</span>
+<div class="flex items-baseline justify-between">
+<span class="font-headline-sm text-headline-sm text-text-strong">Contamination ≤ 5.0%</span>
+<span class="font-caption text-caption text-text-secondary">Classified HMS 1/2</span>
+</div>
+<span class="font-caption text-caption text-text-secondary pt-1">
+            Contractual Tolerance: <strong class="text-text-base">Agreed max ceiling ≤ 8.0% Non-ferrous</strong>
+</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<span class="font-overline text-overline uppercase text-text-secondary">Attached Listing Evidence</span>
+<div class="grid grid-cols-2 gap-space-sm pt-1">
+<div class="group relative bg-surface-container rounded-lg overflow-hidden flex flex-col">
+<div class="h-28 w-full bg-cover bg-center" data-alt="High-angle overhead view of a certified heavy melting steel scrap yard stockpile showing neat heaps of sheared structural beams and dense metallic plate cuttings under crisp noon sunlight with geometric inspection marker cones." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB0OklPGT-tHLIv99qcUrUQ-GbrNYYOx0wS3nOeYEBIq6FOVdpGlD2nYbrufLJGE0gWwhXNb6zQ6D4K4lDgbvFyCzrIzvXEYUVdc0LTFinBdIDSU_WROUI_1c6fPIEY-uy9aervEyQKKEqk56c8kPvSdYgCn2Eaj1udD5feN5UiabCrpZer9-vMUiB1kEuCY0uybPcKaotBQMSvG7FOzkdnejce58ku9ym9ndPlBoc5ozFi9MWm-sZO')"></div>
+<div class="p-space-xs bg-surface flex flex-col">
+<span class="font-caption text-caption text-text-strong font-medium truncate">Yard_pile_overhead.jpg</span>
+<span class="text-[10px] text-primary-line font-medium flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[11px]">verified</span> EXIF Verified
+                </span>
+</div>
+</div>
+<div class="group relative bg-surface-container rounded-lg overflow-hidden flex flex-col">
+<div class="h-28 w-full bg-cover bg-center" data-alt="Close up engineering measurement macro photo of heavy industrial steel scrap thickness using digital vernier calipers reading plate gauge cross sections in an iron foundry staging bay." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCR1qcrVauS3bvsZFYCCvDrTiyH-_JILc_h2SIgqnLU73Ix5pGGQM0hPrrdAT7VxHckdTUjFAwZoDacZVcdmjpbcwIaGhPiTMmskPkzh0ERQO9V-SCCU3_jOyAQRHbfa-FFvtOxQA2ysU94N5njW41m0TY28DjfRnjZ2Ws-6KS0QjmQHHZxPYtMO2-7o0ybPoEfG7C0WihI4GyYLKzF7sy1UiMFOGi_N-LlNTrY7eG02_Vdpx4fM13V')"></div>
+<div class="p-space-xs bg-surface flex flex-col">
+<span class="font-caption text-caption text-text-strong font-medium truncate">Plate_gauge_test.jpg</span>
+<span class="text-[10px] text-text-secondary font-medium">Listing baseline</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-1 bg-surface-container-low p-space-md rounded-lg">
+<span class="font-overline text-overline uppercase text-primary-line">Listing Specification Note</span>
+<p class="font-body-md text-body-md text-text-base italic">
+            "Standard heavy melting steel scrap, sheared to furnace size. Negligible non-metallic attachments."
+          </p>
+<span class="font-caption text-caption text-text-secondary pt-1 text-right">Published: 22 Oct 2025</span>
+</div>
+</div>
+<!-- COLUMN 2: Weighbridge Measurement & Buyer's Evidence -->
+<div class="bg-surface rounded-xl p-space-lg flex flex-col gap-space-md shadow-sm relative">
+<div class="absolute -top-3 left-space-lg px-space-sm py-0.5 rounded bg-status-danger text-on-error font-overline text-overline uppercase tracking-wider">
+          Breach Detected (+6.0% Net)
+        </div>
+<div class="flex items-center justify-between pb-space-sm border-b border-border-hairline pt-1">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-status-danger text-[20px]">scale</span>
+<h2 class="font-headline-sm text-headline-sm text-text-strong">Buyer Lifting &amp; Scale</h2>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-status-danger-container text-status-danger font-caption text-caption flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[13px]">warning</span>
+            Outside Tolerance
+          </span>
+</div>
+<div class="flex flex-col gap-space-xs bg-status-danger-container/40 p-space-md rounded-lg">
+<div class="flex items-center justify-between">
+<span class="font-overline text-overline uppercase text-status-danger">Field Observation</span>
+<span class="px-space-xs py-0.5 rounded bg-trust-tier-3 text-on-trust-tier-3 text-[10px] font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[11px]">fact_check</span>
+              Confirmed at Lifting
+            </span>
+</div>
+<div class="flex items-baseline justify-between">
+<span class="font-headline-sm text-headline-sm text-status-danger">14.0% Slag &amp; Debris</span>
+<span class="font-caption text-caption text-status-danger font-medium">+6.0% vs Contract</span>
+</div>
+<div class="flex items-center justify-between text-caption font-caption text-text-secondary pt-1 border-t border-status-danger/10">
+<span>Slip #WB-2025-10429</span>
+<span class="font-semibold text-text-strong">Net: 38.6 MT</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-overline text-overline uppercase text-text-secondary">Buyer's Geotagged Evidence</span>
+<span class="font-caption text-caption text-primary-line">21.2514° N, 81.6296° E</span>
+</div>
+<div class="grid grid-cols-3 gap-space-xs pt-1">
+<div class="rounded-lg overflow-hidden bg-surface-container flex flex-col">
+<div class="h-20 w-full bg-cover bg-center" data-alt="High angle inspection view showing excessive wet slag residue, mud clods, and non-metallic foundry sweepings mixed into a bin of steel scrap at a factory dispatch dock." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBZLVhfUy9GUlZeG7629NdZfFlFpEIVXsMKgTYCw-yP-jYyqBu-yU2ViOeMTlg-c4uBGR9UVXxSBMzwcdysqBNZzdvXmq1jHZPwGXHgjJcWHYGB7H1yvtOhPqTnU3bUo4cigx1En6aYetTaP6WD7g2bxPopD-5Mzr2X9-QQI00DtjuTx9KiJrPI98LChd3AtYhhOGx7TrYtKve4KNn0VF9418bUly94fv2A4o6BkRJIjm1AsqPvlCM3')"></div>
+<span class="font-caption text-[10px] p-1 text-text-strong truncate">Top_layer_slag.jpg</span>
+</div>
+<div class="rounded-lg overflow-hidden bg-surface-container flex flex-col">
+<div class="h-20 w-full bg-cover bg-center" data-alt="Close up sorting snapshot of heavy rusted oxidized mill scale mixed with dirt and extraneous debris inside an industrial open-top cargo truck trailer." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuABnsy3aizdGUVS0irElVXsg4JJ8zrrcmwUyNR1WfxM0OY4KBt21uH0AVpX8aUkj5UxdEL5QnyMdZiu1ppgJRNBjbL7VcZHYsizIyQWHyyhfg9NBqBafPIl05UzyP1dVYrv-pAxGUf_IKJ9RkyGc1AxsRHwIFBFysBag_CJnBTFx1mtf24vc6laM5KLEfK5dBsFezgwUxaf-_8Cqw9GruaclaBrQDXDyPztZqHU8rRc-gqTfRC-q-cE')"></div>
+<span class="font-caption text-[10px] p-1 text-text-strong truncate">Mid_bed_foreign.jpg</span>
+</div>
+<div class="rounded-lg overflow-hidden bg-surface-container flex flex-col">
+<div class="h-20 w-full bg-cover bg-center" data-alt="Industrial weighbridge automated computer screen displaying tare weight scale records and axle gross readings printed on official thermal registry voucher paper." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCHeElmG736vL3aImitbaZ9AWLl-KCjiNd_zhUgEAmxTRVBYXrKa2lEMPTFL_pBVoJbC5ILxLVjKvm-zqQfyuVrO75HE6-6n9U38dwx7Hwlg9xGOevXpqQdn6yvbAJbRYM4y9SzQ2KT74Vv40fQs-cv7gQibZzx-StkCgqZZpKTurGkI3_7v28QhjggyEoh_VOtuCzlO7HULIKzVD7s94g2GrGSjN9BIOaxuD2e1cPUAptL2uqcw1a2')"></div>
+<span class="font-caption text-[10px] p-1 text-text-strong truncate">Tare_slip.jpg</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs bg-surface-muted p-space-md rounded-lg">
+<span class="font-overline text-overline uppercase text-text-secondary">Buyer Claim Statement</span>
+<p class="font-body-md text-body-md text-text-base">
+            "Substantial mud and un-sheared slag found below top layer. Sample sorting at Raipur Bay #3 indicated ~14% contamination."
+          </p>
+<div class="mt-2 p-space-xs bg-action-container rounded border-l-2 border-secondary flex flex-col">
+<span class="font-overline text-[10px] uppercase text-on-action-container">Remedy Requested</span>
+<span class="font-label-md text-label-md font-semibold text-text-strong">
+              Price Adjustment: Deduct ₹86,400 <span class="font-normal text-text-secondary">(2.4 MT excess)</span>
+</span>
+</div>
+</div>
+</div>
+<!-- COLUMN 3: Seller's Response & Position -->
+<div class="bg-surface rounded-xl p-space-lg flex flex-col gap-space-md shadow-sm">
+<div class="flex items-center justify-between pb-space-sm border-b border-border-hairline">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[20px]">assignment_return</span>
+<h2 class="font-headline-sm text-headline-sm text-text-strong">Seller Position</h2>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-action-container text-on-action-container font-caption text-caption flex items-center gap-1 font-semibold">
+<span class="material-symbols-outlined text-[13px]">gavel</span>
+            Disputed by Seller
+          </span>
+</div>
+<div class="flex flex-col gap-space-xs bg-surface-muted p-space-md rounded-lg">
+<span class="font-overline text-overline uppercase text-text-secondary">Response Timestamp</span>
+<div class="flex items-center gap-space-sm text-text-strong font-label-md">
+<span class="material-symbols-outlined text-status-success text-[18px]">schedule</span>
+<span>26 Oct 2025, 17:30 IST</span>
+</div>
+<span class="font-caption text-caption text-status-success font-medium">Submitted within required 4h dispute window</span>
+</div>
+<div class="flex flex-col gap-space-xs">
+<span class="font-overline text-overline uppercase text-text-secondary">Defense Argument</span>
+<div class="bg-surface-container-low p-space-md rounded-lg flex flex-col gap-2">
+<p class="font-body-md text-body-md text-text-base">
+              "We inspect all lots prior to staging. The material on top is standard HMS 1. Buyer's transporter mixed sweepings from adjacent bay during loading. We dispute 14% and request third-party lab assay or release of agreed invoice."
+            </p>
+<span class="font-caption text-caption text-text-secondary">— Shree Balaji Steels Dispatch Desk</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs bg-surface-muted p-space-md rounded-lg mt-auto">
+<div class="flex items-center justify-between">
+<span class="font-overline text-overline uppercase text-text-secondary">Seller Counter-Offer</span>
+<span class="font-overline text-overline uppercase text-status-warning font-semibold">Conditional Concession</span>
+</div>
+<p class="font-body-md text-body-md text-text-strong">
+            Willing to concede <strong class="text-secondary font-semibold">1.0% goodwill adjustment (₹14,400)</strong>, but strictly reject the 6.0% penalty deduction.
+          </p>
+</div>
+</div>
+</div>
+<!-- Operations Decision Panel -->
+<div class="bg-surface rounded-xl p-space-lg flex flex-col gap-space-lg shadow-sm border-t-2 border-primary">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[24px]">balance</span>
+<h3 class="font-headline-md text-headline-md text-text-strong">Operations Settlement Ruling &amp; Escrow Execution</h3>
+</div>
+<p class="font-body-md text-body-md text-text-secondary">
+            Your ruling executes directly against the escrow balance. All parties receive certified settlement notice.
+          </p>
+</div>
+<div class="flex items-center gap-2 text-caption font-caption text-text-secondary bg-surface-muted px-space-md py-1 rounded">
+<span class="material-symbols-outlined text-primary text-[16px]">security</span>
+          Standard Lot Assurance Protocol v4.2
+        </div>
+</div>
+<!-- Decision Radio Options -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md" id="decisionOptions">
+<!-- Option 1: Selected -->
+<label class="relative flex flex-col p-space-md rounded-lg bg-surface-container-low cursor-pointer transition-all border-2 border-primary ring-1 ring-primary/20">
+<div class="flex items-center justify-between pb-space-xs">
+<span class="font-label-md text-label-md font-semibold text-text-strong flex items-center gap-2">
+<span class="w-4 h-4 rounded-full border-2 border-primary flex items-center justify-center">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+</span>
+              Approve Price Adjustment
+            </span>
+<span class="font-overline text-overline uppercase px-1.5 py-0.5 rounded bg-primary text-on-primary font-bold">Recommended</span>
+</div>
+<p class="font-caption text-caption text-text-secondary mt-1">
+            Deduct <strong class="text-text-strong">₹86,400</strong> (2.4 MT excess @ ₹36,000/MT) from seller payout and credit back to Tata Projects Ltd EMD wallet. Remaining <strong class="text-text-strong">₹13,03,200</strong> released to seller.
+          </p>
+</label>
+<!-- Option 2 -->
+<label class="relative flex flex-col p-space-md rounded-lg bg-surface-muted cursor-pointer hover:bg-surface-container transition-all">
+<div class="flex items-center justify-between pb-space-xs">
+<span class="font-label-md text-label-md font-semibold text-text-strong flex items-center gap-2">
+<span class="w-4 h-4 rounded-full border border-border-control"></span>
+              Approve Exit and Refund
+            </span>
+</div>
+<p class="font-caption text-caption text-text-secondary mt-1">
+            Reject lot entirely. 100% EMD (₹1,00,000) and balance (₹12,96,000) returned to buyer. Seller retains material at yard.
+          </p>
+</label>
+<!-- Option 3 -->
+<label class="relative flex flex-col p-space-md rounded-lg bg-surface-muted cursor-pointer hover:bg-surface-container transition-all">
+<div class="flex items-center justify-between pb-space-xs">
+<span class="font-label-md text-label-md font-semibold text-text-strong flex items-center gap-2">
+<span class="w-4 h-4 rounded-full border border-border-control"></span>
+              Reject Claim
+            </span>
+</div>
+<p class="font-caption text-caption text-text-secondary mt-1">
+            Enforce contract at original declared weighbridge terms. Full invoice ₹13,89,600 released to seller immediately.
+          </p>
+</label>
+</div>
+<!-- Arbitration Reasoning Input -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-md text-label-md font-semibold text-text-strong flex items-center justify-between" for="rulingReason">
+<span>Arbitration Ruling Reason <span class="text-status-danger">*</span></span>
+<span class="font-caption text-caption text-text-secondary font-normal">Mandatory for audit trail &amp; certificate generation</span>
+</label>
+<textarea class="w-full p-space-md bg-surface border border-border-control rounded-lg text-text-base font-body-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" id="rulingReason" rows="3">Photographic evidence from Bay #3 clearly substantiates dense slag buildup exceeding 8.0% tolerance ceiling. Transporter timestamp confirms photos were taken prior to bay loading completion. Price adjustment formula applied as per Section 4.2 of Lot Assurance Terms.</textarea>
+</div>
+<!-- Action Footer -->
+<div class="flex items-center justify-between pt-space-sm border-t border-border-hairline flex-wrap gap-space-md">
+<div class="flex items-center gap-2 text-caption font-caption text-text-secondary">
+<span class="material-symbols-outlined text-[18px] text-status-success">verified_user</span>
+<span>Dual-key digital signature ready: OPS-EXEC-D.NATH-994</span>
+</div>
+<div class="flex items-center gap-space-md">
+<button class="px-space-md h-10 bg-surface border border-primary-line text-primary font-label-md text-label-md rounded-lg hover:bg-surface-muted transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[18px]">contact_support</span>
+            Request More Info
+          </button>
+<button class="px-space-lg h-10 bg-[#BD5418] text-on-secondary font-label-md text-label-md rounded-lg hover:bg-[#9A4413] transition-colors shadow-sm flex items-center gap-1.5" id="openModalBtn" type="button">
+<span class="material-symbols-outlined text-[18px]">gavel</span>
+            Record Decision
+          </button>
+</div>
+</div>
+</div>
+<!-- Dispute Event Log & Audit Trail Section -->
+<div class="bg-surface rounded-xl p-space-lg flex flex-col gap-space-md shadow-sm mb-space-2xl">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-text-secondary text-[22px]">history</span>
+<h3 class="font-headline-sm text-headline-sm text-text-strong">Dispute Event Log &amp; Audit Trail</h3>
+</div>
+<span class="font-caption text-caption text-text-secondary">Immutable ledger node: #04-BLR</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-muted h-10">
+<th class="px-space-md font-overline text-overline uppercase text-on-trust-tier-1">Actor</th>
+<th class="px-space-md font-overline text-overline uppercase text-on-trust-tier-1">Previous Status</th>
+<th class="px-space-md font-overline text-overline uppercase text-on-trust-tier-1">New Status</th>
+<th class="px-space-md font-overline text-overline uppercase text-on-trust-tier-1">Action / Notes</th>
+<th class="px-space-md font-overline text-overline uppercase text-on-trust-tier-1 text-right">Timestamp</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-hairline text-body-md font-body-md">
+<tr class="h-12 hover:bg-canvas transition-colors">
+<td class="px-space-md font-medium text-text-strong">Tata Projects Ltd (Procurement Desk)</td>
+<td class="px-space-md text-text-secondary">—</td>
+<td class="px-space-md">
+<span class="px-space-xs py-0.5 rounded bg-action-container text-on-action-container text-[11px] font-semibold">Claim Raised</span>
+</td>
+<td class="px-space-md text-text-base">Claim filed with 3 geotagged photos requesting ₹86,400 adjustment</td>
+<td class="px-space-md text-text-secondary text-right font-mono text-[13px]">26 Oct 2025, 14:15 IST</td>
+</tr>
+<tr class="h-12 hover:bg-canvas transition-colors">
+<td class="px-space-md font-medium text-text-strong">System Automated Rule</td>
+<td class="px-space-md text-text-secondary">Claim Raised</td>
+<td class="px-space-md">
+<span class="px-space-xs py-0.5 rounded bg-surface-muted text-text-secondary text-[11px] font-semibold">Under Seller Review</span>
+</td>
+<td class="px-space-md text-text-base">Dispute window started: 4h timer assigned to Shree Balaji Steels</td>
+<td class="px-space-md text-text-secondary text-right font-mono text-[13px]">26 Oct 2025, 14:15 IST</td>
+</tr>
+<tr class="h-12 hover:bg-canvas transition-colors">
+<td class="px-space-md font-medium text-text-strong">Shree Balaji Steels (Seller Desk)</td>
+<td class="px-space-md text-text-secondary">Under Seller Review</td>
+<td class="px-space-md">
+<span class="px-space-xs py-0.5 rounded bg-status-danger-container text-status-danger text-[11px] font-semibold">Disputed</span>
+</td>
+<td class="px-space-md text-text-base">Seller contested contamination percentage; offered ₹14,400 goodwill</td>
+<td class="px-space-md text-text-secondary text-right font-mono text-[13px]">26 Oct 2025, 17:30 IST</td>
+</tr>
+<tr class="h-12 hover:bg-canvas transition-colors bg-surface-container-low/40">
+<td class="px-space-md font-medium text-text-strong">AuctionIT Operations Engine</td>
+<td class="px-space-md text-text-secondary">Disputed</td>
+<td class="px-space-md">
+<span class="px-space-xs py-0.5 rounded bg-status-warning-container text-status-warning text-[11px] font-semibold">Under Operations Review</span>
+</td>
+<td class="px-space-md text-text-base">Escalated to Operations Desk following seller disagreement</td>
+<td class="px-space-md text-text-secondary text-right font-mono text-[13px]">26 Oct 2025, 17:31 IST</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Confirmation Dialog Modal Overlay (Visible on Load as specified) -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-space-md" id="confirmationModal" style="background-color: rgba(15, 23, 42, 0.40);">
+<div class="bg-surface w-full max-w-[520px] rounded-xl p-space-lg flex flex-col gap-space-lg shadow-[0_12px_32px_0_rgba(15,23,42,0.12)] border border-border-hairline animate-in fade-in zoom-in duration-150">
+<!-- Modal Header -->
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-overline text-overline uppercase text-text-secondary tracking-wider">Arbitration Execution</span>
+<h3 class="font-headline-sm text-headline-sm text-text-strong">Confirm Arbitration Decision — CLM-1042-01</h3>
+</div>
+<button class="text-text-secondary hover:text-text-strong p-1 rounded hover:bg-surface-muted transition-colors" id="closeModalCross" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Warning Banner -->
+<div class="p-space-md rounded-lg bg-status-warning-container text-status-warning flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-[20px] shrink-0 mt-0.5">warning</span>
+<p class="font-caption text-caption leading-relaxed font-medium">
+          This action is final and executes immediate escrow rebalancing. Both buyer and seller will receive binding execution certificates.
+        </p>
+</div>
+<!-- Decision Breakdown Summary Card -->
+<div class="flex flex-col rounded-lg bg-surface-muted divide-y divide-border-hairline text-body-md font-body-md">
+<div class="p-space-md flex items-center justify-between">
+<span class="text-text-secondary">Ruling</span>
+<span class="font-semibold text-text-strong">Approve Price Adjustment</span>
+</div>
+<div class="p-space-md flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-text-secondary">Refund to Buyer</span>
+<span class="font-caption text-caption text-text-secondary font-normal">Tata Projects Ltd</span>
+</div>
+<span class="font-price-md text-price-md font-bold text-status-success">₹86,400</span>
+</div>
+<div class="p-space-md flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-text-secondary">Release to Seller</span>
+<span class="font-caption text-caption text-text-secondary font-normal">Shree Balaji Steels</span>
+</div>
+<span class="font-price-md text-price-md font-bold text-text-strong">₹13,03,200</span>
+</div>
+<div class="p-space-md flex items-center justify-between">
+<span class="text-text-secondary">Settlement Protocol</span>
+<span class="px-space-xs py-0.5 rounded bg-trust-tier-3 text-on-trust-tier-3 text-caption font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+            AuctionIT Lot Assurance Tier 3
+          </span>
+</div>
+</div>
+<!-- Modal Actions -->
+<div class="flex items-center justify-end gap-space-sm pt-space-xs">
+<button class="px-space-md h-10 bg-surface border border-primary-line text-primary font-label-md text-label-md rounded-lg hover:bg-surface-muted transition-colors" id="closeModalBtn" type="button">
+          Cancel
+        </button>
+<button class="px-space-md h-10 bg-[#BD5418] text-on-secondary font-label-md text-label-md rounded-lg hover:bg-[#9A4413] transition-colors shadow-sm flex items-center gap-1.5 font-semibold" id="executeDecisionBtn" type="button">
+<span class="material-symbols-outlined text-[18px]">lock_open</span>
+          Confirm &amp; Execute Settlement
+        </button>
+</div>
+</div>
+</div>
+<!-- Inline Script for Dialog Interaction & Feedback -->
+<script>
+    (function() {
+      const modal = document.getElementById('confirmationModal');
+      const openBtn = document.getElementById('openModalBtn');
+      const closeBtn = document.getElementById('closeModalBtn');
+      const crossBtn = document.getElementById('closeModalCross');
+      const executeBtn = document.getElementById('executeDecisionBtn');
+
+      function hideModal() {
+        modal.classList.add('hidden');
+      }
+
+      function showModal() {
+        modal.classList.remove('hidden');
+      }
+
+      if (closeBtn) closeBtn.addEventListener('click', hideModal);
+      if (crossBtn) crossBtn.addEventListener('click', hideModal);
+      if (openBtn) openBtn.addEventListener('click', showModal);
+
+      if (executeBtn) {
+        executeBtn.addEventListener('click', function() {
+          executeBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Executing Node Vault...';
+          executeBtn.disabled = true;
+          setTimeout(function() {
+            hideModal();
+            executeBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">lock_open</span> Confirm &amp; Execute Settlement';
+            executeBtn.disabled = false;
+            alert('Settlement executed successfully against Escrow Node #4. Certified statements dispatched to Tata Projects Ltd & Shree Balaji Steels.');
+          }, 900);
+        });
+      }
+    })();
+  </script>
+</div></main></div></body></html>

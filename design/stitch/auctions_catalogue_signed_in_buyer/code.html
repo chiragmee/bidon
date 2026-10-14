@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "canvas": "#F7F8FA", "primary-line": "#1C5F6D", "surface-container": "#e4efff", "tertiary-fixed": "#ffdbca", "text-strong": "#0F172A", "primary-fixed-dim": "#9acee1", "on-error-container": "#93000a", "border-control": "#7C8A9D", "primary-hover": "#0B3B48", "status-success-container": "#F0FDF4", "border-hairline": "#E2E8F0", "background": "#f8f9ff", "on-tertiary-fixed-variant": "#773300", "on-trust-tier-2": "#145466", "on-action-container": "#9A4413", "on-secondary-container": "#692700", "surface-dim": "#cddbf0", "tertiary-fixed-dim": "#ffb68e", "surface-bright": "#f8f9ff", "status-danger-container": "#FEF2F2", "action-hover": "#9A4413", "on-background": "#0e1c2c", "secondary-container": "#fd8446", "on-primary-fixed-variant": "#114d5d", "on-secondary-fixed": "#351000", "on-tertiary": "#ffffff", "surface-container-high": "#dbe9ff", "tertiary-container": "#753200", "on-trust-tier-3": "#FFFFFF", "surface-muted": "#F1F4F7", "on-tertiary-fixed": "#331200", "inverse-on-surface": "#e9f1ff", "inverse-primary": "#9acee1", "on-primary-container": "#87bbce", "inverse-surface": "#243141", "secondary": "#a14000", "surface-container-low": "#eef4ff", "error-container": "#ffdad6", "text-base": "#1E293B", "on-primary-fixed": "#001f28", "surface-container-highest": "#d5e4f9", "on-tertiary-container": "#ff9b60", "secondary-fixed": "#ffdbcc", "tertiary": "#522100", "secondary-fixed-dim": "#ffb694", "outline-variant": "#c0c8cb", "on-trust-tier-1": "#334155", "action-container": "#FEF4EC", "status-warning-container": "#FFFBEB", "on-secondary-fixed-variant": "#7b2f00", "primary-container": "#0f4c5c", "text-secondary": "#5F6E82", "trust-tier-2": "#FFFFFF", "status-success": "#15803D", "trust-tier-1": "#F1F4F7", "error": "#ba1a1a", "trust-tier-3": "#0F4C5C", "surface-container-lowest": "#ffffff", "surface-variant": "#d5e4f9", "on-secondary": "#ffffff", "on-error": "#ffffff", "on-surface-variant": "#40484b", "surface-tint": "#306576", "primary": "#003441", "on-primary": "#ffffff", "outline": "#70787c", "primary-fixed": "#b6ebfe", "border-strong": "#CBD5E1", "status-danger": "#B91C1C", "surface": "#FFFFFF", "on-surface": "#0e1c2c", "status-warning": "#B45309" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-2xl": "3rem", "space-xs": "0.25rem", "space-lg": "1.5rem", "space-xl": "2rem", "space-md": "1rem", "gutter": "1.5rem", "margin-mobile": "1rem", "gutter-mobile": "1rem", "margin": "1.5rem", "space-sm": "0.5rem" }, "fontFamily": { "display": ["Inter"], "label-md": ["Inter"], "price-md": ["Inter"], "price-xl": ["Inter"], "body-md": ["Inter"], "headline-lg-mobile": ["Inter"], "headline-md": ["Inter"], "caption": ["Inter"], "body-lg": ["Inter"], "headline-lg": ["Inter"], "overline": ["Inter"], "headline-sm": ["Inter"] }, "fontSize": { "display": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }], "price-md": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "price-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "caption": ["12px", { "lineHeight": "16px", "fontWeight": "500" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "overline": ["11px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "600" }], "headline-sm": ["18px", { "lineHeight": "28px", "fontWeight": "600" }] } } } };</script></head><body class="bg-canvas font-body-md text-text-base antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 max-w-7xl mx-auto px-gutter flex items-center justify-between"><div class="flex items-center gap-space-xl"><a class="flex items-center gap-space-xs text-primary font-headline-sm tracking-tight" data-path="auctions-catalogue" href="#"><span class="text-primary font-bold">AUCTION</span><span class="text-secondary font-bold">IT</span></a><nav class="hidden lg:flex items-center gap-space-md" data-active-classes="text-primary font-label-md font-semibold bg-surface-muted rounded px-space-sm py-1.5"><a aria-current="page" class="transition-colors text-primary font-label-md font-semibold bg-surface-muted rounded px-space-sm py-1.5" data-path="auctions-catalogue" href="#">Auctions</a><a class="font-label-md text-text-secondary hover:text-text-strong transition-colors px-space-sm py-1.5" data-path="my-bids" href="#">My Bids</a><a class="font-label-md text-text-secondary hover:text-text-strong transition-colors px-space-sm py-1.5" data-path="lot-assurance" href="#">Lot Assurance</a><a class="font-label-md text-text-secondary hover:text-text-strong transition-colors px-space-sm py-1.5" data-path="emd-wallet" href="#">EMD Wallet (₹2,50,000)</a></nav></div><div class="flex items-center gap-space-md"><div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded bg-action-container text-on-action-container border border-dashed border-secondary"><span class="material-symbols-outlined text-[16px]">science</span><span class="font-overline uppercase">Demo Mode</span></div><button aria-label="Notifications" class="relative p-2 text-text-secondary hover:text-text-strong hover:bg-surface-muted rounded-full transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary"></span></button><div class="flex items-center gap-space-sm pl-space-sm border-l border-border-hairline"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden md:flex flex-col text-left leading-tight"><span class="font-caption text-text-strong font-semibold">Procurement Lead</span><span class="font-overline text-text-secondary">Tata Projects Ltd</span></div></div></div></div></header><main class="w-full pt-16 bg-canvas min-h-screen"><div class="max-w-7xl mx-auto px-gutter py-space-lg"><div class="flex flex-col w-full">
+<!-- Page Header & Global Search Bar Area -->
+<section class="w-full mb-space-lg">
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md mb-space-lg">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="font-overline text-primary uppercase tracking-widest">National Disposition Exchange</span>
+</div>
+<h1 class="font-headline-lg text-text-strong tracking-tight">Live & upcoming auctions</h1>
+<p class="font-body-md text-text-secondary flex items-center gap-1.5">
+<span class="font-semibold text-text-strong font-price-md tabular-nums text-[15px]">24</span> lots available across certified industrial hubs
+        </p>
+</div>
+<!-- Quick Search & Top-Right Sort Controls -->
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-space-sm w-full lg:w-auto">
+<div class="relative flex-1 sm:w-80">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-border-control text-[20px] pointer-events-none">search</span>
+<input class="w-full h-10 pl-9 pr-20 bg-surface rounded text-text-base font-body-md placeholder-text-secondary shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-container" placeholder="Search by material, grade or location" type="text" value="Ferrous HMS"/>
+<button class="absolute right-1 top-1 bottom-1 px-3 bg-surface-muted hover:bg-surface-dim text-primary font-label-md rounded flex items-center transition-colors" type="button">
+            Search
+          </button>
+</div>
+<div class="relative w-full sm:w-52">
+<label class="sr-only" for="sort-dropdown">Sort auctions</label>
+<div class="relative">
+<select class="w-full h-10 pl-3 pr-8 bg-surface rounded text-text-base font-label-md shadow-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-container" id="sort-dropdown">
+<option selected="" value="closing_soon">Closing soonest</option>
+<option value="newest">Newest additions</option>
+<option value="highest_bid">Highest bid</option>
+<option value="tonnage">Highest tonnage</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-text-secondary text-[18px] pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Active Filter Chips Bar -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm py-2.5 px-3 bg-surface rounded shadow-sm">
+<div class="flex flex-wrap items-center gap-2">
+<span class="font-caption text-text-secondary uppercase tracking-wider mr-1">Active Filters:</span>
+<!-- Filter Chip 1 -->
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-surface-muted text-text-strong rounded font-caption font-semibold">
+          Ferrous / HMS
+          <button aria-label="Remove Ferrous HMS filter" class="hover:text-error transition-colors flex items-center" type="button">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</span>
+<!-- Filter Chip 2 -->
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 text-primary-container rounded font-caption font-semibold">
+<span class="material-symbols-outlined text-[15px] text-primary-line">shield</span>
+          Lot Assurance only
+          <button aria-label="Remove Lot Assurance filter" class="hover:text-error transition-colors flex items-center" type="button">
+<span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+</span>
+</div>
+<button class="font-caption text-primary hover:text-primary-hover font-semibold transition-colors flex items-center gap-1" id="clear-all-trigger" type="button">
+<span class="material-symbols-outlined text-[14px]">restart_alt</span>
+        Clear all filters (2)
+      </button>
+</div>
+</section>
+<!-- Two-Column Layout Workspace -->
+<div class="flex flex-col lg:flex-row items-start gap-space-lg w-full">
+<!-- LEFT FILTER RAIL (Sticky, 280px) -->
+<aside class="w-full lg:w-[280px] lg:shrink-0 sticky top-20 bg-surface rounded-xl p-5 shadow-sm space-y-5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[20px]">tune</span>
+<h2 class="font-headline-sm text-text-strong text-[16px]">Filters</h2>
+</div>
+<button class="font-caption text-primary hover:text-primary-hover font-medium underline underline-offset-2" type="button">
+          Clear filters
+        </button>
+</div>
+<!-- Section: Material Category -->
+<div class="space-y-3">
+<span class="font-overline text-text-secondary uppercase block">Material Category</span>
+<div class="space-y-2">
+<label class="flex items-center justify-between cursor-pointer group select-none">
+<div class="flex items-center gap-2.5">
+<input checked="" class="w-4 h-4 rounded text-primary-container focus:ring-0 accent-primary-container cursor-pointer" type="checkbox"/>
+<span class="font-body-md text-text-strong group-hover:text-primary transition-colors">Ferrous / HMS</span>
+</div>
+<span class="font-caption text-text-secondary tabular-nums">14</span>
+</label>
+<label class="flex items-center justify-between cursor-pointer group select-none">
+<div class="flex items-center gap-2.5">
+<input class="w-4 h-4 rounded text-primary-container focus:ring-0 accent-primary-container cursor-pointer" type="checkbox"/>
+<span class="font-body-md text-text-base group-hover:text-primary transition-colors">Non-ferrous</span>
+</div>
+<span class="font-caption text-text-secondary tabular-nums">6</span>
+</label>
+<label class="flex items-center justify-between cursor-pointer group select-none">
+<div class="flex items-center gap-2.5">
+<input class="w-4 h-4 rounded text-primary-container focus:ring-0 accent-primary-container cursor-pointer" type="checkbox"/>
+<span class="font-body-md text-text-base group-hover:text-primary transition-colors">Mixed steel</span>
+</div>
+<span class="font-caption text-text-secondary tabular-nums">3</span>
+</label>
+<label class="flex items-center justify-between cursor-pointer group select-none">
+<div class="flex items-center gap-2.5">
+<input class="w-4 h-4 rounded text-primary-container focus:ring-0 accent-primary-container cursor-pointer" type="checkbox"/>
+<span class="font-body-md text-text-base group-hover:text-primary transition-colors">E-waste</span>
+</div>
+<span class="font-caption text-text-secondary tabular-nums">1</span>
+</label>
+<label class="flex items-center justify-between opacity-50 cursor-not-allowed select-none">
+<div class="flex items-center gap-2.5">
+<input class="w-4 h-4 rounded accent-primary-container" disabled="" type="checkbox"/>
+<span class="font-body-md text-text-secondary">Machinery</span>
+</div>
+<span class="font-caption text-text-secondary tabular-nums">0</span>
+</label>
+</div>
+</div>
+<div class="h-px bg-surface-muted w-full"></div>
+<!-- Section: Location -->
+<div class="space-y-2">
+<span class="font-overline text-text-secondary uppercase block">Yard / Plant Location</span>
+<div class="relative">
+<select class="w-full h-9 pl-2.5 pr-8 bg-surface-muted hover:bg-surface-dim rounded font-body-md text-text-strong text-[13px] appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary-container">
+<option selected="">All locations</option>
+<option>Raipur, Chhattisgarh</option>
+<option>Pune, Maharashtra</option>
+<option>Ludhiana, Punjab</option>
+<option>Chennai, Tamil Nadu</option>
+<option>Jamshedpur, Jharkhand</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-text-secondary text-[16px] pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="h-px bg-surface-muted w-full"></div>
+<!-- Section: Lot Assurance Toggle -->
+<div class="p-3 bg-surface-container-low rounded-lg space-y-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-primary">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span class="font-label-md font-semibold text-[13px]">Lot Assurance only</span>
+</div>
+<!-- Toggle switch -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" id="toggle-assurance" type="checkbox"/>
+<div class="w-9 h-5 bg-border-strong peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<p class="font-caption text-text-secondary text-[11px] leading-relaxed">
+          Only lots with certified weighbridge tare-gross slips, video evidence, and 100% escrow settlement protection.
+        </p>
+</div>
+<div class="h-px bg-surface-muted w-full"></div>
+<!-- Section: Auction Status -->
+<div class="space-y-3">
+<span class="font-overline text-text-secondary uppercase block">Auction Status</span>
+<div class="space-y-2">
+<label class="flex items-center justify-between cursor-pointer group select-none">
+<div class="flex items-center gap-2.5">
+<input checked="" class="w-4 h-4 rounded text-primary-container focus:ring-0 accent-primary-container cursor-pointer" type="checkbox"/>
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="font-body-md text-text-strong group-hover:text-primary transition-colors">Live now</span>
+</div>
+</div>
+<span class="font-caption text-text-secondary tabular-nums">16</span>
+</label>
+<label class="flex items-center justify-between cursor-pointer group select-none">
+<div class="flex items-center gap-2.5">
+<input checked="" class="w-4 h-4 rounded text-primary-container focus:ring-0 accent-primary-container cursor-pointer" type="checkbox"/>
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-text-secondary"></span>
+<span class="font-body-md text-text-strong group-hover:text-primary transition-colors">Upcoming</span>
+</div>
+</div>
+<span class="font-caption text-text-secondary tabular-nums">8</span>
+</label>
+<label class="flex items-center justify-between opacity-50 cursor-not-allowed select-none">
+<div class="flex items-center gap-2.5">
+<input class="w-4 h-4 rounded accent-primary-container" disabled="" type="checkbox"/>
+<span class="font-body-md text-text-secondary">Closed lots</span>
+</div>
+<span class="font-caption text-text-secondary tabular-nums">0</span>
+</label>
+</div>
+</div>
+<div class="h-px bg-surface-muted w-full"></div>
+<!-- Section: Urgent Ending Toggle -->
+<div class="flex items-center justify-between pt-1">
+<div class="flex flex-col">
+<span class="font-body-md text-text-strong text-[13px] font-medium">Ending in <24h</span>
+<span class="font-caption text-text-secondary text-[11px]">Final bidding window</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-border-strong peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+<div class="pt-2">
+<button class="w-full py-2 bg-surface-muted hover:bg-surface-dim text-text-secondary hover:text-text-strong font-label-md rounded text-center transition-colors" type="button">
+          Reset all parameters
+        </button>
+</div>
+</aside>
+<!-- RIGHT CATALOGUE GRID (~976px width) -->
+<main class="flex-1 w-full flex flex-col gap-space-lg">
+<!-- Subheader summary -->
+<div class="flex items-center justify-between px-1">
+<div class="flex items-center gap-2 font-caption text-text-secondary">
+<span>Showing <strong class="text-text-strong tabular-nums">6</strong> of <strong class="text-text-strong tabular-nums">24</strong> industrial scrap lots</span>
+<span class="w-1 h-1 rounded-full bg-border-control"></span>
+<span class="text-status-success font-medium flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-status-success animate-ping"></span>
+            Real-time feed active
+          </span>
+</div>
+<div class="hidden sm:flex items-center gap-1.5 font-caption text-text-secondary">
+<span class="material-symbols-outlined text-[16px] text-primary">gavel</span>
+<span>EMD Balance available: <strong class="text-text-strong tabular-nums">₹2,50,000</strong></span>
+</div>
+</div>
+<!-- The 3-Column Card Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-space-lg">
+<!-- CARD 1: Live, Urgent (<1h), Lot Assurance -->
+<article class="bg-surface rounded-xl shadow-sm hover:shadow-md transition-shadow flex flex-col overflow-hidden group">
+<div class="relative w-full aspect-[16/10] overflow-hidden bg-surface-dim">
+<img alt="Heavy Melting Steel Lot" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Heavy industrial steel scrap pile with thick cut sections and girders stacked in a modern concrete logistics yard under sharp midday daylight. Clean industrial composition in deep teal and steel grey tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbxdqfOon5f78dVhCxZm_19Wl7zc5Lov4duS_3JRFNT18V_hjWXTT7m47JZLpycvo51KkaWgAd5x7MdR98eOaB1gp4XbheKl3wagQ76hfcj9R7nXPX7OEZ0Fvo74dNgtA-6tx9qmvb8lYAcd9tnYSsLAnxsCH6zIctvx84TZsXYTpmDDyNcKTYPvMYi0-JpXCW1w7yLuZz35oon7pnxZ1SS6BYUc0BFesC6quB77eTgUqUxSFKpR3X"/>
+<!-- Top Status Badges -->
+<div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2.5 py-1 bg-action-container/95 text-on-action-container backdrop-blur-sm rounded">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-overline uppercase font-bold text-secondary">Closes in 42:18</span>
+</div>
+<!-- Lot Assurance Top-Right Badge -->
+<div class="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-1 bg-primary text-on-primary rounded shadow-sm">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+<span class="font-caption text-[11px] font-semibold tracking-wide">Lot Assurance</span>
+</div>
+<div class="absolute bottom-2 left-2.5 px-2 py-0.5 bg-black/60 backdrop-blur-sm rounded text-white font-caption text-[11px] tabular-nums">
+              ID: LOT-2025-0891
+            </div>
+</div>
+<!-- Card Content Body -->
+<div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+<div>
+<div class="flex items-center justify-between text-text-secondary font-caption mb-1">
+<span class="font-medium text-primary">Ferrous • ISRI 200-206</span>
+<span class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+                  Raipur, CG
+                </span>
+</div>
+<h3 class="font-headline-sm text-text-strong group-hover:text-primary transition-colors line-clamp-2">
+                Heavy Melting Steel HMS 1 & 2 (~45 MT)
+              </h3>
+</div>
+<!-- Price & Bid Stats Block -->
+<div class="p-2.5 bg-canvas rounded flex items-center justify-between">
+<div>
+<span class="font-overline text-text-secondary uppercase block text-[10px]">Current Leading Bid</span>
+<span class="font-price-md text-text-strong tabular-nums">₹36,200<span class="font-body-md text-text-secondary text-[12px]">/MT</span></span>
+</div>
+<div class="text-right">
+<span class="font-overline text-text-secondary uppercase block text-[10px]">Activity</span>
+<span class="font-caption font-semibold text-text-strong tabular-nums">14 bids logged</span>
+</div>
+</div>
+<!-- Seller Metadata & Action Button -->
+<div class="space-y-2 pt-1">
+<div class="flex items-center gap-1.5 font-caption text-text-secondary text-[11px] truncate">
+<span class="material-symbols-outlined text-[14px] text-text-secondary">factory</span>
+<span class="truncate">Shree Balaji Steels • 18 completed sales</span>
+</div>
+<button class="w-full h-10 bg-secondary hover:bg-action-hover text-on-secondary font-label-md rounded flex items-center justify-center gap-2 font-semibold shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">gavel</span>
+                Bid now
+              </button>
+</div>
+</div>
+</article>
+<!-- CARD 2: Live, 3h 15m, Lot Assurance -->
+<article class="bg-surface rounded-xl shadow-sm hover:shadow-md transition-shadow flex flex-col overflow-hidden group">
+<div class="relative w-full aspect-[16/10] overflow-hidden bg-surface-dim">
+<img alt="Aluminium Extrusion Scrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Clean bundles of sorted aluminum extrusion profiles 6063 stacked neatly in an enterprise industrial processing plant with cool warehouse ambient light and crisp metallic highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGoX2W29W5S4_hVsztCyi0bftgjLLSzAvcFspKFjgsiQaxBpXtUDJWCjL2fl6gnuRpUcWhH6rtTUw5G0fZHEiwG3qtECxIyPQ_CzQmgyHaoEh4PtbGoWJwAhdOY-zrqIrnNxAyJ3KtKWLqjAAOum2Ez72Xo3cbEwueMhMcbpL3FBl4HmTQIZsCArEZamiH9yWNXW6quno-_7aYOP27ptYBw2w5aioCaX7rh_oHFwHjLfPDPkocJV9R"/>
+<div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2.5 py-1 bg-action-container/95 text-on-action-container backdrop-blur-sm rounded">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-overline uppercase font-bold text-on-action-container">Closes in 3h 15m</span>
+</div>
+<div class="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-1 bg-primary text-on-primary rounded shadow-sm">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+<span class="font-caption text-[11px] font-semibold tracking-wide">Lot Assurance</span>
+</div>
+<div class="absolute bottom-2 left-2.5 px-2 py-0.5 bg-black/60 backdrop-blur-sm rounded text-white font-caption text-[11px] tabular-nums">
+              ID: LOT-2025-0894
+            </div>
+</div>
+<div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+<div>
+<div class="flex items-center justify-between text-text-secondary font-caption mb-1">
+<span class="font-medium text-primary">Non-ferrous • Tata Grade A</span>
+<span class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+                  Pune, MH
+                </span>
+</div>
+<h3 class="font-headline-sm text-text-strong group-hover:text-primary transition-colors line-clamp-2">
+                Aluminium Extrusion Scrap 6063 (~22 MT)
+              </h3>
+</div>
+<div class="p-2.5 bg-canvas rounded flex items-center justify-between">
+<div>
+<span class="font-overline text-text-secondary uppercase block text-[10px]">Current Leading Bid</span>
+<span class="font-price-md text-text-strong tabular-nums">₹1,88,500<span class="font-body-md text-text-secondary text-[12px]">/MT</span></span>
+</div>
+<div class="text-right">
+<span class="font-overline text-text-secondary uppercase block text-[10px]">Activity</span>
+<span class="font-caption font-semibold text-text-strong tabular-nums">9 bids logged</span>
+</div>
+</div>
+<div class="space-y-2 pt-1">
+<div class="flex items-center gap-1.5 font-caption text-text-secondary text-[11px] truncate">
+<span class="material-symbols-outlined text-[14px] text-text-secondary">factory</span>
+<span class="truncate">Mahalaxmi Metals • 24 completed sales</span>
+</div>
+<button class="w-full h-10 bg-secondary hover:bg-action-hover text-on-secondary font-label-md rounded flex items-center justify-center gap-2 font-semibold shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">gavel</span>
+                Bid now
+              </button>
+</div>
+</div>
+</article>
+<!-- CARD 3: Live, Standard Lot (NO Assurance Badge, strictly normal clean look) -->
+<article class="bg-surface rounded-xl shadow-sm hover:shadow-md transition-shadow flex flex-col overflow-hidden group">
+<div class="relative w-full aspect-[16/10] overflow-hidden bg-surface-dim">
+<img alt="Mild Steel Heavy Turning Scrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Dark coiled mild steel machining chips and heavy lathe turnings in an industrial scrap salvage bin with textured metallic shavings under diffuse industrial skylights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEf3s6XzGi2Nw0Yw1tY0IN1idgDomaR21Dq07bux3-k2z9nfcpMbXC6YqyoKLsU9BmL-MfVkmKi6V4g2VZXF9VOQkdBjfHM_FkeHRaLpA6XOQpZEzKt1IYlo-b1DxkosS8HBDL8rKNK4BSzaSknNEpUuzXvbH5dwzn0kexAD_35OaYgM5iplmHp-aDl9eZGEEQotDVSGwU9dv6G_sFY_NeVxMeWxqnOP-tXhBVebgZGXb6kbw2oX6b"/>
+<div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2.5 py-1 bg-action-container/95 text-on-action-container backdrop-blur-sm rounded">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-overline uppercase font-bold text-on-action-container">Closes in 5h 40m</span>
+</div>
+<!-- Standard lot: intentionally clean, no warning, no badge -->
+<div class="absolute bottom-2 left-2.5 px-2 py-0.5 bg-black/60 backdrop-blur-sm rounded text-white font-caption text-[11px] tabular-nums">
+              ID: LOT-2025-0899
+            </div>
+</div>
+<div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+<div>
+<div class="flex items-center justify-between text-text-secondary font-caption mb-1">
+<span class="font-medium text-text-secondary">Mixed steel • Commercial Turning</span>
+<span class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+                  Ludhiana, PB
+                </span>
+</div>
+<h3 class="font-headline-sm text-text-strong group-hover:text-primary transition-colors line-clamp-2">
+                Mild Steel Heavy Turning Scrap (~60 MT)
+              </h3>
+</div>
+<div class="p-2.5 bg-canvas rounded flex items-center justify-between">
+<div>
+<span class="font-overline text-text-secondary uppercase block text-[10px]">Current Leading Bid</span>
+<span class="font-price-md text-text-strong tabular-nums">₹31,000<span class="font-body-md text-text-secondary text-[12px]">/MT</span></span>
+</div>
+<div class="text-right">
+<span class="font-overline text-text-secondary uppercase block text-[10px]">Activity</span>
+<span class="font-caption font-semibold text-text-strong tabular-nums">6 bids logged</span>
+</div>
+</div>
+<div class="space-y-2 pt-1">
+<div class="flex items-center gap-1.5 font-caption text-text-secondary text-[11px] truncate">
+<span class="material-symbols-outlined text-[14px] text-text-secondary">factory</span>
+<span class="truncate">Vardhman Industrial • 11 completed sales</span>
+</div>
+<button class="w-full h-10 bg-secondary hover:bg-action-hover text-on-secondary font-label-md rounded flex items-center justify-center gap-2 font-semibold shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">gavel</span>
+                Bid now
+              </button>
+</div>
+</div>
+</article>
+<!-- CARD 4: Upcoming, Lot Assurance, Secondary Action Button -->
+<article class="bg-surface rounded-xl shadow-sm hover:shadow-md transition-shadow flex flex-col overflow-hidden group">
+<div class="relative w-full aspect-[16/10] overflow-hidden bg-surface-dim">
+<img alt="Copper Armature Wire Scrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Heavy spools and coils of bright copper Millberry armature wire salvage arranged on wooden industrial pallets in a high security copper yard with rich warm metallic copper reflections." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBU_BrLUlhkCAypA27jiy8F3sR3fYaSxAD690o1qIa-7PwAN3UwtyJvLr7tenDDEU6JfVyuIqUAJ_uz-nft0syS9IxyWijGOOgEJrejijzgtH-AAs3t93_LqFO7nlgvYxIFmsAnF68A-0rSxKnyc9RG8-7-cEIXsk7Xj4vRkgUmKJGF6sLP4Gojx-JZNBHRqX3X4KECEsvGZUqkjrxeRJuWlT8GEImtoaSLCD_KGXrVgLujEdsvLkOs"/>
+<!-- Upcoming status badge -->
+<div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2.5 py-1 bg-surface-muted text-text-strong backdrop-blur-sm rounded">
+<span class="material-symbols-outlined text-[13px] text-text-secondary">schedule</span>
+<span class="font-overline uppercase font-bold text-text-secondary">Starts tomorrow 10:00 AM</span>
+</div>
+<div class="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-1 bg-primary text-on-primary rounded shadow-sm">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+<span class="font-caption text-[11px] font-semibold tracking-wide">Lot Assurance</span>
+</div>
+<div class="absolute bottom-2 left-2.5 px-2 py-0.5 bg-black/60 backdrop-blur-sm rounded text-white font-caption text-[11px] tabular-nums">
+              ID: LOT-2025-0902
+            </div>
+</div>
+<div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+<div>
+<div class="flex items-center justify-between text-text-secondary font-caption mb-1">
+<span class="font-medium text-primary">Non-ferrous • Millberry 99.9%</span>
+<span class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+                  Chennai, TN
+                </span>
+</div>
+<h3 class="font-headline-sm text-text-strong group-hover:text-primary transition-colors line-clamp-2">
+                Copper Armature Wire Scrap (~14 MT)
+              </h3>
+</div>
+<div class="p-2.5 bg-canvas rounded flex items-center justify-between">
+<div>
+<span class="font-overline text-text-secondary uppercase block text-[10px]">Reserve Base Price</span>
+<span class="font-price-md text-text-strong tabular-nums">₹6,80,000<span class="font-body-md text-text-secondary text-[12px]">/MT</span></span>
+</div>
+<div class="text-right">
+<span class="font-overline text-text-secondary uppercase block text-[10px]">Auction State</span>
+<span class="font-caption font-semibold text-primary tabular-nums">Scheduled</span>
+</div>
+</div>
+<div class="space-y-2 pt-1">
+<div class="flex items-center gap-1.5 font-caption text-text-secondary text-[11px] truncate">
+<span class="material-symbols-outlined text-[14px] text-text-secondary">factory</span>
+<span class="truncate">Apex Cable & Conductor • 32 completed sales</span>
+</div>
+<button class="w-full h-10 bg-surface hover:bg-surface-muted text-primary-container font-label-md rounded flex items-center justify-center gap-1.5 font-semibold transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+                View lot details
+              </button>
+</div>
+</div>
+</article>
+<!-- CARD 5: Live, 8h 20m, Lot Assurance -->
+<article class="bg-surface rounded-xl shadow-sm hover:shadow-md transition-shadow flex flex-col overflow-hidden group">
+<div class="relative w-full aspect-[16/10] overflow-hidden bg-surface-dim">
+<img alt="Rebar Structural Cut-ends" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Uniform sheared cut-ends of construction rebar steel TMT rods bundled tightly with steel strapping in an organized heavy metal scrap terminal under cool afternoon sun." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYGMfkPUW3yK-GI2xL0EkYZCnMjY5DQ8SUvLequuFO-y9xEjQTUEgarOqkfA5BLvCO1a2OqUNxUsV2Gd2RAFvpkxLniN1_U1Bqb6fJLXUliAhSaap26yIkEt2RNgOfUlNtY6URjqSlDKxEMWyfM0dnND1w5-A3tlnzXcEdcuvWCQatXMnN8oLIBuy_z_jSV_XTevwcc3k90NQopbsEIuQnWu7fFW25Uy5iyWkVKTzfgVcbeW9o9CBF"/>
+<div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2.5 py-1 bg-action-container/95 text-on-action-container backdrop-blur-sm rounded">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-overline uppercase font-bold text-on-action-container">Closes in 8h 20m</span>
+</div>
+<div class="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-1 bg-primary text-on-primary rounded shadow-sm">
+<span class="material-symbols-outlined text-[14px]">shield</span>
+<span class="font-caption text-[11px] font-semibold tracking-wide">Lot Assurance</span>
+</div>
+<div class="absolute bottom-2 left-2.5 px-2 py-0.5 bg-black/60 backdrop-blur-sm rounded text-white font-caption text-[11px] tabular-nums">
+              ID: LOT-2025-0905
+            </div>
+</div>
+<div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+<div>
+<div class="flex items-center justify-between text-text-secondary font-caption mb-1">
+<span class="font-medium text-primary">Ferrous • Fe 500D Cut-offs</span>
+<span class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+                  Jamshedpur, JH
+                </span>
+</div>
+<h3 class="font-headline-sm text-text-strong group-hover:text-primary transition-colors line-clamp-2">
+                Rebar & Structural Cut-ends (~80 MT)
+              </h3>
+</div>
+<div class="p-2.5 bg-canvas rounded flex items-center justify-between">
+<div>
+<span class="font-overline text-text-secondary uppercase block text-[10px]">Current Leading Bid</span>
+<span class="font-price-md text-text-strong tabular-nums">₹38,750<span class="font-body-md text-text-secondary text-[12px]">/MT</span></span>
+</div>
+<div class="text-right">
+<span class="font-overline text-text-secondary uppercase block text-[10px]">Activity</span>
+<span class="font-caption font-semibold text-text-strong tabular-nums">19 bids logged</span>
+</div>
+</div>
+<div class="space-y-2 pt-1">
+<div class="flex items-center gap-1.5 font-caption text-text-secondary text-[11px] truncate">
+<span class="material-symbols-outlined text-[14px] text-text-secondary">factory</span>
+<span class="truncate">Tata Scrap Consolidation • 54 completed sales</span>
+</div>
+<button class="w-full h-10 bg-secondary hover:bg-action-hover text-on-secondary font-label-md rounded flex items-center justify-center gap-2 font-semibold shadow-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">gavel</span>
+                Bid now
+              </button>
+</div>
+</div>
+</article>
+<!-- CARD 6: Upcoming, Standard Lot (NO Assurance Badge, neutral clean) -->
+<article class="bg-surface rounded-xl shadow-sm hover:shadow-md transition-shadow flex flex-col overflow-hidden group">
+<div class="relative w-full aspect-[16/10] overflow-hidden bg-surface-dim">
+<img alt="Industrial Boiler Tubes and Pipe Scrap" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Heavy wall carbon steel boiler tubes and decommissioned heat exchanger pipe sections stacked in an outdoor industrial yard with neutral overhead lighting and steel factory background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyXjr_Olb7PZ2f1Xh6gvPzRkAMQniPa5vK8ZM217TNMXjmfQUnb-4KBEz2CnZw0TPIp4uHKaxNnOkuovEKpuOStrQQ5y1PxMVFNdO9X3XG6b4R6DKTyEBoCqGGEg2O9jfZ4EDjS4A-N2T1AfoEHZyMNGsj4csaIiG0P-mYs6DKjsy8IEnvtSM6DteJB0M6E4TvIIXPPG-yk6HvJbI9pBGjXSOLR0zIdlZc9LZOMDF-Tpe49MDiB3GU"/>
+<div class="absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2.5 py-1 bg-surface-muted text-text-strong backdrop-blur-sm rounded">
+<span class="material-symbols-outlined text-[13px] text-text-secondary">event</span>
+<span class="font-overline uppercase font-bold text-text-secondary">Starts Oct 28, 11:30 AM</span>
+</div>
+<!-- Standard lot: intentionally clean, no warning, no badge -->
+<div class="absolute bottom-2 left-2.5 px-2 py-0.5 bg-black/60 backdrop-blur-sm rounded text-white font-caption text-[11px] tabular-nums">
+              ID: LOT-2025-0911
+            </div>
+</div>
+<div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+<div>
+<div class="flex items-center justify-between text-text-secondary font-caption mb-1">
+<span class="font-medium text-text-secondary">Ferrous • Seamless Carbon</span>
+<span class="flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+                  Raipur, CG
+                </span>
+</div>
+<h3 class="font-headline-sm text-text-strong group-hover:text-primary transition-colors line-clamp-2">
+                Industrial Boiler Tubes & Pipe Scrap (~35 MT)
+              </h3>
+</div>
+<div class="p-2.5 bg-canvas rounded flex items-center justify-between">
+<div>
+<span class="font-overline text-text-secondary uppercase block text-[10px]">Reserve Base Price</span>
+<span class="font-price-md text-text-strong tabular-nums">₹33,000<span class="font-body-md text-text-secondary text-[12px]">/MT</span></span>
+</div>
+<div class="text-right">
+<span class="font-overline text-text-secondary uppercase block text-[10px]">Auction State</span>
+<span class="font-caption font-semibold text-text-secondary tabular-nums">Awaiting start</span>
+</div>
+</div>
+<div class="space-y-2 pt-1">
+<div class="flex items-center gap-1.5 font-caption text-text-secondary text-[11px] truncate">
+<span class="material-symbols-outlined text-[14px] text-text-secondary">factory</span>
+<span class="truncate">Central India Smelters • 7 completed sales</span>
+</div>
+<button class="w-full h-10 bg-surface hover:bg-surface-muted text-primary-container font-label-md rounded flex items-center justify-center gap-1.5 font-semibold transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+                View lot details
+              </button>
+</div>
+</div>
+</article>
+</div>
+<!-- Pagination & Terminal Status Bar -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-md py-4 px-5 bg-surface rounded-xl shadow-sm mt-2">
+<div class="font-caption text-text-secondary">
+          Displaying lots <span class="font-semibold text-text-strong tabular-nums">1 – 6</span> of <span class="font-semibold text-text-strong tabular-nums">24</span> verified dispositions
+        </div>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded flex items-center justify-center text-border-control cursor-not-allowed bg-surface-muted" disabled="" type="button">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded flex items-center justify-center font-label-md font-semibold bg-primary text-on-primary" type="button">
+            1
+          </button>
+<button class="w-8 h-8 rounded flex items-center justify-center font-label-md font-medium text-text-strong hover:bg-surface-muted transition-colors" type="button">
+            2
+          </button>
+<button class="w-8 h-8 rounded flex items-center justify-center font-label-md font-medium text-text-strong hover:bg-surface-muted transition-colors" type="button">
+            3
+          </button>
+<button class="w-8 h-8 rounded flex items-center justify-center font-label-md font-medium text-text-strong hover:bg-surface-muted transition-colors" type="button">
+            4
+          </button>
+<button class="w-8 h-8 rounded flex items-center justify-center text-text-strong hover:bg-surface-muted transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Dedicated Clean Empty State Preview Component -->
+<section class="mt-8 bg-surface rounded-xl p-8 sm:p-12 shadow-sm text-center flex flex-col items-center justify-center max-w-2xl mx-auto w-full">
+<div class="w-14 h-14 rounded-full bg-surface-muted flex items-center justify-center text-primary-line mb-4">
+<span class="material-symbols-outlined text-[28px]">filter_alt_off</span>
+</div>
+<h3 class="font-headline-sm text-text-strong mb-2">No lots match these filters</h3>
+<p class="font-body-md text-text-secondary max-w-md mx-auto mb-6 leading-relaxed">
+          Try removing selected categories or location filters to see all available active and upcoming scrap lots across India.
+        </p>
+<div class="flex items-center gap-3">
+<button class="px-5 py-2.5 bg-surface hover:bg-surface-muted text-primary-container font-label-md font-semibold rounded shadow-sm transition-colors flex items-center gap-2" onclick="location.reload()" type="button">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+            Clear filters
+          </button>
+<a class="px-5 py-2.5 bg-surface-container-low hover:bg-surface-container text-primary font-label-md font-medium rounded transition-colors" href="#">
+            Browse all categories
+          </a>
+</div>
+</section>
+</main>
+</div>
+</div>
+<script>
+  // Simple interactive micro-state for filter chips removal simulation
+  document.addEventListener('DOMContentLoaded', () => {
+    const clearAllBtn = document.getElementById('clear-all-trigger');
+    if (clearAllBtn) {
+      clearAllBtn.addEventListener('click', () => {
+        const chips = clearAllBtn.parentElement.querySelectorAll('span.inline-flex');
+        chips.forEach(chip => chip.remove());
+        clearAllBtn.innerHTML = '<span class="material-symbols-outlined text-[14px]">check</span> Filters reset';
+        clearAllBtn.classList.remove('text-primary');
+        clearAllBtn.classList.add('text-status-success');
+      });
+    }
+  });
+</script></div></main><footer class="w-full bg-surface py-space-lg"><div class="max-w-7xl mx-auto px-gutter flex flex-col md:flex-row items-center justify-between gap-space-md font-caption text-text-secondary"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[16px] text-primary-line">verified_user</span><span>AuctionIT Industrial Liquidation Terminal • Simulated Environment • Sample Asset & Bid Data</span></div><div><span>© 2025 AuctionIT Platforms India Pvt. Ltd. Enterprise Disposition Terminal.</span></div></div></footer></body></html>

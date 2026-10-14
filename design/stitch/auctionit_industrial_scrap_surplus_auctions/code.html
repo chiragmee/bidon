@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-surface-variant": "#40484b",
+          "surface-dim": "#cddbf0",
+          "inverse-surface": "#243141",
+          "on-primary-fixed": "#001f28",
+          "on-error-container": "#93000a",
+          "tertiary": "#522100",
+          "border-hairline": "#E2E8F0",
+          "on-tertiary": "#ffffff",
+          "inverse-primary": "#9acee1",
+          "error-container": "#ffdad6",
+          "on-tertiary-fixed-variant": "#773300",
+          "primary": "#003441",
+          "on-secondary": "#ffffff",
+          "surface": "#FFFFFF",
+          "tertiary-fixed-dim": "#ffb68e",
+          "surface-bright": "#f8f9ff",
+          "secondary-fixed": "#ffdbcc",
+          "surface-container-highest": "#d5e4f9",
+          "tertiary-container": "#753200",
+          "status-success": "#15803D",
+          "surface-muted": "#F1F4F7",
+          "border-control": "#7C8A9D",
+          "trust-tier-1": "#F1F4F7",
+          "text-secondary": "#5F6E82",
+          "primary-container": "#0f4c5c",
+          "primary-fixed-dim": "#9acee1",
+          "trust-tier-2": "#FFFFFF",
+          "surface-variant": "#d5e4f9",
+          "surface-container-low": "#eef4ff",
+          "on-tertiary-fixed": "#331200",
+          "surface-container": "#e4efff",
+          "on-secondary-fixed-variant": "#7b2f00",
+          "on-primary-container": "#0B3B48",
+          "background": "#f8f9ff",
+          "on-action-container": "#9A4413",
+          "outline": "#70787c",
+          "on-secondary-container": "#692700",
+          "status-warning": "#B45309",
+          "status-danger": "#B91C1C",
+          "status-success-container": "#F0FDF4",
+          "secondary": "#a14000",
+          "primary-hover": "#0B3B48",
+          "surface-tint": "#306576",
+          "secondary-fixed-dim": "#ffb694",
+          "text-strong": "#0F172A",
+          "on-surface": "#0e1c2c",
+          "status-danger-container": "#FEF2F2",
+          "on-secondary-fixed": "#351000",
+          "outline-variant": "#c0c8cb",
+          "primary-fixed": "#b6ebfe",
+          "error": "#ba1a1a",
+          "text-base": "#1E293B",
+          "action-hover": "#9A4413",
+          "on-primary": "#ffffff",
+          "status-warning-container": "#FFFBEB",
+          "on-trust-tier-1": "#334155",
+          "surface-container-high": "#dbe9ff",
+          "canvas": "#F7F8FA",
+          "primary-line": "#1C5F6D",
+          "inverse-on-surface": "#e9f1ff",
+          "on-tertiary-container": "#ff9b60",
+          "action-container": "#FEF4EC",
+          "border-strong": "#CBD5E1",
+          "secondary-container": "#fd8446",
+          "on-primary-fixed-variant": "#114d5d",
+          "on-error": "#ffffff",
+          "surface-container-lowest": "#ffffff",
+          "tertiary-fixed": "#ffdbca",
+          "on-background": "#0e1c2c",
+          "trust-tier-3": "#0F4C5C",
+          "on-trust-tier-2": "#145466",
+          "on-trust-tier-3": "#FFFFFF"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-lg": "1.5rem",
+          "gutter": "1.5rem",
+          "margin": "1.5rem",
+          "space-xl": "2rem",
+          "gutter-mobile": "1rem",
+          "space-md": "1rem",
+          "space-sm": "0.5rem",
+          "margin-mobile": "1rem",
+          "space-xs": "0.25rem",
+          "space-2xl": "3rem"
+        },
+        "fontFamily": {
+          "caption": ["Inter"],
+          "headline-sm": ["Inter"],
+          "overline": ["Inter"],
+          "headline-md": ["Inter"],
+          "label-md": ["Inter"],
+          "display": ["Inter"],
+          "headline-lg-mobile": ["Inter"],
+          "body-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "price-md": ["Inter"],
+          "headline-lg": ["Inter"],
+          "price-xl": ["Inter"]
+        },
+        "fontSize": {
+          "caption": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+          "headline-sm": ["18px", {"lineHeight": "28px", "fontWeight": "600"}],
+          "overline": ["11px", {"lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "600"}],
+          "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+          "display": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+          "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+          "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+          "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+          "price-md": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+          "headline-lg": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+          "price-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600"}]
+        }
+      }
+    }
+  }</script></head><body class="bg-canvas font-body-md text-on-surface antialiased selection:bg-action-container selection:text-on-action-container"><header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 max-w-7xl mx-auto px-gutter flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg"><a class="flex items-center gap-space-sm" data-path="explore-auctions" href="#"><img alt="AuctionIT Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XuHa6WReEYO2Qk8_ukRZkmqsWXmNubMaJ6QW7ITmrmyz2fJXhj5pWUZEXAUYlh0t_FKsoqi7WeHMXaUhvUfWJxQFITIjoSqjaCH36HRpQu20-RGK0nC9VIow6M2H6Yd3P_7mHG04hp33kMwnDlDWZF7ZyE35N4iDdbkV8yAjpCDGEy7K7bZEEI_OmexkHxddnZWRMkERqcSgLIEkYCJQDq9wtl89H-DQ381SLnqDGm0kEd6zW6XoT2zQY"/><span class="font-headline-sm text-headline-sm text-primary tracking-tight">AuctionIT</span></a><div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface border border-dashed border-border-control text-text-secondary font-caption text-caption"><span class="material-symbols-outlined text-[16px] text-primary-line">science</span><span>Demo Mode</span></div></div><nav class="hidden lg:flex items-center gap-space-sm" data-active-classes="bg-surface-muted text-primary font-bold rounded-lg"><a aria-current="page" class="px-3 py-1.5 transition-colors bg-surface-muted text-primary font-bold rounded-lg" data-path="explore-auctions" href="#">Explore auctions</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-muted transition-colors font-label-md text-label-md" data-path="how-lot-assurance-works" href="#">How Lot Assurance works</a><a class="px-3 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-muted transition-colors font-label-md text-label-md" data-path="sell-surplus" href="#">Sell surplus</a></nav><div class="flex items-center gap-space-md"><a class="hidden md:inline-flex font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" data-path="sign-in" href="#">Sign in</a><a class="h-10 px-space-md bg-secondary text-on-secondary hover:bg-action-hover rounded-lg font-label-md text-label-md flex items-center justify-center transition-colors" data-path="browse-auctions" href="#">Browse auctions</a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-canvas"><div class="flex flex-col w-full bg-canvas text-on-surface">
+<!-- Content Canvas Area (1440px Grid Context) -->
+<div class="w-full max-w-[1440px] mx-auto px-gutter py-space-xl space-y-space-2xl">
+<!-- 1. Hero Section -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center pt-space-md">
+<div class="lg:col-span-6 flex flex-col justify-center space-y-space-lg">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-muted text-primary-line w-max">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span class="font-overline text-overline uppercase tracking-wider">Institutional Scrap Settlement</span>
+</div>
+<div class="space-y-space-sm">
+<h1 class="font-display text-display text-text-strong font-semibold tracking-tight text-balance">
+            Industrial surplus. Competitive bidding. Clearer transactions.
+          </h1>
+<p class="font-body-lg text-body-lg text-text-secondary max-w-xl">
+            Buy and sell industrial scrap and surplus through transparent online auctions backed by verifiable physical inspection standards.
+          </p>
+</div>
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-space-md pt-space-xs">
+<a class="h-12 px-space-lg bg-secondary text-on-secondary hover:bg-action-hover rounded-lg font-label-md text-label-md font-semibold inline-flex items-center justify-center transition-colors shadow-sm" data-path="browse-auctions" href="#">
+            Explore auctions
+          </a>
+<a class="h-12 px-space-lg bg-surface text-primary border border-primary-line hover:bg-surface-container-low rounded-lg font-label-md text-label-md font-semibold inline-flex items-center justify-center transition-colors" data-path="sell-surplus" href="#">
+            Sell surplus
+          </a>
+</div>
+<div class="pt-space-xs">
+<a class="inline-flex items-center gap-1.5 font-label-md text-label-md text-primary font-medium hover:text-primary-line transition-colors" href="#lot-assurance">
+<span>Lot Assurance available on eligible steel lots. Learn how</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+<!-- Terminal mini-status ribbon -->
+<div class="pt-space-sm flex items-center gap-space-lg text-text-secondary font-caption text-caption">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-status-success"></span>
+<span>Live weighbridge feed ready</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-primary-line">balance</span>
+<span>Standardized tolerance settlement</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-6">
+<div class="relative rounded-xl overflow-hidden bg-surface-muted shadow-sm">
+<img class="w-full h-[430px] object-cover rounded-xl" data-alt="Heavy industrial scrap metal yard during daytime with large yellow gantry crane lifting iron salvage over organized piles of heavy structural steel beams and shredded metal with transport trucks and workers wearing yellow protective hardhats" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzVOuLczoIcNYRsee6rCn2WkGdgubt32cVMDvN89EcLppEKV0YPt-n5FjxPazsBG0XZtU5pGimOpZVhqW0xv5KjsPuZv1EDLaXGHonPueUvvwp08UbaXXRSobDTJf5f2lMGC2ZOlQn1vE7OTR1fe3zi0zxs3Ug9DOshfIiDeS224FsxbsrmgFJNy-ywWLeFxk2RcYjS8e-K85738RCbZwEmhIgLkkXujOh4JTYoY0c6EElWkogrMtl"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4 p-space-md bg-surface/95 backdrop-blur-sm rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-line text-[22px]">factory</span>
+<div>
+<p class="font-label-md text-label-md text-text-strong font-semibold">HMS 1 &amp; 2 Yard Terminal</p>
+<p class="font-caption text-caption text-text-secondary">Certified 25T Tare Scales Active • High Precision Assured</p>
+</div>
+</div>
+<span class="px-2.5 py-1 rounded bg-action-container text-on-action-container font-overline text-overline font-semibold uppercase tracking-wider">
+              Batch #IN-8849
+            </span>
+</div>
+</div>
+</div>
+</section>
+<!-- 2. Demo Entry Strip -->
+<section class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="font-overline text-overline uppercase text-text-secondary tracking-wider">Operational Roles Sandbox</div>
+<div class="font-caption text-caption text-text-secondary">Simulated terminal environments</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Card 1: Buyer -->
+<a class="group p-space-lg bg-surface rounded-xl hover:shadow-md transition-all flex flex-col justify-between" data-path="explore-auctions" href="#">
+<div class="space-y-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-muted flex items-center justify-center text-primary-line group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">shopping_cart_checkout</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-strong font-semibold">Explore as Buyer</h3>
+<p class="font-body-md text-body-md text-text-secondary">
+              Discover verified industrial scrap lots, pay refundable EMD, and participate in live competitive bidding.
+            </p>
+</div>
+<div class="pt-space-md flex items-center gap-1 font-label-md text-label-md text-primary font-medium group-hover:text-secondary transition-colors">
+<span>Launch Buyer Console</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- Card 2: Seller -->
+<a class="group p-space-lg bg-surface rounded-xl hover:shadow-md transition-all flex flex-col justify-between" data-path="sell-surplus" href="#">
+<div class="space-y-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-muted flex items-center justify-center text-primary-line group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">inventory_2</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-strong font-semibold">Explore as Seller</h3>
+<p class="font-body-md text-body-md text-text-secondary">
+              List surplus material with structured declarations, set reserve prices, and reach verified industrial buyers.
+            </p>
+</div>
+<div class="pt-space-md flex items-center gap-1 font-label-md text-label-md text-primary font-medium group-hover:text-secondary transition-colors">
+<span>Launch Seller Desk</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- Card 3: Operations -->
+<a class="group p-space-lg bg-surface rounded-xl hover:shadow-md transition-all flex flex-col justify-between" data-path="help-center" href="#">
+<div class="space-y-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-muted flex items-center justify-center text-primary-line group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">scale</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-strong font-semibold">Explore as Operations</h3>
+<p class="font-body-md text-body-md text-text-secondary">
+              Oversee weighbridge lifting verification, escrow EMD settlement, and tolerance dispute resolutions.
+            </p>
+</div>
+<div class="pt-space-md flex items-center gap-1 font-label-md text-label-md text-primary font-medium group-hover:text-secondary transition-colors">
+<span>Launch Ops Desk</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</a>
+</div>
+</section>
+<!-- 3. How It Works Section -->
+<section class="space-y-space-xl">
+<div class="space-y-space-xs">
+<div class="font-overline text-overline uppercase text-primary-line tracking-wider">Settlement Architecture</div>
+<h2 class="font-headline-md text-headline-md text-text-strong font-semibold">How it works</h2>
+<p class="font-body-md text-body-md text-text-secondary max-w-2xl">
+          Deterministic settlement pipelines tailored for multi-ton heavy materials and strict regulatory balance sheets.
+        </p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
+<!-- Buyer Flow -->
+<div class="bg-surface p-space-xl rounded-xl flex flex-col justify-between space-y-space-lg shadow-sm">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-line">account_balance_wallet</span>
+<h3 class="font-headline-sm text-headline-sm text-text-strong font-semibold">Procurement &amp; Buyer Flow</h3>
+</div>
+<span class="px-2.5 py-0.5 rounded text-caption font-caption bg-surface-muted text-text-secondary">5 Steps</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-5 gap-space-sm relative">
+<!-- Step 1 -->
+<div class="bg-surface-muted p-space-sm rounded-lg flex flex-col gap-1 relative">
+<div class="w-6 h-6 rounded-full bg-primary text-on-primary font-caption text-caption flex items-center justify-center font-bold">1</div>
+<div class="font-label-md text-label-md text-text-strong font-semibold pt-1">Find a lot</div>
+<p class="font-caption text-caption text-text-secondary leading-tight">Screen grades, test logs &amp; yards</p>
+</div>
+<!-- Step 2 -->
+<div class="bg-surface-muted p-space-sm rounded-lg flex flex-col gap-1">
+<div class="w-6 h-6 rounded-full bg-primary text-on-primary font-caption text-caption flex items-center justify-center font-bold">2</div>
+<div class="font-label-md text-label-md text-text-strong font-semibold pt-1">Review details</div>
+<p class="font-caption text-caption text-text-secondary leading-tight">Inspect manifests &amp; media proofs</p>
+</div>
+<!-- Step 3 -->
+<div class="bg-surface-muted p-space-sm rounded-lg flex flex-col gap-1">
+<div class="w-6 h-6 rounded-full bg-primary text-on-primary font-caption text-caption flex items-center justify-center font-bold">3</div>
+<div class="font-label-md text-label-md text-text-strong font-semibold pt-1">Bid</div>
+<p class="font-caption text-caption text-text-secondary leading-tight">Lock EMD &amp; submit live bids</p>
+</div>
+<!-- Step 4 -->
+<div class="bg-surface-muted p-space-sm rounded-lg flex flex-col gap-1">
+<div class="w-6 h-6 rounded-full bg-primary text-on-primary font-caption text-caption flex items-center justify-center font-bold">4</div>
+<div class="font-label-md text-label-md text-text-strong font-semibold pt-1">Win</div>
+<p class="font-caption text-caption text-text-secondary leading-tight">Automated Sales Order issuance</p>
+</div>
+<!-- Step 5 -->
+<div class="bg-surface-muted p-space-sm rounded-lg flex flex-col gap-1">
+<div class="w-6 h-6 rounded-full bg-primary text-on-primary font-caption text-caption flex items-center justify-center font-bold">5</div>
+<div class="font-label-md text-label-md text-text-strong font-semibold pt-1">Pay &amp; lift</div>
+<p class="font-caption text-caption text-text-secondary leading-tight">Net tare check &amp; dispatch release</p>
+</div>
+</div>
+<div class="text-caption font-caption text-text-secondary bg-surface-muted/60 p-space-sm rounded-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-status-success">verified</span>
+<span>EMD instantly released to buyer account if auction is not awarded.</span>
+</div>
+</div>
+<!-- Seller Flow -->
+<div class="bg-surface p-space-xl rounded-xl flex flex-col justify-between space-y-space-lg shadow-sm">
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-line">conveyor_belt</span>
+<h3 class="font-headline-sm text-headline-sm text-text-strong font-semibold">Salvage &amp; Seller Flow</h3>
+</div>
+<span class="px-2.5 py-0.5 rounded text-caption font-caption bg-surface-muted text-text-secondary">4 Steps</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-space-sm">
+<!-- Step 1 -->
+<div class="bg-surface-muted p-space-sm rounded-lg flex flex-col gap-1">
+<div class="w-6 h-6 rounded-full bg-primary-line text-on-primary font-caption text-caption flex items-center justify-center font-bold">1</div>
+<div class="font-label-md text-label-md text-text-strong font-semibold pt-1">Create listing</div>
+<p class="font-caption text-caption text-text-secondary leading-tight">Upload material specs &amp; tare limits</p>
+</div>
+<!-- Step 2 -->
+<div class="bg-surface-muted p-space-sm rounded-lg flex flex-col gap-1">
+<div class="w-6 h-6 rounded-full bg-primary-line text-on-primary font-caption text-caption flex items-center justify-center font-bold">2</div>
+<div class="font-label-md text-label-md text-text-strong font-semibold pt-1">Set reserve &amp; dates</div>
+<p class="font-caption text-caption text-text-secondary leading-tight">Define reserve price &amp; dynamic timer</p>
+</div>
+<!-- Step 3 -->
+<div class="bg-surface-muted p-space-sm rounded-lg flex flex-col gap-1">
+<div class="w-6 h-6 rounded-full bg-primary-line text-on-primary font-caption text-caption flex items-center justify-center font-bold">3</div>
+<div class="font-label-md text-label-md text-text-strong font-semibold pt-1">Receive bids</div>
+<p class="font-caption text-caption text-text-secondary leading-tight">Live institutional transparent bids</p>
+</div>
+<!-- Step 4 -->
+<div class="bg-surface-muted p-space-sm rounded-lg flex flex-col gap-1">
+<div class="w-6 h-6 rounded-full bg-primary-line text-on-primary font-caption text-caption flex items-center justify-center font-bold">4</div>
+<div class="font-label-md text-label-md text-text-strong font-semibold pt-1">Complete sale</div>
+<p class="font-caption text-caption text-text-secondary leading-tight">Weighbridge slip approval &amp; payout</p>
+</div>
+</div>
+<div class="text-caption font-caption text-text-secondary bg-surface-muted/60 p-space-sm rounded-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary-line">lock</span>
+<span>Zero seller fees until gross lifting settlement is approved.</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. Lot Assurance Section -->
+<section class="bg-[#EFF6F7] p-space-xl lg:p-space-2xl rounded-2xl space-y-space-xl relative overflow-hidden" id="lot-assurance">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div class="space-y-space-xs max-w-2xl">
+<div class="flex items-center gap-2 text-primary font-semibold">
+<span class="material-symbols-outlined text-[24px]">shield</span>
+<span class="font-overline text-overline uppercase tracking-wider">Rigorous Institutional Protocol</span>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-primary font-semibold">
+            Lot Assurance: The Trust Layer for Industrial Scrap
+          </h2>
+<p class="font-body-lg text-body-lg text-text-secondary">
+            Trust is backed by structured physical evidence, documented test runs, and weighbridge confirmation at lifting—never unverified assertions.
+          </p>
+</div>
+<div class="shrink-0">
+<a class="h-10 px-space-md bg-surface text-primary border border-primary-line hover:bg-surface-container-low rounded-lg font-label-md text-label-md font-semibold inline-flex items-center gap-2 transition-colors" data-path="how-lot-assurance-works" href="#">
+<span>Explore assured lots</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
+<!-- Feature 1 -->
+<div class="bg-surface p-space-lg rounded-xl flex flex-col justify-between space-y-space-md shadow-sm">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-lg bg-surface-muted flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">attachment</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface border border-primary-line text-on-trust-tier-2 font-caption text-caption font-semibold">
+<span class="material-symbols-outlined text-[14px]">photo_camera</span>
+<span>Evidence attached</span>
+</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-text-strong font-semibold">
+              Structured seller declaration with photo and video evidence
+            </h4>
+<p class="font-body-md text-body-md text-text-secondary">
+              Comprehensive high-resolution media captures including pile core cross-sections, cut lengths, contamination checks, and yard coordinates.
+            </p>
+</div>
+<div class="pt-space-xs font-caption text-caption text-primary flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[16px]">task_alt</span>
+<span>Mandatory multi-angle catalog documentation</span>
+</div>
+</div>
+<!-- Feature 2 -->
+<div class="bg-surface p-space-lg rounded-xl flex flex-col justify-between space-y-space-md shadow-sm">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-lg bg-surface-muted flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">balance</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-trust-tier-3 text-on-trust-tier-3 font-caption text-caption font-semibold">
+<span class="material-symbols-outlined text-[14px]">scale</span>
+<span>Confirmed at lifting</span>
+</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-text-strong font-semibold">
+              Quantity measured at lifting on an agreed certified weighbridge
+            </h4>
+<p class="font-body-md text-body-md text-text-secondary">
+              Settlement figures are never settled on rough pile projections. Net invoiced values adhere strictly to gross-tare weighbridge printouts.
+            </p>
+</div>
+<div class="pt-space-xs font-caption text-caption text-primary flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[16px]">task_alt</span>
+<span>Calibrated tare slips countersigned by carrier</span>
+</div>
+</div>
+<!-- Feature 3 -->
+<div class="bg-surface p-space-lg rounded-xl flex flex-col justify-between space-y-space-md shadow-sm">
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-lg bg-surface-muted flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[22px]">gavel</span>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-surface-muted text-on-trust-tier-1 font-caption text-caption font-semibold">
+<span class="material-symbols-outlined text-[14px]">rule</span>
+<span>Defined protocols</span>
+</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-text-strong font-semibold">
+              Predefined remedy if an assured lot falls outside tolerance
+            </h4>
+<p class="font-body-md text-body-md text-text-secondary">
+              Automatic pro-rata settlement adjustments and immediate escrow remediation triggers if moisture, slag, or foreign matter breach declared specs.
+            </p>
+</div>
+<div class="pt-space-xs font-caption text-caption text-primary flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[16px]">task_alt</span>
+<span>Contractual binding escrow protection</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. Featured Lots Section -->
+<section class="space-y-space-lg">
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-space-sm pb-space-xs">
+<div>
+<div class="font-overline text-overline uppercase text-primary-line tracking-wider">Live Scrap Exchange</div>
+<h2 class="font-headline-md text-headline-md text-text-strong font-semibold">Featured lots</h2>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label-md text-label-md font-semibold">All active</button>
+<button class="px-3 py-1.5 rounded-lg bg-surface text-text-secondary hover:text-text-strong font-label-md text-label-md">Ferrous</button>
+<button class="px-3 py-1.5 rounded-lg bg-surface text-text-secondary hover:text-text-strong font-label-md text-label-md">Non-ferrous</button>
+<button class="px-3 py-1.5 rounded-lg bg-surface text-text-secondary hover:text-text-strong font-label-md text-label-md">Surplus plant</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-lg">
+<!-- Lot Card 1: HMS 1 & 2 Steel (Live, Assured) -->
+<article class="bg-surface rounded-xl overflow-hidden shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div>
+<!-- Media Container -->
+<div class="relative h-44 w-full bg-surface-muted overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Heavy melting steel scrap HMS 1 and HMS 2 sorted into clean dense industrial heaps with steel rails and thick structural cuttings in a scrap yard setting under direct daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZc5NZX4ujKwsqA3rLQxvtILeLqK2ZI1_EBamCS1ddo-PBD9SYotTIB3x6fGocuckjNPaqVxy6XVw9SleE_kmXGyOFOELtRSC-h-6jlCSegahSUtN3VbzotJbYoJnTr2Io3KHifOLUGyi9ff_BQa-Kaxqf7CAV46BCafgFUNO2dG3GJj7WgAPzU_Y5uUhK0mYSbht0s5gYIb0A77r7NH3hUURXcqEGAidYvaWjqWE_2yj5gju15sXl"/>
+<div class="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-action-container text-on-action-container font-overline text-overline font-semibold uppercase tracking-wider shadow-sm">
+<span class="w-2 h-2 rounded-full bg-secondary-container animate-ping"></span>
+<span>Live</span>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary text-on-primary font-caption text-caption font-semibold shadow-sm">
+<span class="material-symbols-outlined text-[13px]">shield</span>
+<span>Lot Assurance</span>
+</span>
+</div>
+<div class="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-surface/90 backdrop-blur-xs font-caption text-caption text-text-strong font-semibold tabular-nums">
+                3h 42m left
+              </div>
+</div>
+<!-- Content Area -->
+<div class="p-space-md space-y-space-sm">
+<div class="space-y-1">
+<div class="flex items-center gap-1 text-text-secondary font-caption text-caption">
+<span class="material-symbols-outlined text-[15px]">location_on</span>
+<span>Sriperumbudur, Tamil Nadu</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-strong font-semibold line-clamp-2 group-hover:text-primary transition-colors">
+                  HMS 1 &amp; 2 Steel Scrap (~40 MT)
+                </h3>
+</div>
+<div class="pt-1 flex items-center justify-between text-caption font-caption text-text-secondary">
+<span>Seller track record</span>
+<span class="font-semibold text-text-strong">18 auctions completed</span>
+</div>
+</div>
+</div>
+<!-- Card Bottom Bid Strip -->
+<div class="p-space-md pt-0">
+<div class="p-space-sm bg-surface-muted rounded-lg flex items-center justify-between">
+<div>
+<span class="font-overline text-overline uppercase text-text-secondary block">Current Bid</span>
+<span class="font-price-md text-price-md text-text-strong font-semibold tabular-nums">₹34,500 <span class="font-caption text-caption font-normal text-text-secondary">/ MT</span></span>
+</div>
+<a class="h-9 px-3 bg-secondary hover:bg-action-hover text-on-secondary rounded font-label-md text-label-md font-semibold inline-flex items-center justify-center transition-colors" data-path="browse-auctions" href="#">
+                Bid Now
+              </a>
+</div>
+</div>
+</article>
+<!-- Lot Card 2: Copper Bushing & Turnings (Live, Standard) -->
+<article class="bg-surface rounded-xl overflow-hidden shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div>
+<!-- Media Container -->
+<div class="relative h-44 w-full bg-surface-muted overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Gleaming heavy copper bushing turnings and industrial bronze scrap cuttings stacked on a warehouse wooden pallet with bright metallic highlights under crisp industrial floodlights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYuic7QDJklM--ehk5hP3HrJ0lLb4UmJ9gmtC2nGkua7-5FpKDplmf6nt1i57fKBuuucoT5yTmmk1K7jTaGXfdXElCS9uxisgvaP91H0bKd5eQ8MeTxLKtTOy8AeHoOo5JF2p-lnOuMqE8nnJAFgzS0smiP19y3Gz03owlxNz9N1asDR3QIGBOFYqX2_WqqRRIzqE6fd0lsXKdhBU7BWI5e5Fie0XVcvMTQ_eNzCXF3Z1oSqVkjvu2"/>
+<div class="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-action-container text-on-action-container font-overline text-overline font-semibold uppercase tracking-wider shadow-sm">
+<span class="w-2 h-2 rounded-full bg-secondary-container animate-pulse"></span>
+<span>Live</span>
+</span>
+</div>
+<div class="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-status-danger-container text-status-danger font-caption text-caption font-bold tabular-nums">
+                42:18 left
+              </div>
+</div>
+<!-- Content Area -->
+<div class="p-space-md space-y-space-sm">
+<div class="space-y-1">
+<div class="flex items-center gap-1 text-text-secondary font-caption text-caption">
+<span class="material-symbols-outlined text-[15px]">location_on</span>
+<span>Bhiwandi, Maharashtra</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-strong font-semibold line-clamp-2 group-hover:text-primary transition-colors">
+                  Heavy Copper Bushing &amp; Turnings (~12 MT)
+                </h3>
+</div>
+<div class="pt-1 flex items-center justify-between text-caption font-caption text-text-secondary">
+<span>Active activity</span>
+<span class="font-semibold text-text-strong">8 live bids placed</span>
+</div>
+</div>
+</div>
+<!-- Card Bottom Bid Strip -->
+<div class="p-space-md pt-0">
+<div class="p-space-sm bg-surface-muted rounded-lg flex items-center justify-between">
+<div>
+<span class="font-overline text-overline uppercase text-text-secondary block">Current Bid</span>
+<span class="font-price-md text-price-md text-text-strong font-semibold tabular-nums">₹6,45,000 <span class="font-caption text-caption font-normal text-text-secondary">/ MT</span></span>
+</div>
+<a class="h-9 px-3 bg-secondary hover:bg-action-hover text-on-secondary rounded font-label-md text-label-md font-semibold inline-flex items-center justify-center transition-colors" data-path="browse-auctions" href="#">
+                Bid Now
+              </a>
+</div>
+</div>
+</article>
+<!-- Lot Card 3: Aluminium Extrusion 6063 (Upcoming, Assured) -->
+<article class="bg-surface rounded-xl overflow-hidden shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div>
+<!-- Media Container -->
+<div class="relative h-44 w-full bg-surface-muted overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Extruded aluminium alloy 6063 clean scrap profiles and bar bundles neatly tied and arranged inside an industrial storage bay with cool daylight illumination" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWvgrOKFcN2fwqb6CiDJwngCWmyIVaL0NPWM-pnNtzEvBzLWZf0_0V4ZqXjxqcLoq3yorLol37ImZ1eZMh6Rq6iiKO2QGMRpBkPZQ41p-rxKAshTX4CGUzafwoHZ9vbR8DPzKYVVxrpi-w36IMw-0ZlGTZy45VoyTpLT_jNdR5VHKvuxzyCw3JX-3X2kdQbbp5HEyWURRx-Vmt8foyHWkyxwaB-FCqRRwFJU2agNLQcvL5gHer-inR"/>
+<div class="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-surface-muted text-on-surface-variant font-overline text-overline font-semibold uppercase tracking-wider">
+                  Upcoming
+                </span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary text-on-primary font-caption text-caption font-semibold shadow-sm">
+<span class="material-symbols-outlined text-[13px]">shield</span>
+<span>Lot Assurance</span>
+</span>
+</div>
+<div class="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-surface/90 backdrop-blur-xs font-caption text-caption text-text-secondary font-medium">
+                Starts tomorrow 11:00 AM
+              </div>
+</div>
+<!-- Content Area -->
+<div class="p-space-md space-y-space-sm">
+<div class="space-y-1">
+<div class="flex items-center gap-1 text-text-secondary font-caption text-caption">
+<span class="material-symbols-outlined text-[15px]">location_on</span>
+<span>Sanand, Gujarat</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-strong font-semibold line-clamp-2 group-hover:text-primary transition-colors">
+                  Aluminium Extrusion Scrap 6063 (~25 MT)
+                </h3>
+</div>
+<div class="pt-1 flex items-center justify-between text-caption font-caption text-text-secondary">
+<span>Inspection Window</span>
+<span class="font-semibold text-text-strong">Open today until 5 PM</span>
+</div>
+</div>
+</div>
+<!-- Card Bottom Bid Strip -->
+<div class="p-space-md pt-0">
+<div class="p-space-sm bg-surface-muted rounded-lg flex items-center justify-between">
+<div>
+<span class="font-overline text-overline uppercase text-text-secondary block">Reserve Base</span>
+<span class="font-price-md text-price-md text-text-strong font-semibold tabular-nums">₹1,85,000 <span class="font-caption text-caption font-normal text-text-secondary">/ MT</span></span>
+</div>
+<a class="h-9 px-3 bg-surface border border-primary-line text-primary hover:bg-surface-container-low rounded font-label-md text-label-md font-semibold inline-flex items-center justify-center transition-colors" data-path="browse-auctions" href="#">
+                Details
+              </a>
+</div>
+</div>
+</article>
+<!-- Lot Card 4: Industrial Motor & Transformer Surplus (Live, Standard) -->
+<article class="bg-surface rounded-xl overflow-hidden shadow-sm flex flex-col justify-between group hover:shadow-md transition-shadow">
+<div>
+<!-- Media Container -->
+<div class="relative h-44 w-full bg-surface-muted overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Decommissioned heavy duty industrial electric motors and oil cooled power transformer units resting on concrete floor inside heavy factory warehouse with identification plates visible" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUD4hyYffDLsBZ4HM4Tf4nuloLT4SUbI9GOQWvJVHsO9Gl9EmC1yIyJzw5KBM2Moaf4ldsc-KQT6bI4CC-SUBKZ26Y3F3x6WzWnr9C5B_DBWpMqHVsChUmRulloshqBS17cRVqZSNNnp93D2F7wtVgn6N0Puy0maZv4vmCXISYMiotVXkRas6lYQhUZLVPpMWMp9plddlDW01ys4QqKOXoICeobt3CXKAXEOd3jKjC-Qui2ZXLCbvH"/>
+<div class="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-action-container text-on-action-container font-overline text-overline font-semibold uppercase tracking-wider shadow-sm">
+<span class="w-2 h-2 rounded-full bg-secondary-container animate-pulse"></span>
+<span>Live</span>
+</span>
+</div>
+<div class="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-surface/90 backdrop-blur-xs font-caption text-caption text-text-strong font-semibold tabular-nums">
+                1d 04h left
+              </div>
+</div>
+<!-- Content Area -->
+<div class="p-space-md space-y-space-sm">
+<div class="space-y-1">
+<div class="flex items-center gap-1 text-text-secondary font-caption text-caption">
+<span class="material-symbols-outlined text-[15px]">location_on</span>
+<span>Faridabad, Haryana</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-strong font-semibold line-clamp-2 group-hover:text-primary transition-colors">
+                  Industrial Motor &amp; Transformer Surplus (6 Units)
+                </h3>
+</div>
+<div class="pt-1 flex items-center justify-between text-caption font-caption text-text-secondary">
+<span>Total lot units</span>
+<span class="font-semibold text-text-strong">14 bids logged</span>
+</div>
+</div>
+</div>
+<!-- Card Bottom Bid Strip -->
+<div class="p-space-md pt-0">
+<div class="p-space-sm bg-surface-muted rounded-lg flex items-center justify-between">
+<div>
+<span class="font-overline text-overline uppercase text-text-secondary block">Current Bid</span>
+<span class="font-price-md text-price-md text-text-strong font-semibold tabular-nums">₹4,10,000 <span class="font-caption text-caption font-normal text-text-secondary">Total</span></span>
+</div>
+<a class="h-9 px-3 bg-secondary hover:bg-action-hover text-on-secondary rounded font-label-md text-label-md font-semibold inline-flex items-center justify-center transition-colors" data-path="browse-auctions" href="#">
+                Bid Now
+              </a>
+</div>
+</div>
+</article>
+</div>
+<!-- Bottom View Catalog Action -->
+<div class="pt-space-md flex justify-center">
+<a class="h-11 px-space-xl bg-surface border border-primary-line text-primary hover:bg-surface-container-low rounded-lg font-label-md text-label-md font-semibold inline-flex items-center gap-2 transition-colors" data-path="browse-auctions" href="#">
+<span>View all 48 active scrap &amp; surplus lots</span>
+<span class="material-symbols-outlined text-[18px]">east</span>
+</a>
+</div>
+</section>
+</div>
+</div></main><footer class="w-full bg-surface border-t border-border-hairline"><div class="max-w-7xl mx-auto px-gutter py-space-xl"><div class="grid grid-cols-1 md:grid-cols-4 gap-space-xl pb-space-lg"><div class="space-y-space-sm md:col-span-1"><div class="flex items-center gap-space-sm"><img alt="AuctionIT Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1XuHa6WReEYO2Qk8_ukRZkmqsWXmNubMaJ6QW7ITmrmyz2fJXhj5pWUZEXAUYlh0t_FKsoqi7WeHMXaUhvUfWJxQFITIjoSqjaCH36HRpQu20-RGK0nC9VIow6M2H6Yd3P_7mHG04hp33kMwnDlDWZF7ZyE35N4iDdbkV8yAjpCDGEy7K7bZEEI_OmexkHxddnZWRMkERqcSgLIEkYCJQDq9wtl89H-DQ381SLnqDGm0kEd6zW6XoT2zQY"/><span class="font-headline-sm text-headline-sm text-primary">AuctionIT</span></div><p class="font-body-md text-body-md text-text-secondary">Institutional settlement terminal for high-value industrial scrap, salvage, and surplus assets.</p></div><div class="space-y-space-sm"><div class="font-overline text-overline uppercase text-text-strong tracking-wider">Auctions</div><ul class="space-y-space-xs font-label-md text-label-md text-on-surface-variant"><li class="hover:text-primary"><a data-path="explore-auctions" href="#">Explore auctions</a></li><li class="hover:text-primary"><a data-path="browse-auctions" href="#">Browse catalog</a></li><li class="hover:text-primary"><a data-path="how-lot-assurance-works" href="#">How Lot Assurance works</a></li></ul></div><div class="space-y-space-sm"><div class="font-overline text-overline uppercase text-text-strong tracking-wider">Enterprise</div><ul class="space-y-space-xs font-label-md text-label-md text-on-surface-variant"><li class="hover:text-primary"><a data-path="sell-surplus" href="#">Sell surplus</a></li><li class="hover:text-primary"><a data-path="contact-procurement" href="#">Procurement desk</a></li><li class="hover:text-primary"><a data-path="help-center" href="#">Help Center</a></li></ul></div><div class="space-y-space-sm"><div class="font-overline text-overline uppercase text-text-strong tracking-wider">Support &amp; Legal</div><ul class="space-y-space-xs font-label-md text-label-md text-on-surface-variant"><li class="hover:text-primary"><a data-path="help-center" href="#">Contact &amp; Help</a></li><li class="hover:text-primary"><a data-path="terms-of-settlement" href="#">Terms of settlement</a></li><li class="hover:text-primary"><a data-path="sign-in" href="#">Sign in</a></li></ul></div></div><div class="pt-space-md border-t border-border-hairline flex flex-col md:flex-row items-center justify-between gap-space-sm"><p class="font-caption text-caption text-text-secondary">This is a demo environment. All listings, companies and figures are sample data.</p><p class="font-caption text-caption text-text-secondary">© 2025 AuctionIT Institutional Terminal. All rights reserved.</p></div></div></footer></body></html>

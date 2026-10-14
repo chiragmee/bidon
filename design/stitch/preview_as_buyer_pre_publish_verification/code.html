@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "trust-tier-1": "#F1F4F7", "error-container": "#ffdad6", "on-tertiary": "#ffffff", "surface-container-high": "#dbe9ff", "action-container": "#FEF4EC", "trust-tier-2": "#FFFFFF", "on-background": "#0e1c2c", "border-control": "#7C8A9D", "secondary-container": "#fd8446", "outline-variant": "#c0c8cb", "action-hover": "#9A4413", "border-strong": "#CBD5E1", "trust-tier-3": "#0F4C5C", "surface-container-low": "#eef4ff", "secondary-fixed": "#ffdbcc", "on-error-container": "#93000a", "on-primary-fixed-variant": "#114d5d", "primary-line": "#1C5F6D", "surface-bright": "#f8f9ff", "on-secondary-container": "#692700", "outline": "#70787c", "text-strong": "#0F172A", "on-surface": "#0e1c2c", "surface-container-highest": "#d5e4f9", "on-tertiary-fixed": "#331200", "on-primary": "#ffffff", "status-danger-container": "#FEF2F2", "on-trust-tier-2": "#145466", "primary": "#003441", "tertiary-fixed-dim": "#ffb68e", "secondary": "#a14000", "inverse-on-surface": "#e9f1ff", "secondary-fixed-dim": "#ffb694", "border-hairline": "#E2E8F0", "status-danger": "#B91C1C", "on-secondary": "#ffffff", "primary-container": "#EFF6F7", "background": "#f8f9ff", "status-warning-container": "#FFFBEB", "status-success": "#15803D", "on-primary-fixed": "#001f28", "inverse-primary": "#9acee1", "on-trust-tier-3": "#FFFFFF", "primary-fixed-dim": "#9acee1", "status-success-container": "#F0FDF4", "status-warning": "#B45309", "surface-tint": "#306576", "on-secondary-fixed": "#351000", "tertiary": "#522100", "primary-hover": "#0B3B48", "tertiary-container": "#753200", "primary-fixed": "#b6ebfe", "text-secondary": "#5F6E82", "surface-variant": "#d5e4f9", "text-base": "#1E293B", "on-surface-variant": "#40484b", "on-error": "#ffffff", "tertiary-fixed": "#ffdbca", "surface-container-lowest": "#ffffff", "surface": "#FFFFFF", "canvas": "#F7F8FA", "on-secondary-fixed-variant": "#7b2f00", "on-tertiary-container": "#ff9b60", "on-primary-container": "#87bbce", "surface-muted": "#F1F4F7", "error": "#ba1a1a", "on-trust-tier-1": "#334155", "on-action-container": "#9A4413", "on-tertiary-fixed-variant": "#773300", "surface-container": "#e4efff", "inverse-surface": "#243141", "surface-dim": "#cddbf0" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "margin": "1.5rem", "space-md": "1rem", "space-2xl": "3rem", "space-sm": "0.5rem", "gutter": "1.5rem", "space-lg": "1.5rem", "gutter-mobile": "1rem", "space-xl": "2rem", "margin-mobile": "1rem", "space-xs": "0.25rem" }, "fontFamily": { "label-md": ["Inter"], "price-md": ["Inter"], "caption": ["Inter"], "display": ["Inter"], "overline": ["Inter"], "headline-lg": ["Inter"], "body-lg": ["Inter"], "headline-lg-mobile": ["Inter"], "headline-md": ["Inter"], "headline-sm": ["Inter"], "price-xl": ["Inter"], "body-md": ["Inter"] }, "fontSize": { "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }], "price-md": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "caption": ["12px", { "lineHeight": "16px", "fontWeight": "500" }], "display": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "overline": ["11px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "600" }], "headline-lg": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "headline-sm": ["18px", { "lineHeight": "28px", "fontWeight": "600" }], "price-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }] } } } }</script></head><body class="bg-canvas font-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 w-full z-50 bg-surface shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 max-w-[1280px] mx-auto px-margin flex items-center justify-between gap-gutter"><div class="flex items-center gap-space-md"><a class="flex items-center gap-space-sm" data-path="seller-dashboard" href="#"><span class="font-headline-sm text-headline-sm tracking-tight text-primary font-bold">Auction<span class="text-secondary">IT</span></span><span class="bg-action-container text-on-action-container font-overline text-overline uppercase px-space-xs py-0.5 rounded">DEMO MODE</span></a></div><nav class="hidden md:flex items-center gap-gutter" data-active-classes="text-primary font-medium"><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="listing-guidelines" href="#">Listing Guidelines</a><a class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="seller-dashboard" href="#">Exit to Dashboard</a></nav><div class="flex items-center gap-space-md"><div class="text-right hidden sm:block"><div class="font-label-md text-label-md text-text-strong font-semibold leading-tight">Shree Balaji Steels</div><div class="font-overline text-overline text-text-secondary uppercase tracking-wider">SELLER CONSOLE</div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-canvas min-h-screen"><div class="flex flex-col w-full">
+<!-- Sticky Pre-publish Verification & Inspection Ribbon -->
+<aside aria-label="Buyer Preview Mode Controller" class="sticky top-16 z-40 w-full bg-text-strong text-surface shadow-md border-b border-border-control/30 transition-all">
+<div class="max-w-[1280px] mx-auto px-margin py-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary-line/40 text-surface">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</span>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-label-md text-label-md text-surface font-semibold tracking-wide">This is how buyers will see your lot</span>
+<span class="font-overline text-overline uppercase px-2 py-0.5 rounded bg-surface-muted/20 text-inverse-primary border border-surface/20">Draft Preview Mode</span>
+</div>
+<span class="font-caption text-caption text-outline-variant">LOT REF: SBS-RPR-2025-048 · Raipur Yard #4 (Bhilai-Raipur Industrial Corridor)</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm w-full md:w-auto justify-end">
+<a class="h-10 px-space-md inline-flex items-center gap-1.5 rounded-lg bg-surface text-trust-tier-3 font-label-md text-label-md font-semibold hover:bg-primary-container transition-colors shadow-sm" data-path="seller-edit-lot" href="#">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+          Edit lot details
+        </a>
+<button class="h-10 px-space-lg inline-flex items-center gap-2 rounded-lg bg-secondary text-on-secondary font-label-md text-label-md font-semibold hover:bg-action-hover transition-colors shadow-sm" id="publishModalTrigger" type="button">
+<span class="material-symbols-outlined text-[18px]">gavel</span>
+          Publish auction
+        </button>
+</div>
+</div>
+</aside>
+<!-- Main Buyer View Workspace (1280px Grid, 65/35 Split) -->
+<div class="max-w-[1280px] w-full mx-auto px-margin py-space-lg">
+<!-- Breadcrumbs & Institutional Routing -->
+<nav aria-label="Disposal Ledger Breadcrumbs" class="flex items-center gap-2 text-text-secondary font-caption text-caption mb-space-sm">
+<a class="hover:text-primary transition-colors" href="#">Auctions</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Ferrous Scrap</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">HMS 1 &amp; 2</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-text-strong font-medium">LOT-2025-0891</span>
+</nav>
+<!-- Top Headline & Assurance Meta Block -->
+<div class="flex flex-col gap-space-xs mb-space-lg">
+<div class="flex flex-wrap items-center gap-space-sm">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-muted text-text-secondary font-overline text-overline font-semibold uppercase tracking-wider">
+<span class="w-2 h-2 rounded-full bg-border-control mr-1.5"></span>
+          Upcoming
+        </span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-trust-tier-3 text-on-trust-tier-3 font-overline text-overline font-semibold uppercase tracking-wider shadow-sm">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+          Assured Lot Tier 3
+        </span>
+<span class="font-caption text-caption text-text-secondary">Auction ID: AUC-IN-884920</span>
+</div>
+<h1 class="font-display text-display text-text-strong tracking-tight mt-1">
+        HMS 1 &amp; 2 Heavy Melting Steel Scrap (~40 MT)
+      </h1>
+<div class="flex flex-wrap items-center gap-y-2 gap-x-space-lg text-text-secondary font-caption text-caption pt-1">
+<div class="flex items-center gap-1.5 text-text-base">
+<span class="material-symbols-outlined text-[18px] text-primary-line">location_on</span>
+<span>Raipur Yard #4, Chhattisgarh (Industrial Belt)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-trust-tier-3">shield_person</span>
+<span>Seller: <strong class="text-text-strong font-semibold">Shree Balaji Steels</strong> (Verified Institutional Disposer)</span>
+</div>
+<div class="flex items-center gap-1.5 text-secondary">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+<span class="font-medium">Auction scheduled to open: 28 Oct 2025, 10:00 AM IST</span>
+</div>
+</div>
+</div>
+<!-- 65% Primary Evidence / 35% Sticky Console Split Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- LEFT COLUMN: 65% Width Primary Evidence Pane -->
+<section class="lg:col-span-8 flex flex-col gap-space-xl">
+<!-- Media Gallery & Yard Inspection Visuals -->
+<div class="flex flex-col gap-space-sm bg-surface rounded-xl p-space-md shadow-sm">
+<!-- Main 4:3 Aspect Image Pane -->
+<div class="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-surface-muted group">
+<img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.01]" data-alt="An expansive open-air industrial scrap metal yard in Raipur with massive neatly graded mounds of heavy melting steel structural scrap, beams, angle iron, and rebar cuttings. In the background, a high-capacity gantry crane on heavy rails under clear afternoon institutional factory lighting with geotagging watermarks visible." id="mainGalleryViewer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDITxSuZi-xH9hxkRhRRGTm38F7Us-HrqTrKczvRtG9zZ71Oq7ZvTPBAS3XvIgEPlv_ebTbReUMTFBHXzQb4iVmYR-dStyYi631PB1EhwZnM8CC6HJbKaUPgPZ5XEACR8gmI8ud0SaBK_Jogf01X-FobA_NTIgNyaN4TeBktmdb1MZ24N3tO7aanxoEDalaqhME4w28yf5MIsCwB-c_7au3QiUZHsjCItFqmW0wqfmwAkOJchDpF4Xt"/>
+<div class="absolute bottom-3 left-3 bg-text-strong/90 backdrop-blur-sm text-surface px-3 py-1.5 rounded-lg flex items-center gap-2 font-caption text-caption">
+<span class="material-symbols-outlined text-[16px] text-action-container">my_location</span>
+<span>21.2514° N, 81.6296° E · Raipur Heavy Scrap Bay #4</span>
+</div>
+<div class="absolute top-3 right-3 bg-surface/95 text-text-strong px-2.5 py-1 rounded font-overline text-overline uppercase tracking-wider font-semibold shadow-sm">
+              Live Inspection Feed #1 of 5
+            </div>
+</div>
+<!-- 4 Thumbnail Strip with Proof Metadata Tags -->
+<div class="grid grid-cols-4 gap-space-sm pt-space-xs">
+<button class="thumb-btn text-left rounded-lg overflow-hidden bg-primary-container p-1 ring-2 ring-primary-line focus:outline-none" type="button">
+<div class="relative aspect-video rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up view of sorted structural steel cuts and heavy industrial I-beams showing clean edges and minimal oxidation, scrap yard in daylight." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjurwPjQibXQ5smm380jEMsHzQEkGmGQdvpe2diU7Fqv7TkbC7JPTYvD7e7qXlIqWshR9THdewVpcFFGW2Pj42UbYn_rZaIb63pYRwpyz_-QymjgEykWqSFZjgXq5V8BGiuMpmbcMziChfoY79vtNnoZFoz3cbErlTQjTWwAUNC8SqzjPyW8mDCJ6pWMWFmFfapSrpndJMR3ogTNr4kwQFeI8lMwVPvxa0-SzmDA5khag78Y9KWikW"/>
+<span class="absolute bottom-1 right-1 bg-text-strong/80 text-surface text-[10px] px-1 rounded font-mono">GEO</span>
+</div>
+<span class="block font-overline text-overline font-semibold text-text-strong truncate mt-1">21.2514° N Yard</span>
+</button>
+<button class="thumb-btn text-left rounded-lg overflow-hidden bg-surface-muted p-1 hover:bg-primary-container transition-colors focus:outline-none" type="button">
+<div class="relative aspect-video rounded overflow-hidden bg-text-strong flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-80" data-alt="High angle panoramic frame of scrapyard bay with perimeter fence and overhead bridge scale crane handling scrap." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPTmDZLggXdAWhO4UALi3c6sLCojdnNBdxWr8idSdKIFEf4weSpu6K-lnPeApqLSevEkDTTKXPy1fSJWkuv_p64YBkbBG_FjG4gIjqV0HOiej68mAzkvsTnORwrsYp5QtHm8TaYe-4T1xOpPdnb5HS2zWexH1jM98p5egRIlXThQyeNSIp-_-unPX_zWwwitNBmmc49MMBoyWB8kP9SiPS0X96ud3ptRrYLwGCfdW7h5SrWPlkvPZS"/>
+<span class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-surface text-[24px]">play_circle</span>
+</span>
+</div>
+<span class="block font-overline text-overline font-semibold text-text-strong truncate mt-1">360° Walkthrough</span>
+</button>
+<button class="thumb-btn text-left rounded-lg overflow-hidden bg-surface-muted p-1 hover:bg-primary-container transition-colors focus:outline-none" type="button">
+<div class="relative aspect-video rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Official government certified electronic weighbridge tare weight printout ticket stamped by Chhattisgarh industrial scale commission." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkqbagEIKAGJZHi3YL6qfduMgu04c8fEk6HsF2fkNCS8mutd86wka5zFQTwhz1RfSRe7ogk6Uo-BoBvWXlTPmLd8z_fs7Myr64MgG4qGJsFbOya76nK_OWIZYaJSvYqq33HKouHgNOCAEvJ9Ddm6dh6dhM7fsJuc3oCUhLywQ5WqTeu33qBCb43ygZBUFD_sQ4VVWMbosZ9ol-3jQHeNP1CoiQkDGUaghNYfTO2GMi5kFpKhaAbNir"/>
+<span class="absolute bottom-1 right-1 bg-trust-tier-3 text-surface text-[10px] px-1 rounded font-mono">CAL</span>
+</div>
+<span class="block font-overline text-overline font-semibold text-text-strong truncate mt-1">Tare Scale Slip</span>
+</button>
+<button class="thumb-btn text-left rounded-lg overflow-hidden bg-surface-muted p-1 hover:bg-primary-container transition-colors focus:outline-none" type="button">
+<div class="relative aspect-video rounded overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Digital vernier caliper measuring thickness of scrap steel plate displaying exactly 8.42 millimeters with calibration cert." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpMvxE5AddcaaZ5UYmvOcfG_AaWT7ZZl-_E3HKcFLI9FuFJsTuOR_0YnEgySukRajx6n_88NeS6krOnY_ok5XP1YZ0dNHb1ufARMtNux4hwqpR3TWoeaZ6FxUqop4zeL1thWtvikTjusKMijVO7HysmL8qfibQqwkfYY2iH33IHawctIhz4OJ-H_tw20DguCL2aRAF1ucbS4FkwPBbrDieI51kIH9HSg6w8y9q7POLP8jBZ9uKyXUx"/>
+<span class="absolute bottom-1 right-1 bg-secondary text-surface text-[10px] px-1 rounded font-mono">8.4mm</span>
+</div>
+<span class="block font-overline text-overline font-semibold text-text-strong truncate mt-1">Plate Gauge Test</span>
+</button>
+</div>
+</div>
+<!-- Lot Assurance Summary Card (Governance & Dispute Proofing) -->
+<article aria-labelledby="lotAssuranceHeading" class="rounded-xl overflow-hidden bg-surface shadow-sm">
+<!-- Card Header Band -->
+<div class="bg-primary-container p-space-md flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-trust-tier-3 text-[28px] mt-0.5">verified_user</span>
+<div class="flex flex-col">
+<h2 class="font-headline-sm text-headline-sm text-text-strong leading-tight" id="lotAssuranceHeading">Lot Assurance Protection</h2>
+<p class="font-body-md text-body-md text-text-secondary mt-0.5">
+                Material specs backed by geotagged yard evidence and certified weighbridge reconciliation.
+              </p>
+</div>
+</div>
+<!-- Structured Assurance Specs Table -->
+<div class="p-space-md flex flex-col divide-y divide-border-hairline">
+<!-- Row 1: Quantity -->
+<div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-text-strong">Declared Quantity</span>
+<span class="font-caption text-caption text-text-secondary">Gross lot estimation under visual and loading-scale audit</span>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="font-price-md text-price-md text-text-strong">~40.0 MT</span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-trust-tier-1 text-on-trust-tier-1 font-overline text-overline font-semibold uppercase">
+<span class="material-symbols-outlined text-[13px]">format_quote</span>
+                  Seller Declared
+                </span>
+</div>
+</div>
+<!-- Row 2: Thickness & Cut Spec -->
+<div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-text-strong">Thickness &amp; Cut Spec</span>
+<span class="font-caption text-caption text-text-secondary">DIN EN 10204 3.1 Scrap Gauge Verified (6mm to 12mm thickness)</span>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="font-label-md text-label-md text-text-base">Compliant HMS 1 &amp; 2</span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-trust-tier-2 text-on-trust-tier-2 font-overline text-overline font-semibold uppercase shadow-xs">
+<span class="material-symbols-outlined text-[13px]">attach_file</span>
+                  Evidence Attached
+                </span>
+</div>
+</div>
+<!-- Row 3: Contamination Baseline -->
+<div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-text-strong">Contamination Baseline</span>
+<span class="font-caption text-caption text-text-secondary">Permissible non-metallic attach, slag, dust and attachments</span>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="font-price-md text-price-md text-text-strong">≤ 5.0%</span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-trust-tier-1 text-on-trust-tier-1 font-overline text-overline font-semibold uppercase">
+<span class="material-symbols-outlined text-[13px]">format_quote</span>
+                  Seller Declared
+                </span>
+</div>
+</div>
+<!-- Row 4: Weighbridge Measurement -->
+<div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-text-strong">Weighbridge Measurement</span>
+<span class="font-caption text-caption text-text-secondary">Certified electronic gross-tare pitless scale at Raipur Gate #2</span>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="font-label-md text-label-md text-text-base">Joint Gross / Tare Slip</span>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-trust-tier-3 text-on-trust-tier-3 font-overline text-overline font-semibold uppercase">
+<span class="material-symbols-outlined text-[13px]" style="font-variation-settings: 'FILL' 1;">scale</span>
+                  Confirmed at Lifting
+                </span>
+</div>
+</div>
+<!-- Row 5: Tolerance Ceiling -->
+<div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-text-strong">Agreed Tolerance Ceiling</span>
+<span class="font-caption text-caption text-text-secondary">Standard institutional variance limit on aggregate tonnage</span>
+</div>
+<div class="flex items-center gap-space-md">
+<span class="font-price-md text-price-md text-status-warning">≤ 8.0% Maximum</span>
+<span class="font-caption text-caption text-text-secondary px-2 py-0.5 rounded bg-surface-muted">Institutional Policy</span>
+</div>
+</div>
+<!-- Row 6: Remedy Settlement Rule -->
+<div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-text-strong">Remedy &amp; Settlement Safeguard</span>
+<span class="font-caption text-caption text-text-secondary">Automated escrow adjustment rules executed upon lifting ticket sign-off</span>
+</div>
+<div class="sm:text-right max-w-sm">
+<span class="font-body-md text-body-md text-text-strong font-medium block">
+                  Pro-rata deduction below 8.0%
+                </span>
+<span class="font-caption text-caption text-status-danger font-medium block">
+                  Unconditional buyer exit above 8.0% tolerance
+                </span>
+</div>
+</div>
+</div>
+<!-- Bottom Yard Claim Rule Notice Banner -->
+<div class="p-space-md bg-status-warning-container text-on-surface flex items-start gap-2.5">
+<span class="material-symbols-outlined text-status-warning text-[20px] shrink-0 mt-0.5">policy</span>
+<div class="font-caption text-caption">
+<strong class="font-semibold text-text-strong">Strict Lifting Clause:</strong>
+              Claims regarding weight discrepancies or severe contamination must be logged jointly at the electronic weighbridge prior to transporter transit exit from Raipur Yard #4. Once Gate Pass #2 is discharged, quantity is irrevocably finalized.
+            </div>
+</div>
+</article>
+<!-- Material Specifications & Operational Logistics -->
+<article class="bg-surface rounded-xl p-space-lg shadow-sm">
+<div class="flex items-center justify-between pb-space-sm mb-space-md">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-text-strong">Lot Specifications &amp; Dispatch Terms</h2>
+<p class="font-caption text-caption text-text-secondary">Physical characteristics, chemical grading, and handling requirements</p>
+</div>
+<span class="font-overline text-overline text-text-secondary uppercase">ISO 9001:2015 AUDITED</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Left Sub-panel: Chemical & Physical Specs -->
+<div class="bg-surface-bright rounded-lg p-space-md flex flex-col gap-2.5">
+<span class="font-label-md text-label-md font-semibold text-trust-tier-3 flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">biotech</span>
+                Grading &amp; Composition Breakdown
+              </span>
+<div class="flex justify-between items-center py-1.5">
+<span class="font-body-md text-body-md text-text-secondary">Commodity Class</span>
+<span class="font-body-md text-body-md text-text-strong font-semibold">HMS 1 (80%) / HMS 2 (20%)</span>
+</div>
+<div class="flex justify-between items-center py-1.5">
+<span class="font-body-md text-body-md text-text-secondary">Maximum Dimensions</span>
+<span class="font-body-md text-body-md text-text-strong">1.5m × 0.5m × 0.5m (Furnace Size)</span>
+</div>
+<div class="flex justify-between items-center py-1.5">
+<span class="font-body-md text-body-md text-text-secondary">Nominal Wall Thickness</span>
+<span class="font-body-md text-body-md text-text-strong">&gt; 6.35 mm (Quarter-inch min.)</span>
+</div>
+<div class="flex justify-between items-center py-1.5">
+<span class="font-body-md text-body-md text-text-secondary">Total Non-ferrous Residue</span>
+<span class="font-body-md text-body-md text-text-strong">&lt; 1.5% Non-metallics</span>
+</div>
+<div class="flex justify-between items-center py-1.5">
+<span class="font-body-md text-body-md text-text-secondary">Hazardous / Sealed Vessels</span>
+<span class="font-body-md text-body-md text-status-success font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">check_circle</span> Nil (Certified Gas-Free)
+                </span>
+</div>
+</div>
+<!-- Right Sub-panel: Logistics & Yard Handling -->
+<div class="bg-surface-bright rounded-lg p-space-md flex flex-col gap-2.5">
+<span class="font-label-md text-label-md font-semibold text-primary-hover flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">forklift</span>
+                Yard Staging &amp; Loading Protocol
+              </span>
+<div class="flex justify-between items-center py-1.5">
+<span class="font-body-md text-body-md text-text-secondary">Yard Crane Availability</span>
+<span class="font-body-md text-body-md text-text-strong font-semibold">Provided by Yard (Free of cost)</span>
+</div>
+<div class="flex justify-between items-center py-1.5">
+<span class="font-body-md text-body-md text-text-secondary">Allowed Truck Profiles</span>
+<span class="font-body-md text-body-md text-text-strong">Open High-Wall / 10-18 Wheeler</span>
+</div>
+<div class="flex justify-between items-center py-1.5">
+<span class="font-body-md text-body-md text-text-secondary">Lifting Timeframe</span>
+<span class="font-body-md text-body-md text-text-strong">5 Business Days from EMD Escrow</span>
+</div>
+<div class="flex justify-between items-center py-1.5">
+<span class="font-body-md text-body-md text-text-secondary">Loading Window</span>
+<span class="font-body-md text-body-md text-text-strong">08:00 AM – 06:00 PM (Mon-Sat)</span>
+</div>
+<div class="flex justify-between items-center py-1.5">
+<span class="font-body-md text-body-md text-text-secondary">Transporter Gate Formalities</span>
+<span class="font-body-md text-body-md text-text-strong">E-way bill &amp; RC registration required</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Verified Yard Geolocation Map Module -->
+<article class="bg-surface rounded-xl p-space-lg shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-line text-[22px]">pin_drop</span>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-text-strong">Designated Lifting Depot</h3>
+<p class="font-caption text-caption text-text-secondary">Plot 14-B, Urla Industrial Estate, Raipur, CG - 492003</p>
+</div>
+</div>
+<a class="font-caption text-caption text-primary hover:underline flex items-center gap-1 font-medium" href="https://maps.google.com" target="_blank">
+              Open satellite GPS <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</a>
+</div>
+<div class="w-full h-56 rounded-lg bg-surface-muted bg-cover bg-center overflow-hidden relative shadow-inner" data-location="Urla Industrial Area, Raipur, Chhattisgarh, India" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDkmgSV0ELNfp7pN6RHijwkxSTEQswd6f2f7xmH27-zrN1MWW3oBeh_nwxgSnn9-RFn8fC25O9Dg663STImvDn2eAcfBKvBQfUeo0sXZTjUL4XF0yp8cO4r7zepCJrX_xED82B1L1iX63Ro7ys_Fq8vXDcXpJmD5rRdN7yDBbC022HKWIb0nwIRi0MAJ4FHy_LWma23YI1655xWpc7gYl6zo9hLMYYs5sSAjJ1YblZCir3OeAku4YuO')">
+<div class="absolute top-3 left-3 bg-text-strong/85 text-surface text-caption font-caption px-3 py-1.5 rounded flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-status-success animate-pulse"></span>
+<span>Electronic Weighbridge Gate 2 active for inbound trucks</span>
+</div>
+</div>
+</article>
+</section>
+<!-- RIGHT COLUMN: 35% Width Desktop Procurement Desk (Sticky) -->
+<aside aria-label="Bidding Console Desk Preview" class="lg:col-span-4 lg:sticky lg:top-36 flex flex-col gap-space-md">
+<!-- Bidding Desk Card (Reflects Buyer Terminal UX) -->
+<div class="w-full bg-surface rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<!-- Desk Header Status -->
+<div class="flex items-center justify-between">
+<span class="font-overline text-overline font-semibold tracking-wider text-text-secondary uppercase">
+              STARTING / RESERVE FLOOR
+            </span>
+<span class="inline-flex items-center px-2 py-0.5 rounded bg-surface-muted text-text-strong font-overline text-overline font-semibold uppercase">
+              Pre-Auction
+            </span>
+</div>
+<!-- Price Display -->
+<div class="flex flex-col">
+<div class="flex items-baseline gap-1">
+<span class="font-price-xl text-price-xl text-text-strong font-bold">₹34,000</span>
+<span class="font-label-md text-label-md text-text-secondary font-medium">/ Metric Ton</span>
+</div>
+<span class="font-body-md text-body-md text-text-secondary mt-0.5">
+              Estimated lot reserve ≈ <strong class="text-text-strong font-semibold">₹13,60,000</strong> (for ~40 MT)
+            </span>
+</div>
+<!-- Countdown / Upcoming Status Box -->
+<div class="p-space-md rounded-lg bg-surface-bright flex flex-col gap-1.5">
+<div class="flex items-center justify-between text-text-strong font-label-md text-label-md">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-secondary">timer</span>
+<span>Opens in</span>
+</span>
+<span class="font-semibold text-secondary">1d 14h 32m</span>
+</div>
+<div class="w-full bg-border-hairline rounded-full h-1.5 overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 25%"></div>
+</div>
+<span class="font-caption text-caption text-text-secondary">Auction schedule: Tuesday, 28 Oct 2025 · 10:00:00 AM IST</span>
+</div>
+<!-- Escrow & Financial Obligation Requirements -->
+<div class="flex flex-col gap-2 pt-1">
+<div class="flex justify-between items-start text-caption font-caption text-text-secondary">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-trust-tier-3">lock</span>
+                Earnest Money Deposit (EMD)
+              </span>
+<span class="font-semibold text-text-strong font-label-md text-label-md">₹1,00,000</span>
+</div>
+<p class="font-caption text-caption text-text-secondary">
+              100% refundable if outbid. Held in RBI-regulated settlement escrow under dispute safeguards.
+            </p>
+</div>
+<!-- Bidding Increment Details (Preview Format) -->
+<div class="p-space-sm bg-surface-muted rounded-lg flex flex-col gap-1 font-caption text-caption text-text-secondary">
+<div class="flex justify-between">
+<span>Minimum Bid Increment:</span>
+<span class="font-semibold text-text-strong">₹250 / MT</span>
+</div>
+<div class="flex justify-between">
+<span>Dynamic Anti-Sniping Window:</span>
+<span class="font-semibold text-text-strong">3 Minutes</span>
+</div>
+</div>
+<!-- Disabled Preview Action Button -->
+<div class="flex flex-col gap-2 pt-space-xs">
+<button class="w-full h-12 rounded-lg bg-surface-muted text-text-secondary font-label-md text-label-md font-semibold cursor-not-allowed flex items-center justify-center gap-2" disabled="" type="button">
+<span class="material-symbols-outlined text-[20px]">lock_clock</span>
+              Auction opens 28 Oct (Preview)
+            </button>
+<p class="font-caption text-caption text-center text-text-secondary">
+              Bidding desk locks until live countdown triggers. Buyers will submit binding bids through verified token.
+            </p>
+</div>
+<!-- Inspection Booking Banner -->
+<div class="pt-space-sm border-t border-border-hairline flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-line text-[18px]">calendar_month</span>
+<span class="font-label-md text-label-md font-medium text-text-strong">Physical Pre-Inspection</span>
+</div>
+<p class="font-caption text-caption text-text-secondary">
+              Registered corporate buyers can inspect this lot at Raipur Yard #4 up to 24 hours before bidding opens.
+            </p>
+<button class="text-left font-caption text-caption text-primary font-semibold hover:underline flex items-center gap-1" type="button">
+              View Yard Safety &amp; Gate Pass rules <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Quick Summary Accordion / Verification Checklist for Seller -->
+<div class="bg-primary-container/60 rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center gap-2 text-trust-tier-3">
+<span class="material-symbols-outlined text-[20px]">checklist</span>
+<span class="font-label-md text-label-md font-semibold">Pre-Publishing Verification</span>
+</div>
+<ul class="flex flex-col gap-2 text-caption font-caption text-text-base">
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-status-success">check_circle</span>
+<span>Reserve price matches commercial directive (₹34k/MT)</span>
+</li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-status-success">check_circle</span>
+<span>4 photographic geotag records validated</span>
+</li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-status-success">check_circle</span>
+<span>Gross electronic tare tolerance locked at 8%</span>
+</li>
+<li class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-status-success">check_circle</span>
+<span>Seller GSTIN &amp; Raipur yard clearance attested</span>
+</li>
+</ul>
+</div>
+</aside>
+</div>
+</div>
+<!-- Irreversible Final Publish Modal Dialog (Level 3 Elevation + Scrim) -->
+<div class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-text-strong/40 transition-opacity duration-200" id="publishConfirmModal">
+<div class="bg-surface rounded-xl max-w-lg w-full p-space-xl shadow-2xl flex flex-col gap-space-md relative transform transition-transform">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-action-container flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[24px]">gavel</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-text-strong">Publish Auction to Live Index?</h3>
+<p class="font-caption text-caption text-text-secondary">LOT REF: SBS-RPR-2025-048 · ~40 MT HMS 1 &amp; 2</p>
+</div>
+</div>
+<button class="text-text-secondary hover:text-text-strong p-1" id="closeModalCross" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="p-space-md rounded-lg bg-surface-muted text-text-base font-body-md text-body-md flex flex-col gap-2">
+<p>
+          Once published, the <strong class="font-semibold text-text-strong">Reserve Price (₹34,000 / MT)</strong>, lot weight tolerance, and material grading terms become legally binding under the Institutional Salvage Liquidation Rules.
+        </p>
+<div class="flex items-start gap-2 text-status-warning font-caption text-caption pt-1">
+<span class="material-symbols-outlined text-[18px] shrink-0">warning</span>
+<span>Verified syndicates will be notified automatically once the status shifts from Draft to Scheduled.</span>
+</div>
+</div>
+<div class="flex items-center justify-end gap-space-sm pt-space-xs">
+<button class="h-10 px-space-md rounded-lg bg-surface border border-primary-line text-trust-tier-3 font-label-md text-label-md font-semibold hover:bg-primary-container transition-colors" id="cancelModalBtn" type="button">
+          Cancel &amp; Keep Editing
+        </button>
+<button class="h-10 px-space-lg rounded-lg bg-secondary text-on-secondary font-label-md text-label-md font-semibold hover:bg-action-hover transition-colors shadow-sm flex items-center gap-1.5" id="confirmPublishBtn" type="button">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+          Confirm &amp; Publish Lot
+        </button>
+</div>
+</div>
+</div>
+<!-- Interactive Client-side Script for Preview Interactions -->
+<script>
+    (function initPreviewInteractions() {
+      const modal = document.getElementById('publishConfirmModal');
+      const openBtn = document.getElementById('publishModalTrigger');
+      const closeCross = document.getElementById('closeModalCross');
+      const cancelBtn = document.getElementById('cancelModalBtn');
+      const confirmBtn = document.getElementById('confirmPublishBtn');
+
+      function showModal() {
+        if (modal) modal.classList.remove('hidden');
+      }
+      function hideModal() {
+        if (modal) modal.classList.add('hidden');
+      }
+
+      if (openBtn) openBtn.addEventListener('click', showModal);
+      if (closeCross) closeCross.addEventListener('click', hideModal);
+      if (cancelBtn) cancelBtn.addEventListener('click', hideModal);
+
+      if (confirmBtn) {
+        confirmBtn.addEventListener('click', function() {
+          confirmBtn.disabled = true;
+          confirmBtn.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Broadcasting Lot...';
+          setTimeout(function() {
+            window.location.hash = '#seller-dashboard-published';
+            alert('Success: Lot LOT-2025-0891 has been scheduled for auction. Registered enterprise bidders have been alerted.');
+            hideModal();
+          }, 800);
+        });
+      }
+
+      // Thumbnail Strip Switcher
+      const thumbnails = document.querySelectorAll('.thumb-btn');
+      const mainViewer = document.getElementById('mainGalleryViewer');
+      thumbnails.forEach(function(thumb) {
+        thumb.addEventListener('click', function() {
+          thumbnails.forEach(function(t) {
+            t.classList.remove('ring-2', 'ring-primary-line');
+            t.classList.add('bg-surface-muted');
+          });
+          thumb.classList.add('ring-2', 'ring-primary-line');
+          thumb.classList.remove('bg-surface-muted');
+          thumb.classList.add('bg-primary-container');
+        });
+      });
+    })();
+  </script>
+</div></main><footer class="w-full bg-surface-muted py-space-xl mt-space-2xl"><div class="max-w-[1280px] mx-auto px-margin flex flex-col md:flex-row items-center justify-between gap-space-md text-text-secondary font-caption text-caption"><div>© 2025 AuctionIT Institutional Disposition Terminal. Controlled scrap commodities &amp; surplus liquidation.</div><div class="flex items-center gap-gutter"><a class="hover:text-text-strong transition-colors" data-path="compliance-protocols" href="#">Compliance &amp; KYC Protocols</a><a class="hover:text-text-strong transition-colors" data-path="dispute-resolution" href="#">Dispute Resolution Policy</a><a class="hover:text-text-strong transition-colors" data-path="escrow-safeguards" href="#">Escrow Safeguards</a></div></div></footer></body></html>
