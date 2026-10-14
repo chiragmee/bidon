@@ -197,8 +197,10 @@ describe('nextStep / stepperState', () => {
   });
 
   it('stepper marks claims and completion', () => {
-    expect(stepperState(tx())).toEqual({ current: 1, claim: false, done: false });
-    expect(stepperState(tx({ status: 'under_review' }))).toEqual({ current: 4, claim: true, done: false });
+    expect(stepperState(tx())).toEqual({ current: 2, claim: false, done: false });
+    expect(stepperState(tx({ status: 'lifting_proposed' })).current).toBe(3);
+    expect(stepperState(tx({ status: 'under_review' }))).toEqual({ current: 5, claim: true, done: false });
+    expect(stepperState(tx({ status: 'completed' }))).toEqual({ current: 6, claim: false, done: true });
     expect(stepperState(tx({ status: 'resolved' })).done).toBe(true);
   });
 });

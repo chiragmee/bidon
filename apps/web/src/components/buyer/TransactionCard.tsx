@@ -24,7 +24,7 @@ export function TransactionCard({ t, primary = false }: { t: TransactionCardView
         </div>
         <StatusBadge kind={t.stepper.claim ? 'warning' : t.yourTurn ? 'warning' : t.stepper.done ? 'success' : 'neutral'}>{t.statusLabel}</StatusBadge>
       </div>
-      <Stepper steps={TX_STEPS} current={t.stepper.done ? 6 : t.stepper.current} claim={t.stepper.claim} claimLabel="Claim under review" label={`${t.id} progress`} />
+      <Stepper steps={TX_STEPS} current={t.stepper.current} claim={t.stepper.claim} claimLabel="Claim under review" label={`${t.id} progress`} />
       <div className="flex flex-col gap-sm border-t border-border pt-sm sm:flex-row sm:items-center sm:justify-between">
         <p className="text-body-md text-text">
           {t.next ? (

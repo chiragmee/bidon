@@ -15,7 +15,7 @@
     "build": "pnpm generate && pnpm -r build",
     "format": "prettier --write .",
     "db:reset": "echo 'db:reset arrives in Phase 2 (Supabase). Use demo mode until then.' && exit 1",
-    "demo:reset": "echo 'demo:reset arrives in Phase 3 (DemoDataSource).' && exit 1",
+    "demo:reset": "echo 'Demo mode keeps data in each browser: use \"Reset demo data\" in the header role menu. (pnpm db:reset resets Supabase from Phase 2.)'",
     "generate": "pnpm --filter @auctionit/scripts generate"
   },
   "devDependencies": {

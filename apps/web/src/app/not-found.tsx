@@ -7,7 +7,7 @@ export default function NotFound() {
   return (
     <PublicShell>
       <Container>
-        <EmptyState icon={MapPinOff} title="Page not found" action={<ButtonLink href="/auctions">Browse auctions</ButtonLink>}>
+        <EmptyState icon={MapPinOff} title="Page not found" headingLevel={1} action={<ButtonLink href="/auctions">Browse auctions</ButtonLink>}>
           The link may be wrong or the page may have moved.
         </EmptyState>
       </Container>

@@ -20,7 +20,7 @@ function Denied() {
     <Container>
       <EmptyState
         icon={ShieldAlert}
-        title="You don’t have access to this page"
+        title="You don’t have access to this page" headingLevel={1}
         action={
           <div className="flex flex-wrap justify-center gap-xs">
             {need && need !== 'signed_in' && need !== 'guest' && (

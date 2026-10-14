@@ -113,7 +113,7 @@ export function BuyerDashboard() {
   if (!d) {
     return (
       <Container>
-        <EmptyState icon={Inbox} title="Buyer profile not found" action={<ButtonLink href="/sign-in">Sign in</ButtonLink>}>
+        <EmptyState icon={Inbox} title="Buyer profile not found" headingLevel={1} action={<ButtonLink href="/sign-in">Sign in</ButtonLink>}>
           This buyer account no longer exists — the demo data may have been reset. Sign in again to continue.
         </EmptyState>
       </Container>

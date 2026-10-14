@@ -102,7 +102,7 @@ pnpm test           # unit + contract
 pnpm e2e            # Playwright journeys
 pnpm build
 pnpm db:reset       # migrations + seed (Supabase) — arrives in Phase 2
-pnpm demo:reset     # restore demo data — arrives in Phase 3
+pnpm demo:reset     # demo mode: explains in-app "Reset demo data" (data lives in each browser)
 ```
 
 ## Definition of done (every change)

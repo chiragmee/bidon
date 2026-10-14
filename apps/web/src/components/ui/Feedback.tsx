@@ -50,19 +50,23 @@ export function EmptyState({
   children,
   action,
   className,
+  headingLevel = 2,
 }: {
   icon: typeof Info;
   title: string;
+  /** 1 when the empty state is the whole page (not found, access denied), so the page has an h1. */
+  headingLevel?: 1 | 2 | 3;
   children?: ReactNode;
   action?: ReactNode;
   className?: string;
 }) {
+  const Heading = `h${headingLevel}` as const;
   return (
     <div className={cn('flex flex-col items-center gap-sm rounded-lg border border-border bg-surface px-lg py-xl text-center', className)}>
       <span className="grid size-12 place-items-center rounded-full bg-surface-muted text-text-secondary">
         <Icon className="size-6" aria-hidden />
       </span>
-      <p className="text-h3 text-text-strong">{title}</p>
+      <Heading className="text-h3 text-text-strong">{title}</Heading>
       {children && <p className="max-w-[420px] text-body-md text-text-secondary">{children}</p>}
       {action && <div className="mt-xs">{action}</div>}
     </div>

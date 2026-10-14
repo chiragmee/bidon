@@ -16,7 +16,10 @@ import {
 import type { DataSource, DsResult } from './DataSource';
 import { loadState, resetState, saveState, subscribe } from './demoStore';
 
-/** sessionStorage key: name of the next operation to fail with a simulated network error. */
+/**
+ * sessionStorage key: operation name (or "*") that fails with a simulated network error until the
+ * key is removed — lets tests and presenters show error and retry states.
+ */
 export const FAIL_KEY = 'auctionit:fail-next';
 
 const delay = () => new Promise((r) => setTimeout(r, 150 + Math.random() * 250));
@@ -26,7 +29,6 @@ function injectedFailure(op: string): DsResult<never> | null {
   try {
     const want = window.sessionStorage.getItem(FAIL_KEY);
     if (want && (want === op || want === '*')) {
-      window.sessionStorage.removeItem(FAIL_KEY);
       return {
         ok: false,
         error: { kind: 'network', code: 'network', what: 'We couldn’t reach the server.', next: 'Check your connection and try again. Nothing was changed.' },

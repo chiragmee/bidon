@@ -6,7 +6,7 @@ import { ButtonLink, EmptyState } from '@/components/ui';
 export function ComingSoon({ title, phase, children }: { title: string; phase: number; children: React.ReactNode }) {
   return (
     <Container>
-      <EmptyState icon={Construction} title={`${title} arrives in Phase ${phase}`} action={<ButtonLink href="/auctions">Browse auctions</ButtonLink>}>
+      <EmptyState icon={Construction} title={`${title} arrives in Phase ${phase}`} headingLevel={1} action={<ButtonLink href="/auctions">Browse auctions</ButtonLink>}>
         {children}
       </EmptyState>
     </Container>

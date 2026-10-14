@@ -337,18 +337,22 @@ export function nextStep(tx: Transaction, assured = true): NextStep | null {
 /** Stepper: Won → Balance paid → Lifting scheduled → Material checked → Completed. */
 export const TX_STEPS = ['Won', 'Balance paid', 'Lifting scheduled', 'Material checked', 'Completed'] as const;
 
+/**
+ * `current` is the step being worked towards (1-based); steps before it are done, and 6 means all
+ * done. A claim takes the place of "Completed" — material has been checked but completion is on hold.
+ */
 export function stepperState(tx: Transaction): { current: number; claim: boolean; done: boolean } {
   const index: Record<TransactionStatus, number> = {
-    won_awaiting_balance: 1,
-    balance_paid: 2,
-    lifting_proposed: 2,
-    lifting_scheduled: 3,
-    material_checked: 4,
-    completed: 5,
-    claim_opened: 4,
-    under_review: 4,
-    resolved: 5,
-    defaulted: 1,
+    won_awaiting_balance: 2,
+    balance_paid: 3,
+    lifting_proposed: 3,
+    lifting_scheduled: 4,
+    material_checked: 5,
+    completed: 6,
+    claim_opened: 5,
+    under_review: 5,
+    resolved: 6,
+    defaulted: 2,
   };
   return {
     current: index[tx.status],

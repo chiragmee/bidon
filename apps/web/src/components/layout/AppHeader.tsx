@@ -95,17 +95,18 @@ export function AppHeader({ showNav = true }: { showNav?: boolean }) {
             ))}
           </nav>
         )}
-        <div className="ml-auto flex items-center gap-xs">
-          <DemoModePill className="hidden sm:inline-flex" />
+        <div className="ml-auto flex min-w-0 items-center gap-xs">
+          <DemoModePill />
           {session.role === 'guest' && (
             <>
               <Link href="/sign-in" className="hidden rounded-md px-sm py-xs text-label-md text-primary hover:bg-primary-container lg:block">
                 Sign in
               </Link>
-              {/* Secondary on purpose: the page body owns the single primary action (D-033). */}
-              <ButtonLink href="/auctions" className="hidden lg:inline-flex">
-                Browse auctions
-              </ButtonLink>
+              {/* Secondary on purpose: the page body owns the single primary action (D-033).
+                  Wrapped so `hidden` doesn't fight the button's own inline-flex. */}
+              <span className="hidden lg:block">
+                <ButtonLink href="/auctions">Browse auctions</ButtonLink>
+              </span>
             </>
           )}
           <RoleSwitcher />
@@ -113,7 +114,6 @@ export function AppHeader({ showNav = true }: { showNav?: boolean }) {
       </div>
       {showNav && menu && (
         <nav id="mobile-nav" aria-label="Main" className="border-t border-border px-4 py-xs md:hidden">
-          <DemoModePill className="mb-xs sm:hidden" />
           {[...links, ...(session.role === 'guest' ? [{ href: '/sign-in', label: 'Sign in' }] : [])].map((l) => (
             <Link
               key={l.href}

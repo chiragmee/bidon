@@ -34,3 +34,16 @@ One line each: ID · date · decision — why.
 - D-030 · 2026-10-15 · Seed photos load only if listed in a generated manifest of `public/demo-images/` (`pnpm generate`); otherwise the fallback tile shows without a network request — keeps "no console errors" true before real photos exist.
 - D-031 · 2026-10-15 · Dialogs use the native `<dialog>` (focus trap, Escape, inert background from the browser) instead of a component library; toasts are a small context with an always-mounted `aria-live` region.
 - D-032 · 2026-10-15 · Dependency versions chosen to respect pnpm's minimum-release-age check (no `minimumReleaseAgeExclude` bypasses); only esbuild and unrs-resolver are allowed to run install scripts. TypeScript 6.0 (typescript-eslint doesn't support 7 yet), ESLint 9 (jsx-a11y doesn't support 10).
+- D-033 · 2026-10-15 · Header "Browse auctions" is a secondary button (SPEC §7 calls it primary) so each page body keeps the single orange primary action (DESIGN.md wins).
+- D-034 · 2026-10-15 · Demo session = cookie `auctionit_session` ("role:userId"), readable by the Next proxy (route guards) and the client. Not authentication; Supabase Auth is optional in Phase 2.
+- D-035 · 2026-10-15 · DemoDataSource persists the whole state in localStorage (versioned key) and notifies other tabs via the `storage` event, so a buyer tab and an Ops tab stay in sync during a live demo. Unreadable saved data → reseed + visible "Demo data was restored" banner.
+- D-036 · 2026-10-15 · Auctions past their end time are closed on the next read by the data source (D-020), so the 40-minute lot closes by itself during a demo.
+- D-037 · 2026-10-15 · Simulated failures: sessionStorage `auctionit:fail-next` = operation name or "*" makes that call fail with a network error until removed — used by e2e and available to a presenter.
+- D-038 · 2026-10-15 · Other bidders are anonymised as "Bidder N" (numbered by first bid); the viewer sees "You".
+- D-039 · 2026-10-15 · Buyers may pay EMD before an auction opens; EMD of losing bidders is marked refunded (simulated) when the auction closes.
+- D-040 · 2026-10-15 · Operations' "Close demo auction now" is on the lot page from Phase 3 (pulled forward from Phase 5's /ops/auctions) so the walkthrough can close a lot; it uses the same domain closeAuction on stored bids.
+- D-041 · 2026-10-15 · Areas built in later phases (/seller/*, /ops, /transactions/[id] workflow) show honest "arrives in Phase N" placeholders or a read-only summary — no dead links, no fake controls.
+- D-042 · 2026-10-15 · Onboarding keeps entries in sessionStorage (never the password) and restores them with a banner — this covers "session expiration" and network failure without losing data. A registered buyer is a sample, demo-approved company in the browser store; reset removes it and switches to the demo buyer.
+- D-043 · 2026-10-15 · Stepper `current` = the step being worked towards (won → "Balance paid" in progress); a claim takes the "Completed" slot because material was already checked.
+- D-044 · 2026-10-15 · Catalogue filters are local state mirrored to the URL with history.replaceState (instant, shareable, back/forward-aware); default status filter is Live + Upcoming.
+- D-045 · 2026-10-15 · `pnpm demo:reset` cannot reach browser storage; in demo mode the reset is the in-app "Reset demo data". The command says so.

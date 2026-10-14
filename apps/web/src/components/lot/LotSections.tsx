@@ -263,7 +263,7 @@ export function BidHistory({ d }: { d: LotDetailView }) {
                 <tr key={b.id} className={cn('h-12 border-t border-border', b.mine && 'bg-primary-container/60')}>
                   <td className="px-md">
                     {b.label}
-                    {n === 0 && <span className="ml-xs text-caption text-success">Highest</span>}
+                    {n === 0 && <span className="ml-xs text-caption text-success"> Highest</span>}
                   </td>
                   <td className="px-md text-right font-medium text-text-strong">{formatINR(b.amountPerMt, { perMt: true })}</td>
                   <td className="px-md text-right text-text-secondary">

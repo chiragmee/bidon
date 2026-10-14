@@ -64,7 +64,7 @@ export function LotDetail({ id }: { id: string }) {
   if (d === null) {
     return (
       <Container>
-        <EmptyState icon={PackageSearch} title="Lot not found" action={<ButtonLink href="/auctions">Browse auctions</ButtonLink>}>
+        <EmptyState icon={PackageSearch} title="Lot not found" headingLevel={1} action={<ButtonLink href="/auctions">Browse auctions</ButtonLink>}>
           There’s no published lot with ID {id}. It may have been a draft, or the link may be wrong.
         </EmptyState>
       </Container>
@@ -109,9 +109,9 @@ export function LotDetail({ id }: { id: string }) {
             <MapPin className="size-4" aria-hidden />
             {d.lot.location.yard}, {d.lot.location.city}, {d.lot.location.state}
           </span>
-          <span>·</span>
+          <span className="hidden sm:inline" aria-hidden>·</span>
           <span>{d.lot.id}</span>
-          <span>·</span>
+          <span className="hidden sm:inline" aria-hidden>·</span>
           <span>Seller: {d.seller.name}</span>
         </p>
       </header>

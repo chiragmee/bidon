@@ -34,7 +34,7 @@ export function TransactionPreview({ id }: { id: string }) {
   if (!t) {
     return (
       <Container>
-        <EmptyState icon={FileSearch} title="Transaction not available" action={<ButtonLink href={HOME[session.role]}>Back to dashboard</ButtonLink>}>
+        <EmptyState icon={FileSearch} title="Transaction not available" headingLevel={1} action={<ButtonLink href={HOME[session.role]}>Back to dashboard</ButtonLink>}>
           Either {id} doesn’t exist, or you aren’t the buyer, the seller or Operations on it.
         </EmptyState>
       </Container>
@@ -46,7 +46,7 @@ export function TransactionPreview({ id }: { id: string }) {
         {t.lotId} · {formatINR(t.pricePerMt, { perMt: true })} · {formatMt(t.estimatedQtyMt, { estimate: true })} · with {t.counterparty}
       </PageHeader>
       <Card className="p-lg">
-        <Stepper steps={TX_STEPS} current={t.stepper.done ? 6 : t.stepper.current} claim={t.stepper.claim} claimLabel="Claim under review" />
+        <Stepper steps={TX_STEPS} current={t.stepper.current} claim={t.stepper.claim} claimLabel="Claim under review" />
       </Card>
       <Card className="flex flex-col gap-sm">
         <div className="flex flex-wrap items-center gap-xs">

@@ -1,8 +1,8 @@
 'use client';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Search, SearchX, SlidersHorizontal, X } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { CategoryId, LotFilters, LotListResult, LotSort, StatusFilter } from '@auctionit/domain';
 import { DEFAULT_STATUSES, policyFor } from '@auctionit/domain';
 import { PageHeader, Container } from '@/components/layout/Shells';
@@ -14,7 +14,8 @@ import { activeCount, filtersFromParams, paramsFromFilters } from './filters';
 const STATUS_LABEL: Record<StatusFilter, string> = { live: 'Live now', upcoming: 'Upcoming', closed: 'Closed' };
 const SORT_LABEL: Record<LotSort, string> = { closing: 'Closing soonest', newest: 'Newest', bid: 'Highest current bid' };
 
-function FilterPanel({ f, facets, set }: { f: LotFilters; facets: LotListResult['facets'] | undefined; set: (patch: Partial<LotFilters>) => void }) {
+/** Rendered twice (desktop rail, mobile sheet) — `idPrefix` keeps label/input ids unique. */
+function FilterPanel({ f, facets, set, idPrefix }: { f: LotFilters; facets: LotListResult['facets'] | undefined; set: (patch: Partial<LotFilters>) => void; idPrefix: string }) {
   const statuses = f.statuses?.length ? f.statuses : DEFAULT_STATUSES;
   const toggle = <T,>(list: T[] | undefined, v: T) => (list?.includes(v) ? list.filter((x) => x !== v) : [...(list ?? []), v]);
   return (
@@ -40,11 +41,11 @@ function FilterPanel({ f, facets, set }: { f: LotFilters; facets: LotListResult[
       </fieldset>
 
       <div className="flex flex-col gap-xs">
-        <label htmlFor="f-city" className="text-overline uppercase text-text-secondary">
+        <label htmlFor={`${idPrefix}-city`} className="text-overline uppercase text-text-secondary">
           Yard / plant location
         </label>
         <select
-          id="f-city"
+          id={`${idPrefix}-city`}
           className="h-10 rounded-md border border-border-control bg-surface px-3 text-body-md"
           value={f.city ?? ''}
           onChange={(e) => set({ city: e.target.value || undefined })}
@@ -60,18 +61,18 @@ function FilterPanel({ f, facets, set }: { f: LotFilters; facets: LotListResult[
 
       <div className="flex items-start gap-xs rounded-md bg-primary-container p-sm">
         <input
-          id="f-assured"
+          id={`${idPrefix}-assured`}
           type="checkbox"
-          aria-describedby="f-assured-help"
+          aria-describedby={`${idPrefix}-assured-help`}
           className="mt-0.5 size-4 accent-primary"
           checked={!!f.assured}
           onChange={(e) => set({ assured: e.target.checked })}
         />
         <div>
-          <label htmlFor="f-assured" className="block text-label-md text-on-primary-container">
+          <label htmlFor={`${idPrefix}-assured`} className="block text-label-md text-on-primary-container">
             Lot Assurance only
           </label>
-          <p id="f-assured-help" className="text-caption text-text-secondary">
+          <p id={`${idPrefix}-assured-help`} className="text-caption text-text-secondary">
             Lots with a structured declaration, evidence, a weighbridge rule and defined remedies.
           </p>
         </div>
@@ -110,16 +111,30 @@ function FilterPanel({ f, facets, set }: { f: LotFilters; facets: LotListResult[
 
 export function Catalogue() {
   const params = useSearchParams();
-  const router = useRouter();
   const pathname = usePathname();
-  const f = useMemo(() => filtersFromParams(new URLSearchParams(params.toString())), [params]);
+  // Filters are local state so controls respond instantly; the URL mirrors them (shareable) and
+  // changes from outside (back/forward) flow back in.
+  const urlKey = params.toString();
+  const [f, setF] = useState<LotFilters>(() => filtersFromParams(new URLSearchParams(urlKey)));
+  const [seenUrl, setSeenUrl] = useState(urlKey);
+  if (urlKey !== seenUrl) {
+    setSeenUrl(urlKey);
+    const fromUrl = filtersFromParams(new URLSearchParams(urlKey));
+    if (paramsFromFilters(fromUrl) !== paramsFromFilters(f)) setF(fromUrl);
+  }
   const [q, setQ] = useState(f.q ?? '');
   const [sheet, setSheet] = useState(false);
 
-  const set = (patch: Partial<LotFilters>) => router.replace(`${pathname}${paramsFromFilters({ ...f, ...patch })}`, { scroll: false });
+  // Native replaceState is synced with useSearchParams by Next, with no server round trip, so
+  // filters respond instantly and the URL stays shareable.
+  const apply = (next: LotFilters) => {
+    setF(next);
+    window.history.replaceState(null, '', `${pathname}${paramsFromFilters(next)}`);
+  };
+  const set = (patch: Partial<LotFilters>) => apply({ ...f, ...patch });
   const clearAll = () => {
     setQ('');
-    router.replace(`${pathname}${paramsFromFilters({ sort: f.sort })}`, { scroll: false });
+    apply({ sort: f.sort });
   };
 
   // Debounced keyword search → URL.
@@ -225,10 +240,10 @@ export function Catalogue() {
               </button>
             )}
           </div>
-          <FilterPanel f={f} facets={data?.facets} set={set} />
+          <FilterPanel f={f} facets={data?.facets} set={set} idPrefix="rail" />
         </aside>
 
-        <section aria-label="Results" aria-busy={res.loading}>
+        <section aria-label="Results" aria-busy={res.loading} className="min-w-0">
           {res.error && !data ? (
             <ErrorState
               what="We couldn’t load auctions."
@@ -249,7 +264,7 @@ export function Catalogue() {
           ) : (
             <ul className={cn('grid gap-lg sm:grid-cols-2 xl:grid-cols-3', res.loading && 'opacity-70 transition-opacity')}>
               {data.items.map((lot) => (
-                <li key={lot.id} className="flex flex-col">
+                <li key={lot.id} className="flex min-w-0 flex-col">
                   <LotCard lot={lot} />
                 </li>
               ))}
@@ -282,7 +297,7 @@ export function Catalogue() {
           </>
         }
       >
-        <FilterPanel f={f} facets={data?.facets} set={set} />
+        <FilterPanel f={f} facets={data?.facets} set={set} idPrefix="sheet" />
       </Dialog>
     </Container>
   );
