@@ -1,0 +1,7 @@
+design/
+docs/
+*.md
+pnpm-lock.yaml
+.next/
+apps/web/src/styles/tokens.css
+apps/web/src/styles/tokens.ts
