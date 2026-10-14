@@ -19,7 +19,7 @@ Run one phase per session ("Run Phase N from docs/PHASES.md"). Each ends: typech
 - [ ] **Phase 2** — Supabase migrations, `place_bid` / `close_auction`, time-based status, seed/reset, API routes, DemoDataSource, contract tests
 - [x] **Phase 3** (2026-10-15) — Guest + buyer journey (demo access, role switcher + reset, catalogue, lot detail, EMD, bid, onboarding, buyer dashboard) · e2e A1–A7
 - [ ] **Phase 4** — Seller onboarding, dashboard, 4-step wizard, preview/publish, lot management · e2e B1–B9
-- [ ] **Phase 5** — `/transactions/[id]`, lifting check, claims + seller response, `/ops`, track record, notifications · e2e A8–A14, B10, C
+- [x] **Phase 5** (2026-10-15) — `/transactions/[id]`, lifting check, claims + seller response, `/ops`, track record, notifications · e2e A8–A14, B10, C
 - [ ] **Phase 6** — Hardening: §21 walk, role security matrix, resilience, a11y, visual pass vs Stitch
 - [ ] **Phase 7** — Env, README, DEPLOY.md, DEMO_SCRIPT.md, clean-clone run, §26 report
 
@@ -163,27 +163,27 @@ Enforced: **D** domain (`packages/domain`) · **A** API · **DB** Postgres const
 | [x] | No matching auctions | UI catalogue EmptyState + clear filters | E |
 | [x] | No active bids / no transactions | UI buyer dashboard | E |
 | [ ] | No seller listings | UI seller dashboard | E |
-| [ ] | No open claims | UI ops queue | E |
+| [x] | No open claims | UI ops queue | E |
 | [x] | Required field missing | UI Field + D validators | U E |
 | [ ] | Invalid number / quantity / date | UI + D | U |
 | [x] | Auction already closed / not started | UI BidPanel + D | U E |
 | [x] | Outbid while bidding | UI BidDialog + D | U C (E in demo mode) |
 | [x] | Below minimum increment | UI + D | U E |
 | [x] | EMD not completed | UI EmdDialog + D | E |
-| [ ] | Evidence wrong type / too large / upload failed + retry | UI EvidenceUploader + A | E |
+| [~] | Evidence wrong type / too large / upload failed + retry | UI EvidenceUploader + A | U E (Storage upload in Phase 2) |
 | [ ] | Listing cannot be published | UI preview + D | U E |
 | [ ] | Duplicate submission | UI guard + A/DB | C |
-| [ ] | Transaction action not allowed in current state | UI disabled+reason + D | U |
-| [ ] | Claim within tolerance / no evidence / after window | UI EligibilityChecklist + D | U E |
+| [x] | Transaction action not allowed in current state | UI disabled+reason + D | U E |
+| [x] | Claim within tolerance / no evidence / after window | UI EligibilityChecklist + D | U E |
 | [ ] | Unauthorised role access | UI guard page + A 401/403 | E C |
 | [~] | Network/API failure; backend unavailable | UI ErrorState + fallback Banner | E (network ✓; real backend-down in Phase 2) |
 | [ ] | Demo data unavailable (corrupt/missing storage) | UI → auto reset + Banner | E |
 
 ### Journeys (§22)
-- [~] **A** (A1–A7 ✓ e2e, Phase 3; A8–A14 in Phase 5) A1 marketplace · A2 browse live · A3 open assured HMS lot · A4 declaration/evidence/rule/tolerance/remedy with trust tags · A5 EMD · A6 bid · A7 status · A8 Ops close · A9 transaction · A10 balance · A11 lifting · A12 weighbridge + condition · A13 complete or claim · A14 final state
-- [ ] **B** B1–B2 dashboard · B3–B4 wizard 1–2 · B5 evidence · B6 reserve + dates · B7 assurance policy · B8 preview + publish · B9 correct state · B10 status
-- [ ] **C** C1–C2 overview · C3 open CLM-1042-01 · C4 inspect · C5 decide · C6 status + audit across roles
-- [ ] Same transaction state in buyer, seller and Ops views
+- [x] **A** (A1–A14 ✓ e2e in demo mode, both endings) A1 marketplace · A2 browse live · A3 open assured HMS lot · A4 declaration/evidence/rule/tolerance/remedy with trust tags · A5 EMD · A6 bid · A7 status · A8 Ops close · A9 transaction · A10 balance · A11 lifting · A12 weighbridge + condition · A13 complete or claim · A14 final state
+- [~] **B** (B10 ✓ Phase 5; B1–B9 Phase 4) B1–B2 dashboard · B3–B4 wizard 1–2 · B5 evidence · B6 reserve + dates · B7 assurance policy · B8 preview + publish · B9 correct state · B10 status
+- [x] **C** (✓ e2e: seeded CLM-1042-01 and a live claim) C1–C2 overview · C3 open CLM-1042-01 · C4 inspect · C5 decide · C6 status + audit across roles
+- [x] Same transaction state in buyer, seller and Ops views
 - [ ] Demo reset restores seed with fresh relative times
 
 **Acceptance (§26)** — reported item by item in Phase 7.

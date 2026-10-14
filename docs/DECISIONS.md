@@ -47,3 +47,12 @@ One line each: ID · date · decision — why.
 - D-043 · 2026-10-15 · Stepper `current` = the step being worked towards (won → "Balance paid" in progress); a claim takes the "Completed" slot because material was already checked.
 - D-044 · 2026-10-15 · Catalogue filters are local state mirrored to the URL with history.replaceState (instant, shareable, back/forward-aware); default status filter is Live + Upcoming.
 - D-045 · 2026-10-15 · `pnpm demo:reset` cannot reach browser storage; in demo mode the reset is the in-app "Reset demo data". The command says so.
+- D-046 · 2026-10-15 · Each transaction step notifies the other party (SPEC §18): balance paid, lifting proposed/confirmed, completion, default, claim submitted, seller response, claim resolved. "Bid rejected" is shown inline only (rejections aren't stored).
+- D-047 · 2026-10-15 · Evidence files upload first (type/size validated) and attach only when the action using them succeeds. Demo storage keeps photos as ~640px JPEG data URLs so they survive reloads; videos/PDFs keep their name only. Limits: photos/PDF 15 MB, video 50 MB.
+- D-048 · 2026-10-15 · One open claim per transaction. The claim form re-evaluates the six §16.3 rules live (same domain function) and blocks submit until all pass; state-level failures (standard lot, no lifting, window closed) show the checklist without a form.
+- D-049 · 2026-10-15 · Claim form pre-includes the lifting ticket and photos as evidence (buyer can untick); price adjustment is offered only for contamination outside tolerance (D-023).
+- D-050 · 2026-10-15 · Ops metrics are computed from the demo state and labelled "Simulated"; the 41% case-study baseline sits beside them, labelled as case-study data. "Mismatch-related defaults" can't be separated in demo data, so the panel shows all defaults and says so.
+- D-051 · 2026-10-15 · Transaction page lists panels newest step first so the current action is near the top; completed steps stay visible below. Only the viewer's next action uses the orange button.
+- D-052 · 2026-10-15 · Timelines collapse entries with the same label, actor and time (one action can audit both the claim and its transaction).
+- D-053 · 2026-10-15 · Defaulting (Ops, after deadline) sets the buyer's EMD to forfeited; an approved exit sets it to refunded — both simulated, per demo policy.
+- D-054 · 2026-10-15 · Demo Mode pill reads "Demo" on phones (screen readers still hear "Demo Mode") so the header fits with the notification bell at 390px.
