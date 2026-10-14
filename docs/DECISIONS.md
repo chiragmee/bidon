@@ -16,3 +16,4 @@ One line each: ID · date · decision — why.
 - D-012 · 2026-10-15 · One transaction route `/transactions/[id]` for all roles (PHASES 5.1) replaces separate buyer/seller routes.
 - D-013 · 2026-10-15 · Seed adds Mahalaxmi Metals (new seller, no history), Shree Balaji history (6 completed, 1 resolved claim), a lot ending in 40 min, and TX-1035 past its payment deadline — PHASES 1.5 and Defaulted rule in CLAUDE.md.
 - D-014 · 2026-10-15 · API error shape is `{ code, message, what, next }` (PHASES 2.5).
+- D-015 · 2026-10-15 · Build order is fast track 1 → 3 → 5 → 4 → 2 → 6 → 7 (user approved) — demoable buyer/claim/Ops story earliest; seller journey before backend because it is visible in the demo; backend later is wiring since rules live in `packages/domain`.

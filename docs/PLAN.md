@@ -2,7 +2,6 @@
 
 > Status: **APPROVED (Gate 3) 2026-10-15.** Phases are defined by `docs/PHASES.md` (authority); this file tracks progress against them.
 > Sources: `docs/SPEC.md` (§N), `DESIGN.md`, `design/stitch/`, `CLAUDE.md`, `docs/PHASES.md`. Assumptions → `docs/DECISIONS.md`.
-> Phase 1 step 1 expands §2 (components column) and §5 (enforced-where / tested-how per rule).
 
 ## 0. Goal and cut line
 
@@ -24,32 +23,36 @@ Run one phase per session ("Run Phase N from docs/PHASES.md"). Each ends: typech
 - [ ] **Phase 6** — Hardening: §21 walk, role security matrix, resilience, a11y, visual pass vs Stitch
 - [ ] **Phase 7** — Env, README, DEPLOY.md, DEMO_SCRIPT.md, clean-clone run, §26 report
 
-Order 1→7. Fast track (demo mode only): 1 → 3 → 5, then 2, 4, 6, 7 — see D-011.
+**Chosen order: fast track 1 → 3 → 5 → 4 → 2 → 6 → 7** (D-015). Phases 3–5 and 4 run on `DemoDataSource`, which moves from Phase 2.6 into Phase 3 (D-011). Phase 2 then adds Supabase + API + `HttpDataSource` + contract tests behind the same interface.
 
 ## 2. Screen map
 
-| Route | Role | Stitch reference | SPEC |
-|---|---|---|---|
-| `/` | public | `auctionit_industrial_scrap_surplus_auctions` | §7 |
-| `/auctions` | public | `auctions_catalogue_signed_in_buyer`, `auctions_catalogue_mobile` | §8.1 |
-| `/auctions/[id]` | public (bid = buyer) | `hms_1_2_steel_scrap_lot_detail`, `..._mobile_lot_detail`, `lot_detail_bidding_dialogs_modals` | §8.2, §10 |
-| `/lot-assurance` | public | (none — compose from landing section + assurance card) | §7 |
-| `/onboarding/buyer` | guest | `buyer_onboarding_business_details` | §9 |
-| `/onboarding/seller` | guest | (reuse buyer onboarding layout) | §12.1 |
-| `/buyer/dashboard` | buyer | `buyer_dashboard_procurement_desk`, `buyer_dashboard_mobile` | §11 |
-| `/transactions/[id]` | buyer · seller · ops (role-specific actions) | `hms_1_2_steel_scrap_transaction_tx_1042` | §15, §16.1–16.2 |
-| `/transactions/[id]/claim` | buyer | `lot_assurance_claim_form_eligibility` | §16.3–16.4 |
-| `/seller/dashboard` | seller | `seller_dashboard_shree_balaji_steels` | §12.2 |
-| `/seller/lots`, `/seller/lots/[id]` | seller | (table from seller dashboard) | §14 |
-| `/seller/lots/new` (steps 1–4) | seller | `listing_wizard_step_3_evidence`, `listing_wizard_step_4_auction_assurance` (steps 1–2 follow the same shell) | §13 |
-| `/seller/lots/[id]/preview` | seller | `preview_as_buyer_pre_publish_verification` | §13 |
-| `/ops` | ops | `operations_workspace_overview_assurance_queue` | §17, §23 |
-| `/ops/auctions` | ops | (table from ops overview) | §17 |
-| `/ops/claims/[id]` | ops | `claim_review_arbitration_dispute_clm_1042_01` | §16.5, §17 |
-| `/notifications` | any signed-in | (bell dropdown + list) | §18 |
-| `/dev/components` | dev | all UI primitives | — |
+Components refer to the Phase 1 primitives (`apps/web/src/components/ui`) plus feature components built in the phase that owns the screen.
 
-Stitch is the source for **layout and hierarchy**. Copy that breaks honesty rules is rewritten — see DECISIONS D-005.
+| Stitch screen | Route | Role | Components | SPEC | Phase |
+|---|---|---|---|---|---|
+| `auctionit_industrial_scrap_surplus_auctions` | `/` | guest | TopNav, DemoModePill, Button, LotCard ×4, LotAssuranceBadge, StatusBadge, role entry Card ×3, Footer | §7 | 3 |
+| (landing section + assurance card) | `/lot-assurance` | guest | AssuranceSummaryCard, TrustBadge ×3, Stepper (mechanism) | §7 | 3 |
+| `auctions_catalogue_signed_in_buyer`, `auctions_catalogue_mobile` | `/auctions` | guest · buyer | FilterRail / FilterSheet, filter chips, LotCard grid, sort Select, EmptyState, Skeleton, ErrorState | §8.1 | 3 |
+| `hms_1_2_steel_scrap_lot_detail`, `hms_1_2_steel_scrap_mobile_lot_detail` | `/auctions/[id]` | guest · buyer (bid) | Gallery (LotImage), spec table, AssuranceSummaryCard + TrustBadge, SellerCard (track record), EvidenceList, BidPanel / MobileBidBar, BidHistory, Countdown | §8.2 | 3 |
+| `lot_detail_bidding_dialogs_modals` | dialogs on `/auctions/[id]` | buyer | Dialog, EmdDialog (success/fail), BidDialog (MoneyInput, quick chips, confirm), Toast, Banner (bid errors) | §10 | 3 |
+| `buyer_onboarding_business_details` | `/onboarding/buyer` | guest | Stepper, Field/Input/Select, chip multi-select, Banner, Button | §9 | 3 |
+| `buyer_dashboard_procurement_desk`, `buyer_dashboard_mobile` | `/buyer/dashboard` | buyer | WorkspaceShell, StatCard ×5, bids Table, StatusBadge, TransactionCard (Stepper + one action), EmptyState | §11 | 3 |
+| `hms_1_2_steel_scrap_transaction_tx_1042` | `/transactions/[id]` | buyer · seller · ops | Stepper, Timeline, WeighbridgeCard, ConditionCheckCard, ReconciliationCard, TrustBadge, Dialog, demo Button | §15, §16.1–2 | 5 |
+| `lot_assurance_claim_form_eligibility` | `/transactions/[id]/claim` | buyer | EligibilityChecklist, claim type Segmented, ToleranceComparison, EvidenceUploader, Field, Dialog | §16.3–4 | 5 |
+| (transaction page, seller panel) | `/transactions/[id]` | seller | SellerResponseForm (accept / dispute + evidence) | §16.5 | 5 |
+| `operations_workspace_overview_assurance_queue` | `/ops` | ops | WorkspaceShell, StatCard ×5 (attention), MetricsPanel ("Simulated"), ClaimsQueue Table, auction controls | §17, §23 | 5 |
+| (table from ops overview) | `/ops/auctions` | ops | Table, StatusBadge, demo Button "Close demo auction", Dialog | §17 | 5 |
+| `claim_review_arbitration_dispute_clm_1042_01` | `/ops/claims/[id]` | ops | three columns (declaration · lifting · positions), DecisionForm (reason required), Dialog, AuditTrail | §16.5, §17 | 5 |
+| (bell) | `/notifications` | signed-in | NotificationBell, list, EmptyState | §18 | 5 |
+| `seller_dashboard_shree_balaji_steels` | `/seller/dashboard` | seller | WorkspaceShell, StatCard ×6, claim Banner, lots Table + tabs, TrackRecord, Button "Create a new lot" | §12.2 | 4 |
+| (reuse onboarding layout) | `/onboarding/seller` | guest | as buyer onboarding, sample verification status | §12.1 | 4 |
+| (from seller dashboard table) | `/seller/lots`, `/seller/lots/[id]` | seller | Table, tabs, BidHistory, result Banner, EvidenceList, read-only explanation | §14 | 4 |
+| `listing_wizard_step_3_evidence`, `listing_wizard_step_4_auction_assurance` (steps 1–2 same shell) | `/seller/lots/new` | seller | WizardShell (Stepper + sticky footer), Field, MoneyInput, date inputs, EvidenceUploader (progress, retry, remove), PilotChecklist, policy summary, agreement Checkbox | §13 | 4 |
+| `preview_as_buyer_pre_publish_verification` | `/seller/lots/[id]/preview` | seller | preview Banner, lot detail components (read-only), publish-blockers list, Dialog | §13 | 4 |
+| — | `/dev/components` | dev | every primitive, all variants | — | 1 |
+
+Stitch is the source for **layout and hierarchy**. Copy that breaks honesty rules is rewritten (D-005).
 
 ## 3. Domain model (packages/domain)
 
@@ -91,32 +94,94 @@ All timestamps are relative to reset time (live lot ends now + 3h, LOT-0894 now 
 
 ## 5. Use-case checklist
 
-Tick as each passes in the running app.
+Enforced: **D** domain (`packages/domain`) · **A** API · **DB** Postgres constraint/function · **UI** web. Test: **U** Vitest unit · **C** contract (both DataSources) · **E** Playwright. Tick once the test passes. Columns A/DB/C are delivered in Phase 2.
 
-**Journey A — Buyer (§22)**
-- [ ] A1 Open marketplace · [ ] A2 Browse live lots · [ ] A3 Open assured HMS lot
-- [ ] A4 Declaration / evidence / measurement rule / tolerance / remedy visible with trust tags
-- [ ] A5 Simulated EMD (success + failure path) · [ ] A6 Valid bid · [ ] A7 Bid status updates
-- [ ] A8 Ops closes demo auction (winner from stored bids) · [ ] A9 Winner's transaction
-- [ ] A10 Simulated balance · [ ] A11 Schedule lifting (+ seller confirms)
-- [ ] A12 Weighbridge + condition recorded separately · [ ] A13 Complete OR eligible claim · [ ] A14 Final state
+### Bidding and auctions (§10, §20 Auctions)
+| ✓ | Rule | Enforced | Test |
+|---|---|---|---|
+| [ ] | EMD required before bid; simulated success records it, simulated failure doesn't | D A DB UI | U C E(A5) |
+| [ ] | Bid amount missing / not a positive number → `invalid_amount` | D A UI | U C |
+| [ ] | Bid below min next bid (highest or reserve + increment) → `below_minimum` | D A DB UI | U C E |
+| [ ] | Bid before start → `auction_not_started` | D A DB UI | U C |
+| [ ] | Bid after end / closed → `auction_closed` | D A DB UI | U C |
+| [ ] | No EMD → `emd_required` | D A DB UI | U C E |
+| [ ] | Seller bidding own lot → `own_lot` | D A DB | U C |
+| [ ] | Duplicate client request id → `duplicate` (idempotent) | A DB UI | C |
+| [ ] | Stale bid (someone outbid meanwhile) → `outbid`, UI refreshes minimum | D A DB UI | U C |
+| [ ] | 20 concurrent bids → one consistent highest, no duplicates | DB | C |
+| [ ] | Status derived from time: Scheduled → Live at start, Live → Closed at end | D A | U C |
+| [ ] | Close: winner = highest stored bid ≥ reserve (earliest on tie), else Unsold; creates transaction | D A DB | U C E(A8) |
+| [ ] | Only Ops can close a demo auction early | D A UI | U C |
+| [ ] | No working bid button on upcoming/closed lots | UI | E |
 
-**Journey B — Seller**
-- [ ] B1–B2 Seller dashboard · [ ] B3–B4 Wizard steps 1–2 · [ ] B5 Evidence upload (validation, retry)
-- [ ] B6 Reserve + dates (invalid range blocked) · [ ] B7 Assurance policy shown
-- [ ] B8 Preview + publish (incomplete blocked) · [ ] B9 Listing in correct state · [ ] B10 Status visible
+### Listings (§13, §14, §20 Listings)
+| ✓ | Rule | Enforced | Test |
+|---|---|---|---|
+| [ ] | Required fields per step (category-specific) | D UI | U E |
+| [ ] | Reserve > 0; EMD > 0 | D A DB UI | U C |
+| [ ] | End after start; start not in past at publish | D A DB UI | U C E |
+| [ ] | Assurance only for eligible categories; requires agreement + evidence requirement met | D A UI | U C |
+| [ ] | Publish blocked with specific reasons; drafts saved and editable | D A UI | U C E |
+| [ ] | Status after publish reflects start time | D A | U C |
+| [ ] | Seller cannot edit live lot / change reserve after first bid / alter bids / change winner | D A UI | U C |
+| [ ] | Seller cannot touch another seller's lot | A UI | C |
 
-**Journey C — Operations**
-- [ ] C1–C2 Ops overview · [ ] C3 Open CLM-1042-01 · [ ] C4 Declaration, tolerance, measurements, evidence
-- [ ] C5 Decision with reason · [ ] C6 Status + audit history update across roles
+### Transactions (§15, §20 Transactions)
+| ✓ | Rule | Enforced | Test |
+|---|---|---|---|
+| [ ] | Won ≠ completed; completion needs balance paid, lifting confirmed, and (assured) accepted lifting check | D A | U C |
+| [ ] | Every transition has one allowed role; others rejected with reason | D A UI | U C |
+| [ ] | Invalid transition for current state rejected with reason | D A UI | U C |
+| [ ] | Buyer proposes lifting date; seller confirms | D A UI | U E(A11) |
+| [ ] | Payable = measured MT × winning price; reconcile vs balance paid | D | U |
+| [ ] | Defaulted only by Ops after payment deadline (policy) | D A UI | U C |
+| [ ] | Weighbridge (ticket, MT, file, time) and condition check are separate records + cards | D A UI | U E(A12) |
+| [ ] | Measurement accepted only when all required fields present | D A UI | U |
 
-**Rules & states (§20, §21)**
-- [ ] Bid rejections: invalid, below min, closed, upcoming, no EMD, own lot, duplicate/stale
-- [ ] Claim ineligible reasons: standard lot, no valid tx, before lifting, within tolerance, no evidence, after window
-- [ ] Wrong-role transition rejected with reason · [ ] Route guards web + API
-- [ ] Empty states: no matches, no bids, no listings, no transactions, no claims
-- [ ] Upload: wrong type, too large, failed + retry · [ ] Network/API failure + backend-down banner
-- [ ] Demo reset restores seed · [ ] Same state across buyer/seller/ops for TX-1042 and new TX
+### Lot Assurance claims (§16, §20 Assurance)
+| ✓ | Rule | Enforced | Test |
+|---|---|---|---|
+| [ ] | Ineligible: standard lot → `not_assured` | D A UI | U C |
+| [ ] | Ineligible: no valid winning transaction → `no_transaction` | D A | U |
+| [ ] | Ineligible: lifting not started → `lifting_not_started` | D A UI | U |
+| [ ] | Ineligible: within tolerance → `within_tolerance` | D A UI | U |
+| [ ] | Ineligible: missing evidence → `evidence_required` | D A UI | U |
+| [ ] | Ineligible: after loading complete → `window_closed` | D A UI | U |
+| [ ] | Eligibility returns all failing reasons at once, each with a next step | D UI | U |
+| [ ] | Classify: within tolerance → normal; clear exception → remedy; disputed → Ops | D | U |
+| [ ] | Seller responds first: accept → remedy applied, resolved; dispute → Ops queue | D A UI | U C E |
+| [ ] | Only Ops decides disputed claims; decision needs reason; records actor + timestamp | D A UI | U C E(C5) |
+| [ ] | Remedy (D-008): price adjustment = (observed − tolerance) × measured MT × rate; exit = EMD + balance refunded (simulated) | D | U (CLM-1042-01 → ₹83,376) |
+| [ ] | Track record updates after completion and claim resolution | D | U |
+| [ ] | Policy per category, every entry `demo: true` | D | U |
 
-**Acceptance (§26)** — checked in Phase 8 against all 14 criteria.
+### Edge states (§21)
+| ✓ | State | Where | Test |
+|---|---|---|---|
+| [ ] | No matching auctions | UI catalogue EmptyState + clear filters | E |
+| [ ] | No active bids / no transactions | UI buyer dashboard | E |
+| [ ] | No seller listings | UI seller dashboard | E |
+| [ ] | No open claims | UI ops queue | E |
+| [ ] | Required field missing | UI Field + D validators | U E |
+| [ ] | Invalid number / quantity / date | UI + D | U |
+| [ ] | Auction already closed / not started | UI BidPanel + D | U E |
+| [ ] | Outbid while bidding | UI BidDialog + D | U C |
+| [ ] | Below minimum increment | UI + D | U |
+| [ ] | EMD not completed | UI EmdDialog + D | E |
+| [ ] | Evidence wrong type / too large / upload failed + retry | UI EvidenceUploader + A | E |
+| [ ] | Listing cannot be published | UI preview + D | U E |
+| [ ] | Duplicate submission | UI guard + A/DB | C |
+| [ ] | Transaction action not allowed in current state | UI disabled+reason + D | U |
+| [ ] | Claim within tolerance / no evidence / after window | UI EligibilityChecklist + D | U E |
+| [ ] | Unauthorised role access | UI guard page + A 401/403 | E C |
+| [ ] | Network/API failure; backend unavailable | UI ErrorState + fallback Banner | E |
+| [ ] | Demo data unavailable (corrupt/missing storage) | UI → auto reset + Banner | E |
 
+### Journeys (§22)
+- [ ] **A** A1 marketplace · A2 browse live · A3 open assured HMS lot · A4 declaration/evidence/rule/tolerance/remedy with trust tags · A5 EMD · A6 bid · A7 status · A8 Ops close · A9 transaction · A10 balance · A11 lifting · A12 weighbridge + condition · A13 complete or claim · A14 final state
+- [ ] **B** B1–B2 dashboard · B3–B4 wizard 1–2 · B5 evidence · B6 reserve + dates · B7 assurance policy · B8 preview + publish · B9 correct state · B10 status
+- [ ] **C** C1–C2 overview · C3 open CLM-1042-01 · C4 inspect · C5 decide · C6 status + audit across roles
+- [ ] Same transaction state in buyer, seller and Ops views
+- [ ] Demo reset restores seed with fresh relative times
+
+**Acceptance (§26)** — reported item by item in Phase 7.
