@@ -1,6 +1,6 @@
 # AuctionIT — Build plan
 
-> Status: **DRAFT — awaiting Gate 3 approval.** No product code until approved.
+> Status: **APPROVED (Gate 3) 2026-10-15.** Phase task lists in §6.
 > Sources: `docs/SPEC.md` (§N), `DESIGN.md`, `design/stitch/`, `CLAUDE.md`. Assumptions → `docs/DECISIONS.md`.
 
 ## 0. Goal and cut line
@@ -117,3 +117,89 @@ Tick as each passes in the running app.
 - [ ] Demo reset restores seed · [ ] Same state across buyer/seller/ops for TX-1042 and new TX
 
 **Acceptance (§26)** — checked in Phase 8 against all 14 criteria.
+
+## 6. Phase details
+
+Conventions for every phase: each **T** item is one commit (`<phase>.<n>: <what>`). Before starting a phase, restate its rows from §1 and this section. After each commit, add a line to `PROGRESS.md`. At the end of a phase: run the gate check, tick the §5 boxes, write the report (done / decisions / gaps / next), then stop.
+
+### Phase 1 — Scaffold
+- **T1.1 Workspace root.** `package.json` (pnpm workspaces, `packageManager` pinned), `pnpm-workspace.yaml`, `tsconfig.base.json` (`strict`, `noUncheckedIndexedAccess`), `.nvmrc` (Node 22), `.editorconfig`, Prettier.
+- **T1.2 `packages/domain`.** Empty TS package with `src/index.ts`, Vitest config, one smoke test. Built through TS project references and consumed as source (no build step in dev).
+- **T1.3 `apps/api`.** Express + zod. `src/app.ts` (factory, testable) and `src/server.ts`. Central error handler with shape `{error:{code,message,meaning,nextStep}}`. CORS from `ALLOWED_ORIGINS`. `GET /health` → `{status:'ok', mode, time}`. Supertest test for `/health` and the 404 shape. `.env.example`.
+- **T1.4 `scripts/tokens.ts`.** Parses the DESIGN.md front-matter (yaml) and writes `apps/web/src/styles/tokens.css` (CSS variables) and `apps/web/tailwind.tokens.ts` (preset: colours, font sizes, radii, spacing, shadows from the Elevation section). Unit test: every `{colors.x}` reference resolves. `pnpm tokens` script; it also runs as a `predev`/`prebuild` hook.
+- **T1.5 `apps/web`.** Next.js App Router, TS, Tailwind using the preset, Inter via `next/font` with `tnum`, a `/` placeholder page using the tokens, `.env.example` (`NEXT_PUBLIC_DATA_SOURCE`, `NEXT_PUBLIC_API_URL`).
+- **T1.6 Tooling.** ESLint (typescript-eslint, next, jsx-a11y). Root scripts `dev` (web + api in parallel), `typecheck`, `lint`, `test`, `build`, `e2e`. Playwright config with a smoke spec that opens `/`.
+- **Gate:** `pnpm install && pnpm typecheck && pnpm lint && pnpm test && pnpm build` green; `pnpm dev` → web on :3000 shows token colours, `curl :4000/health` → 200. If `pnpm` is missing, enable it with corepack (no global installs without asking).
+
+### Phase 2 — Domain (pure, fully unit-tested)
+- **T2.1 Types + money.** `types.ts` (Lot, Bid, Emd, Transaction, WeighbridgeMeasurement, ConditionCheck, Claim, AuditEntry, Notification, User, Role, Company). `money.ts`: integer paise internally. `formatINR` handles Indian grouping, `/MT`, `~` and compact lakh. Tests: ₹1,00,000, ₹13,89,600, ₹34,500/MT, ~40 MT.
+- **T2.2 `policy.ts`.** Per-category config (`ferrous_hms`, `mixed_steel` assured; `non_ferrous`, `e_waste`, `machinery` standard): `assuranceEligible`, `tolerancePct`, `remedies[]`, `evidence {minPhotos:6, minVideos:1}`, `emd` rule, `bidIncrement`, `claimWindow: 'before_loading_complete'`. Every entry carries `demo:true`.
+- **T2.3 Auction rules.** `deriveLotStatus(lot, now)`, `minNextBid`, `validateBid(ctx) → Ok | {code, reason}` covering every §10.2 rejection, `closeAuction(lot, bids) → {status, winner?}`. Table-driven tests, including ties (the earliest bid wins), no bids, below reserve and a seller bidding on their own lot.
+- **T2.4 Listing rules.** `validateDraft(step)`, `canPublish(lot, evidence) → reasons[]`, `canSellerEdit(lot, field) → reason`.
+- **T2.5 Transaction machine.** Transition table `{from, action, role, guard} → to`; `applyTransition(tx, action, actor) → {tx, audit} | {reason}`; `payable(measuredMt, rate)`; `reconcile(paid, payable)`. Tests: every illegal transition and wrong role is rejected with a reason, and completion is blocked until the checks are done.
+- **T2.6 Assurance.** `recordWeighbridge`, `recordCondition` (separate), `withinTolerance`, `claimEligibility(tx, claim) → {eligible, failing: Reason[]}` (all six §16.3 rules), `classifyClaim → normal | clear_exception | disputed`, `computeRemedy` (D-008). Test: CLM-1042-01 → ₹83,376.
+- **T2.7 Seed.** `seed.ts` exactly as §4, with relative timestamps (`now ± h`) so live lots stay live at demo time, and `sample:true` on companies and metrics. Test: the seed passes every validator and TX-1042's numbers match §4.
+- **Gate:** coverage ≥ 90% on `packages/domain`; one test per CLAUDE.md invariant.
+
+### Phase 3 — Web shell + DemoDataSource
+- **T3.1 DataSource contract.** `apps/web/src/data/DataSource.ts`: async methods per use case (`listLots(filters)`, `getLot`, `payEmd`, `placeBid`, `closeAuction`, `getTransaction`, `transition`, `recordWeighbridge`, `recordCondition`, `submitClaim`, `respondClaim`, `decideClaim`, `saveDraft`, `publish`, `uploadEvidence`, `notifications`, `audit`, `reset`). Results use the same `{ok, data} | {ok:false, error}` shape as the API.
+- **T3.2 `DemoDataSource`.** Calls the domain functions, persists to localStorage under a versioned key, `reset()` restores the seed, adds a simulated 150–400 ms latency so loading states are visible, and has a `failNext()` hook for error demos.
+- **T3.3 Session + guards.** Demo session (role + user id) in a cookie. The role switcher sits in the header and offers "Explore as Buyer/Seller/Operations". Middleware guards `/buyer`, `/seller`, `/ops`; an unauthorised visit lands on a page that explains why, with a way back.
+- **T3.4 UI kit** (`components/ui`): Button (primary/secondary/ghost/danger/demo-dashed), Badge (all statuses with the live pulse dot), TrustTag ×3, Card, StatCard, Table, Input/Select/CurrencyInput (₹ prefix, /MT suffix), Field (label, helper, error), Modal/ConfirmDialog, Toast, Banner, Stepper (horizontal/vertical plus claim state), EmptyState, ErrorState (what / means / next + retry), Skeleton, ImageWithFallback, Countdown (orange under 1h, reduced motion).
+- **T3.5 Layouts.** Public top nav (64px); workspace with a 240px teal sidebar and 64px top bar; mobile bottom tab bar; Demo Mode pill and demo-data footer notice.
+- **Gate:** the `/dev/kit` page renders every component at 1440 and 390; the role switch and guards work.
+
+### Phase 4 — Journey A (buyer)
+- **T4.1 Landing `/`.** Sections from §7, three role entry cards, four featured lots from the seed (with Stitch copy rewritten per D-005).
+- **T4.2 Catalogue `/auctions`.** Filter rail (keyword, category, location, assured only, status, ending soon), sort, clear filters, empty state. On mobile the filters open in a bottom sheet. Filters live in the URL.
+- **T4.3 Lot detail.** 65/35 layout; gallery (4:3, with fallback); specs; quantity and measurement basis; seller and track record; evidence list; assurance card (six rows, each with a trust tag and a "Demo policy" caption); sticky bid panel that becomes a sticky bottom bar on mobile; bid history.
+- **T4.4 EMD + bid.** EMD modal (success, plus a simulated failure toggle); bid form with quick increments; confirm dialog; `aria-live` result; every rejection shows inline, with a refresh of the current bid.
+- **T4.5 Buyer dashboard.** Stat cards, active bids table (Leading / Outbid / Won / Closed without winning), transaction cards each with one next action, empty states.
+- **T4.6 Ops close auction (minimal).** A demo-dashed "Close demo auction" button on `/ops/auctions` with confirmation; the result comes from the stored bids and creates the transaction plus notifications.
+- **T4.7 Transaction page.** Stepper, timeline, pay balance (simulated, confirm), schedule lifting (date and vehicle), seller confirm (seller view), weighbridge form and condition form as separate cards, estimated vs measured comparison, reconciliation, Complete. A disabled button explains why it's disabled.
+- **T4.8 Claim.** Eligibility panel (pass/fail list with reasons and the next step), form (type, expected, observed, evidence ≥ 2, explanation, remedy), submit → claim state on the stepper.
+- **T4.9 E2E journey A** (both endings: complete, and claim).
+- **Gate:** journey A Playwright green at 1440 and 390.
+
+### Phase 5 — Journey C (operations)
+- **T5.1 Ops overview.** Five stat cards (attention state for open claims), metrics panel (North Star etc., computed from the seed and labelled "Sample data · simulated").
+- **T5.2 Auctions table.** Status, bids, result, close action.
+- **T5.3 Assurance queue.** Columns per §17, time since opened.
+- **T5.4 Claim review.** Declaration vs observed, tolerance, measurements, evidence on both sides, seller response, three decisions with a required reason, confirm dialog, and the remedy amount computed by the domain.
+- **T5.5 Audit trail + cross-role consistency.** Decision appears for buyer, seller and Ops; notifications sent.
+- **T5.6 E2E journey C.**
+- **Gate:** journey C green, and TX-1042 shows the same state in all three roles.
+
+### Phase 6 — Journey B (seller)
+- **T6.1 Seller dashboard + `/seller/lots`.** Stats, tabbed lots table, claim attention banner, "Create a new lot".
+- **T6.2 Wizard shell.** Stepper, sticky Back/Next footer, autosave draft, Save draft.
+- **T6.3 Steps 1–2.** Category-driven fields, inline validation.
+- **T6.4 Step 3 evidence.** File picker (JPG/PNG/MP4/PDF, 50 MB), progress, remove/retry, simulated failure, pilot requirement counter labelled "Proposed pilot requirement", no geotag claims. Files go to object URLs (demo) or Supabase Storage (phase 7).
+- **T6.5 Step 4.** Reserve, EMD, start/end with range validation, assurance toggle (eligible categories only) showing the policy summary and the seller agreement notice.
+- **T6.6 Preview + publish.** Buyer view banner, edit links per section, publish blocked with reasons, confirmation, lands on the dashboard with the correct status.
+- **T6.7 Seller lot detail + seller transaction view** (read-only when live, with an explanation; respond to claim: accept or dispute with evidence).
+- **T6.8 E2E journey B.**
+- **Gate:** journey B green; the new lot appears in the buyer catalogue.
+
+### Phase 7 — Backend + Supabase
+- **T7.1 Migrations.** Tables per §3; enums; FKs; `audit_log`; RLS enabled (API uses the service role server-side only).
+- **T7.2 SQL functions.** `place_bid(lot, bidder, amount, request_id)` uses `SELECT … FOR UPDATE`, re-checks the domain rules and has a unique `request_id`. `close_auction(lot)` is idempotent.
+- **T7.3 Seed.** A script generates SQL from `packages/domain/seed.ts` (single source); `pnpm db:reset`.
+- **T7.4 API routes.** One router per resource, zod schemas shared with web, a role guard middleware (demo session header; Supabase JWT when configured), domain validation before the DB.
+- **T7.5 `HttpDataSource`** plus the unreachable → demo fallback with a banner.
+- **T7.6 Contract tests.** The same test suite runs against both DataSources; concurrency test of 20 parallel bids → exactly one valid sequence.
+- **Gate:** e2e suite green with `NEXT_PUBLIC_DATA_SOURCE=http` against local Supabase (`supabase start`). If Docker or Supabase is unavailable, the gate becomes contract tests plus a documented manual step; noted in the report.
+
+### Phase 8 — States, polish, verify
+- **T8.1** Walk every §21 state and tick it; fill any gaps.
+- **T8.2** Responsive pass at 390 / 768 / 1024 / 1440; no horizontal scroll (Playwright check of `scrollWidth`).
+- **T8.3** A11y: axe in Playwright on key pages, focus order, `aria-live`, contrast.
+- **T8.4** Copy pass: grep for Verified, Certified, Guarantee, escrow; every seeded figure labelled.
+- **T8.5** Console-error check in e2e (fail on `console.error`).
+- **Gate:** all 14 §26 criteria ticked.
+
+### Phase 9 — Deploy readiness
+- **T9.1 README.** What it is, demo script (A/B/C click paths), local setup, commands.
+- **T9.2 `docs/DEPLOY.md`.** Supabase (project, migrations, seed), Render (build/start, env, health check), Vercel (root dir, env), CORS, reset.
+- **T9.3** `render.yaml`, `vercel.json` if needed, `pnpm demo:reset`.
+- **T9.4** Deploy only if credentials are present → confirm with you first (outward-facing) → verify `/health` and the live journey; otherwise list the exact manual steps.
