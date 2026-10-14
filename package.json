@@ -6,16 +6,17 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "pnpm tokens && concurrently -k -n web,api -c cyan,magenta \"pnpm --filter @auctionit/web dev\" \"pnpm --filter @auctionit/api dev\"",
-    "tokens": "pnpm --filter @auctionit/scripts tokens",
-    "typecheck": "pnpm tokens && pnpm -r --parallel typecheck",
+    "dev": "pnpm generate && concurrently -k -n web,api -c cyan,magenta \"pnpm --filter @auctionit/web dev\" \"pnpm --filter @auctionit/api dev\"",
+    "tokens": "pnpm generate",
+    "typecheck": "pnpm generate && pnpm -r --parallel typecheck",
     "lint": "pnpm -r --parallel lint",
     "test": "pnpm -r test",
     "e2e": "playwright test",
-    "build": "pnpm tokens && pnpm -r build",
+    "build": "pnpm generate && pnpm -r build",
     "format": "prettier --write .",
     "db:reset": "echo 'db:reset arrives in Phase 2 (Supabase). Use demo mode until then.' && exit 1",
-    "demo:reset": "echo 'demo:reset arrives in Phase 3 (DemoDataSource).' && exit 1"
+    "demo:reset": "echo 'demo:reset arrives in Phase 3 (DemoDataSource).' && exit 1",
+    "generate": "pnpm --filter @auctionit/scripts generate"
   },
   "devDependencies": {
     "@playwright/test": "^1",

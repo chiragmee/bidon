@@ -94,14 +94,15 @@ Guest, Buyer, Seller, Operations. One-click demo entry for each (seeded accounts
 
 ```
 pnpm install
-pnpm dev            # web + api
+pnpm generate       # DESIGN.md → tokens, demo-image manifest (dev/build/typecheck run it)
+pnpm dev            # web :3000 + api :4000
 pnpm typecheck
 pnpm lint
 pnpm test           # unit + contract
 pnpm e2e            # Playwright journeys
 pnpm build
-pnpm db:reset       # migrations + seed (Supabase)
-pnpm demo:reset     # restore demo data
+pnpm db:reset       # migrations + seed (Supabase) — arrives in Phase 2
+pnpm demo:reset     # restore demo data — arrives in Phase 3
 ```
 
 ## Definition of done (every change)

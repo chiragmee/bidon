@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "generate": "tsx tokens.ts && tsx demoImages.ts",
     "tokens": "tsx tokens.ts",
     "typecheck": "tsc -p .",
     "lint": "eslint .",

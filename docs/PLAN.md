@@ -15,7 +15,7 @@ One sentence: a CEO/COO can watch journeys A, B, C (§22) run end-to-end on seed
 
 Run one phase per session ("Run Phase N from docs/PHASES.md"). Each ends: typecheck + lint + test green → PLAN ticked → report (done · decisions · gaps · next) → commit → stop.
 
-- [ ] **Phase 1** — Plan, scaffold, design tokens + UI primitives (`/dev/components`), domain core + tests, seed
+- [x] **Phase 1** (2026-10-15) — Plan, scaffold, design tokens + UI primitives (`/dev/components`), domain core + tests, seed
 - [ ] **Phase 2** — Supabase migrations, `place_bid` / `close_auction`, time-based status, seed/reset, API routes, DemoDataSource, contract tests
 - [ ] **Phase 3** — Guest + buyer journey (demo access, role switcher + reset, catalogue, lot detail, EMD, bid, onboarding, buyer dashboard) · e2e A1–A7
 - [ ] **Phase 4** — Seller onboarding, dashboard, 4-step wizard, preview/publish, lot management · e2e B1–B9
@@ -93,6 +93,8 @@ All timestamps are relative to reset time (live lot ends now + 3h, LOT-0894 now 
 **TX-1042 / CLM-1042-01 (journey C):** win ₹36,000/MT; EMD ₹1,00,000; balance paid ₹13,40,000 (on ~40 MT est.); weighbridge WB-2025-10429 net **38.6 MT** → payable ₹13,89,600 → ₹50,400 to reconcile; declared contamination ≤5%, tolerance 8%, observed 14% → outside by 6 pts; buyer requests price adjustment; seller disputes (offers 1% goodwill); claim status **under_review**.
 
 ## 5. Use-case checklist
+
+**Status after Phase 1:** the **D** (domain) layer and its **U** tests are done for every rule row below (165 domain tests). A row is ticked only when all its listed layers and tests pass.
 
 Enforced: **D** domain (`packages/domain`) · **A** API · **DB** Postgres constraint/function · **UI** web. Test: **U** Vitest unit · **C** contract (both DataSources) · **E** Playwright. Tick once the test passes. Columns A/DB/C are delivered in Phase 2.
 
