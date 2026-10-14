@@ -54,7 +54,7 @@ const companies: Company[] = [
   { id: 'C-KAVERI', name: 'Kaveri Recyclers', kind: 'buyer', city: 'Bhilai', state: 'Chhattisgarh', businessType: 'Scrap trader / stockist', sample: true, verification: 'demo_approved' },
   { id: 'C-SAIKRUPA', name: 'Sai Krupa Traders', kind: 'buyer', city: 'Raipur', state: 'Chhattisgarh', businessType: 'Scrap trader / stockist', sample: true, verification: 'demo_approved' },
   { id: 'C-DECCAN', name: 'Deccan Foundry Works', kind: 'buyer', city: 'Kolhapur', state: 'Maharashtra', businessType: 'Foundry and castings', sample: true, verification: 'demo_approved' },
-  { id: 'C-BALAJI', name: 'Shree Balaji Steels', kind: 'seller', city: 'Raipur', state: 'Chhattisgarh', businessType: 'Steel processor', sample: true, verification: 'demo_approved' },
+  { id: 'C-BALAJI', name: 'Shree Balaji Steels', kind: 'seller', city: 'Raipur', state: 'Chhattisgarh', businessType: 'Steel processor', yard: 'Raipur Yard #4, Urla Industrial Area', sample: true, verification: 'demo_approved' },
   { id: 'C-NATIONAL', name: 'National Smelters', kind: 'seller', city: 'Bhilai', state: 'Chhattisgarh', businessType: 'Smelter', sample: true, verification: 'demo_approved' },
   { id: 'C-MAHALAXMI', name: 'Mahalaxmi Metals', kind: 'seller', city: 'Pune', state: 'Maharashtra', businessType: 'Aluminium extruder', sample: true, verification: 'demo_approved' },
 ];

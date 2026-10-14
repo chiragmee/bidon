@@ -22,6 +22,8 @@ export interface ListingDraft {
   endAt?: Iso;
   assuranceEnabled?: boolean;
   assuranceAgreed?: boolean;
+  /** Show the reserve figure to buyers (default yes). */
+  reserveVisible?: boolean;
 }
 
 export type WizardStep = 1 | 2 | 3 | 4;
@@ -117,6 +119,10 @@ export function publishBlockers(d: ListingDraft, now: Iso): { step: WizardStep; 
   return out;
 }
 
+/** A stored draft keeps unset numbers as 0 and unset dates as ''; map those back to "not entered". */
+const unset0 = (n: number) => (n > 0 ? n : undefined);
+const unsetIso = (s: string) => (s ? s : undefined);
+
 export function draftFromLot(lot: Lot): ListingDraft {
   return {
     title: lot.title,
@@ -126,16 +132,17 @@ export function draftFromLot(lot: Lot): ListingDraft {
     yard: lot.location.yard,
     city: lot.location.city,
     state: lot.location.state,
-    estimatedQtyMt: lot.estimatedQtyMt,
+    estimatedQtyMt: unset0(lot.estimatedQtyMt),
     contaminationPct: lot.declaration.contaminationPct,
     attributes: lot.attributes,
     media: lot.media,
-    reservePerMt: lot.reservePerMt,
-    emdAmount: lot.emdAmount,
-    startAt: lot.startAt,
-    endAt: lot.endAt,
+    reservePerMt: unset0(lot.reservePerMt),
+    emdAmount: unset0(lot.emdAmount),
+    startAt: unsetIso(lot.startAt),
+    endAt: unsetIso(lot.endAt),
     assuranceEnabled: lot.assurance.enabled,
     assuranceAgreed: lot.assurance.agreedAt !== null,
+    reserveVisible: lot.reserveVisible,
   };
 }
 

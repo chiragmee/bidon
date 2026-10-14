@@ -16,6 +16,8 @@ export interface Company {
   city: string;
   state: string;
   businessType: string;
+  /** Sellers: main yard or operating location (prefills new lots). */
+  yard?: string;
   /** Seeded companies are fictional. UI must label them "Sample data". */
   sample: true;
   /** Demo onboarding status. Never a real KYC result. */
