@@ -56,3 +56,10 @@ One line each: ID · date · decision — why.
 - D-052 · 2026-10-15 · Timelines collapse entries with the same label, actor and time (one action can audit both the claim and its transaction).
 - D-053 · 2026-10-15 · Defaulting (Ops, after deadline) sets the buyer's EMD to forfeited; an approved exit sets it to refunded — both simulated, per demo policy.
 - D-054 · 2026-10-15 · Demo Mode pill reads "Demo" on phones (screen readers still hear "Demo Mode") so the header fits with the notification bell at 390px.
+- D-055 · 2026-10-15 · Drafts are stored as real lots with status `draft`; unset numbers are 0 and unset dates '' (read back as "not entered"). New lots get ids LOT-2000, LOT-2001…; the wizard autosaves 1.2s after typing stops and the URL becomes /seller/lots/<id>/edit.
+- D-056 · 2026-10-15 · Scheduled lots stay editable until bidding opens, but an edit must keep the lot publishable. Once live or closed nothing changes, and the page says why (CLAUDE.md listing rules).
+- D-057 · 2026-10-15 · Assurance on an ineligible category is refused by validation and never stored; eligible categories need the evidence requirement (6 photos + 1 video, proposed) and the seller's agreement, timestamped.
+- D-058 · 2026-10-15 · The wizard suggests EMD (policy %), a schedule (tomorrow 10:00 → two days later 17:00) and the seller's yard and location — all editable. Sellers can hide the reserve figure from buyers; "reserve met" still shows.
+- D-059 · 2026-10-15 · Seller onboarding is one short form (no documents), creating a sample, demo-approved company with its yard; never a real verification claim.
+- D-060 · 2026-10-15 · Unpublished drafts can be deleted (with confirmation); published lots stay on record.
+- D-061 · 2026-10-15 · Sticky form footers inside the workspace sit above the mobile bottom tab bar (it was covering the wizard's actions at 390px). Next's dev indicator is off — it covered the mobile tab bar and would appear in demo recordings.

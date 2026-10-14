@@ -41,6 +41,13 @@ function SignIn() {
         </div>
         <ButtonLink href="/onboarding/buyer">Create a buyer account</ButtonLink>
       </Card>
+      <Card className="flex flex-col gap-sm sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-label-md text-text-strong">Selling surplus?</p>
+          <p className="text-body-md text-text-secondary">Create a seller profile in one short form. No documents needed for the demo.</p>
+        </div>
+        <ButtonLink href="/onboarding/seller">Create a seller account</ButtonLink>
+      </Card>
     </Container>
   );
 }

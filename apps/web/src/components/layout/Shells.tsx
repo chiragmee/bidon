@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ArrowLeftRight, Gavel, LayoutDashboard, PlusSquare, ShieldCheck } from 'lucide-react';
+import { ArrowLeftRight, ClipboardList, Gavel, LayoutDashboard, PlusSquare, ShieldCheck } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { Role } from '@auctionit/domain';
 import { Banner } from '@/components/ui';
@@ -83,6 +83,7 @@ const WORKSPACE_NAV: Record<Exclude<Role, 'guest'>, { href: string; label: strin
   ],
   seller: [
     { href: '/seller/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
+    { href: '/seller/lots', label: 'My lots', Icon: ClipboardList },
     { href: '/seller/lots/new', label: 'New lot', Icon: PlusSquare },
     { href: '/auctions', label: 'Auctions', Icon: Gavel },
   ],

@@ -4,6 +4,11 @@ import type {
   Claim,
   ClaimInput,
   ClaimReviewView,
+  ListingDraft,
+  Lot,
+  SellerDashboardView,
+  SellerLotView,
+  SellerRegistration,
   LotMedia,
   OpsDecision,
   OpsOverviewView,
@@ -58,6 +63,14 @@ export interface DataSource {
   decideClaim(claimId: string, decision: { outcome: OpsDecision['outcome']; reason: string }, viewer: Viewer): Promise<DsResult<Claim>>;
   claimReview(claimId: string, viewer: Viewer): Promise<DsResult<ClaimReviewView | null>>;
   opsOverview(viewer: Viewer): Promise<DsResult<OpsOverviewView | null>>;
+
+  sellerDashboard(viewer: Viewer): Promise<DsResult<SellerDashboardView | null>>;
+  sellerLot(lotId: string, viewer: Viewer): Promise<DsResult<SellerLotView | null>>;
+  /** Create (no lotId) or update a draft; returns the saved lot. */
+  saveDraft(lotId: string | null, draft: ListingDraft, viewer: Viewer): Promise<DsResult<Lot>>;
+  publishLot(lotId: string, viewer: Viewer): Promise<DsResult<Lot>>;
+  deleteDraft(lotId: string, viewer: Viewer): Promise<DsResult<null>>;
+  registerSeller(input: SellerRegistration): Promise<DsResult<{ user: User; company: Company }>>;
 
   /** Validate and store one evidence file; it is attached when the action using it succeeds. */
   uploadMedia(file: File, stage: LotMedia['stage']): Promise<DsResult<LotMedia>>;

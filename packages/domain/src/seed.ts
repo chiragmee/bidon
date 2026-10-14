@@ -297,13 +297,14 @@ export function createSeed(nowIso: Iso = new Date().toISOString()): DemoState {
     attributes: { form: 'Rebar cut-ends, 0.3–2 m', mix: 'About 70% rebar, 30% structural offcuts' },
   });
 
-  // Draft — incomplete on purpose (no reserve or dates) to show the edit-draft path.
-  addLot({
+  // Draft — incomplete on purpose (no reserve, EMD or dates) to show the edit-draft path.
+  const draft = addLot({
     id: 'LOT-2025-0920', sellerId: 'U-SURESH', slug: 'plate', title: 'MS plate cuttings', category: 'ferrous_hms',
     grade: 'MS plate cuttings', description: 'Plasma-cut plate offcuts from fabrication.', location: RAIPUR,
     estimatedQtyMt: 18, reservePerMt: 0, contaminationPct: 2, startH: 0, endH: 0, status: 'draft', photos: 2, withVideo: false,
     attributes: { form: 'Plate offcuts' },
   });
+  Object.assign(draft, { startAt: '', endAt: '', emdAmount: 0, bidIncrement: 0, publishedAt: null });
 
   // ── Closed auctions and transactions ───────────────────────────────────────
 

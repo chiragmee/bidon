@@ -1,6 +1,13 @@
 import {
   buyerDashboard,
   claimReview,
+  deleteDraft,
+  publishLot,
+  registerSeller,
+  saveDraft,
+  sellerDashboard,
+  sellerLot,
+  type ListingDraft,
   opsDecide,
   opsOverview,
   runTxAction,
@@ -130,6 +137,13 @@ export class DemoDataSource implements DataSource {
       },
     };
   };
+
+  sellerDashboard = (viewer: Viewer) => read('sellerDashboard', (s) => (viewer.id && viewer.role === 'seller' ? sellerDashboard(s, viewer.id, now()) : null));
+  sellerLot = (lotId: string, viewer: Viewer) => read('sellerLot', (s) => (viewer.id ? sellerLot(s, lotId, viewer.id, now()) : null));
+  saveDraft = (lotId: string | null, draft: ListingDraft, viewer: Viewer) => write('saveDraft', (s) => saveDraft(s, { lotId, draft }, actor(viewer), now()));
+  publishLot = (lotId: string, viewer: Viewer) => write('publishLot', (s) => publishLot(s, lotId, actor(viewer), now()));
+  deleteDraft = (lotId: string, viewer: Viewer) => write('deleteDraft', (s) => deleteDraft(s, lotId, actor(viewer), now()));
+  registerSeller = (input: Parameters<typeof registerSeller>[1]) => write('registerSeller', (s) => registerSeller(s, input, now()));
 
   registerBuyer = (input: Parameters<typeof registerBuyer>[1]) => write('registerBuyer', (s) => registerBuyer(s, input, now()));
 
