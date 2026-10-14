@@ -9,6 +9,7 @@ AuctionIT is a working demo of a B2B marketplace for industrial scrap and surplu
 | `docs/SPEC.md` | Product requirements. Referenced as §N. |
 | `DESIGN.md` | Design system: tokens and visual rules. Wins over SPEC §5 on any visual conflict. |
 | `design/stitch/` | Approved screen designs. Match their layout, hierarchy and copy; if a colour differs from DESIGN.md, DESIGN.md wins. |
+| `docs/PHASES.md` | The 7 build phases. When asked to "Run Phase N", do exactly that phase, then stop. |
 | `docs/PLAN.md` | Living build plan, screen map and use-case checklist. Keep it current. |
 | `docs/DECISIONS.md` | Every assumption or policy you had to invent, one line each. |
 
@@ -39,7 +40,7 @@ Chosen by `NEXT_PUBLIC_DATA_SOURCE=http|demo`. If the API is unreachable, fall b
 - Bid requires a recorded EMD for that buyer and lot. A seller can never bid on their own lot.
 - Duplicate or stale submissions are rejected (client request id + row lock).
 - On close, the winner is the highest stored bid that meets the reserve; otherwise the lot is Unsold. Never hard-code a winner.
-- Lifecycle: Draft → Scheduled → Live → Closed (reserve met | reserve not met) → Awarded.
+- Lifecycle: Draft → Scheduled → Live → Closed (reserve met | reserve not met) → Awarded. Scheduled → Live and Live → Closed happen automatically at start and end time; Operations can close a demo auction early.
 
 **Listings**
 - Publish only when complete and valid: reserve > 0, end > start, category fields filled, and, if assured, the category's evidence requirement met.
@@ -49,14 +50,23 @@ Chosen by `NEXT_PUBLIC_DATA_SOURCE=http|demo`. If the API is unreachable, fall b
 - Winning ≠ completed. Completion requires balance paid (simulated), lifting scheduled and confirmed, and, for assured lots, an accepted lifting check.
 - Invalid transitions are rejected with a reason. Only the assigned role can take each action.
 - Payable = measured quantity × winning price per MT.
+- Lifting: buyer proposes a date, seller confirms it.
+- Defaulted: only when the payment deadline (demo policy) passes; marked by Operations.
 
 **Lot Assurance**
 - Only assured lots (pilot: ferrous / mixed steel) can enter the claim flow.
 - Weighbridge measurement and visual condition check are separate records and separate UI.
 - Claim eligibility (SPEC §16.3) returns specific failing reasons, never a bare "not allowed".
 - Outcomes: within tolerance → normal completion; clear exception → configured remedy; disputed → Operations.
-- Only Operations decides disputed claims; every decision records actor, reason and timestamp.
+- Seller responds first (accept or dispute with evidence). Only Operations decides disputed claims; every decision records actor, reason and timestamp.
+- Seller track record (completed sales, resolved claims) updates after every completion and claim resolution.
 - Tolerances, remedies and EMD rules live in `packages/domain/policy.ts`, per category, flagged `demo: true`.
+
+## Demo data
+
+- One seed (`packages/domain/seed.ts`) feeds both Supabase and demo mode.
+- All seeded dates are relative to the moment of reset, so Live lots are live on any day.
+- Real scrap photos go in `apps/web/public/demo-images/`; without them, use the designed fallback tile.
 
 ## Honesty rules
 
@@ -78,7 +88,7 @@ Chosen by `NEXT_PUBLIC_DATA_SOURCE=http|demo`. If the API is unreachable, fall b
 
 ## Roles
 
-Guest, Buyer, Seller, Operations. One-click demo entry for each (seeded accounts, no signup). Guard routes in the web app **and** every API route; buyers never reach `/seller`, sellers never touch another seller's lot, only Operations reviews claims or closes demo auctions.
+Guest, Buyer, Seller, Operations. One-click demo entry for each (seeded accounts, no signup), plus a role switcher and "Reset demo data" in the header on every page. Guard routes in the web app **and** every API route; buyers never reach `/seller`, sellers never touch another seller's lot, only Operations reviews claims or closes demo auctions.
 
 ## Commands (keep this list accurate)
 
