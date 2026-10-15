@@ -133,7 +133,9 @@ export type StoredLotStatus =
   | 'scheduled'
   | 'closed_reserve_met'
   | 'closed_unsold'
-  | 'awarded';
+  | 'awarded'
+  /** Taken down by the seller before its end time (D-104). No winner; every confirmed EMD is owed back. */
+  | 'withdrawn';
 
 export type AuctionStatus =
   | 'draft'
@@ -141,7 +143,16 @@ export type AuctionStatus =
   | 'live'
   | 'closed_reserve_met'
   | 'closed_unsold'
-  | 'awarded';
+  | 'awarded'
+  | 'withdrawn';
+
+export interface LotWithdrawal {
+  reason: string;
+  at: Iso;
+  by: string;
+  /** Bids placed before it was taken down (they stay on record; none wins). */
+  bidsAtWithdrawal: number;
+}
 
 export type MediaKind = 'photo' | 'video' | 'document';
 
@@ -197,6 +208,7 @@ export interface Lot {
   /** Set when the auction closes (by time or Ops). */
   closedAt: Iso | null;
   winningBidId: string | null;
+  withdrawal?: LotWithdrawal | null;
 }
 
 export interface Bid {
@@ -417,7 +429,9 @@ export type NotificationKind =
   | 'payment_rejected'
   | 'refund_recorded'
   | 'eligibility_submitted'
-  | 'eligibility_decided';
+  | 'eligibility_decided'
+  | 'lot_withdrawn'
+  | 'lot_photos_added';
 
 export interface Notification {
   id: string;

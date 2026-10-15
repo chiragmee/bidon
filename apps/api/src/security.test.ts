@@ -64,6 +64,8 @@ const ROUTES: [string, string, Access, unknown?][] = [
   ['put', '/seller/lots/LOT-2025-0920', 'seller', { title: 'Security test lot' }],
   ['post', '/seller/lots/LOT-2025-0920/publish', 'seller', {}],
   ['delete', '/seller/lots/LOT-2025-0920', 'seller'],
+  ['post', '/seller/lots/LOT-2025-0891/withdraw', 'seller', { reason: 'short' }],
+  ['post', '/seller/lots/LOT-2025-0891/media', 'seller', { media: [{ id: 'M-x', kind: 'photo', url: 'https://evil.example/x.jpg', caption: 'x', stage: 'listing', uploadedAt: '2026-01-01T00:00:00.000Z' }] }],
   ['post', '/onboarding/buyer', 'public', {}],
   ['post', '/onboarding/seller', 'public', {}],
   ['get', '/users/exists?email=x@y.example', 'public'],

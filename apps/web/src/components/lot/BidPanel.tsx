@@ -20,6 +20,7 @@ export function bidAction(d: LotDetailView): BidAction {
   const { status, viewer } = d;
   if (d.result) {
     if (viewer.transactionId) return { kind: 'transaction', href: `/transactions/${viewer.transactionId}`, primary: d.result.wonByViewer };
+    if (d.result.outcome === 'withdrawn') return { kind: 'none', message: `The seller took this auction down: “${d.result.withdrawalReason ?? ''}” No bid wins; any EMD paid is owed back by the seller.` };
     return { kind: 'none', message: d.result.outcome === 'unsold' ? 'This auction closed without a bid meeting the reserve.' : 'This auction has closed.' };
   }
   if (status === 'ended') return { kind: 'none', message: 'Bidding has ended. The result is being decided from the stored bids.' };

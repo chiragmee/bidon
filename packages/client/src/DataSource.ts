@@ -86,6 +86,10 @@ export interface DataSource {
   saveDraft(lotId: string | null, draft: ListingDraft, viewer: Viewer): Promise<DsResult<Lot>>;
   publishLot(lotId: string, viewer: Viewer): Promise<DsResult<Lot>>;
   deleteDraft(lotId: string, viewer: Viewer): Promise<DsResult<null>>;
+  /** Take a published auction down before it ends, with a reason bidders see (D-104). */
+  withdrawLot(lotId: string, reason: string, viewer: Viewer): Promise<DsResult<Lot>>;
+  /** Add already-uploaded photos or videos to a published lot until it ends (D-104). */
+  addLotMedia(lotId: string, media: LotMedia[], viewer: Viewer): Promise<DsResult<Lot>>;
   registerSeller(input: SellerRegistration): Promise<DsResult<{ user: User; company: Company }>>;
 
   /** Validate and store one evidence file; it is attached when the action using it succeeds. */

@@ -40,11 +40,11 @@ Chosen by `NEXT_PUBLIC_DATA_SOURCE=http|demo`. If the API is unreachable, the li
 - Bid requires an approved buyer account and an EMD the lot's seller has confirmed receiving. A seller can never bid on their own lot. Only approved sellers publish (docs/PHASE1_MVP.md).
 - Duplicate or stale submissions are rejected (client request id + row lock).
 - On close, the winner is the highest stored bid that meets the reserve; otherwise the lot is Unsold. Never hard-code a winner.
-- Lifecycle: Draft → Scheduled → Live → Closed (reserve met | reserve not met) → Awarded. Scheduled → Live and Live → Closed happen automatically at start and end time; Operations can close a demo auction early.
+- Lifecycle: Draft → Scheduled → Live → Closed (reserve met | reserve not met) → Awarded; or Scheduled/Live → Withdrawn by the seller (D-104). Scheduled → Live and Live → Closed happen automatically at start and end time; Operations can close a demo auction early.
 
 **Listings**
 - Publish only when complete and valid: reserve > 0, end > start, category fields filled, and, if assured, the category's evidence requirement met.
-- Sellers cannot edit live lots, change the reserve after bidding starts, alter bids, or change winners.
+- Sellers cannot edit live lots, change the reserve after bidding starts, alter bids, or change winners. Two exceptions (D-104): until the end time they may add photos/videos (additions only) and take the auction down with a reason (status `withdrawn`, no winner, confirmed EMDs owed back).
 
 **Transactions** (SPEC §15 states)
 - Winning ≠ completed. Completion requires the balance confirmed by the seller, lifting scheduled and confirmed, and, for assured lots, an accepted lifting check.

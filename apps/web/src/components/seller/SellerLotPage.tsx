@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronRight, Lock } from 'lucide-react';
 import { useState } from 'react';
-import { formatINR } from '@auctionit/domain';
+import { formatINR, type LotMedia } from '@auctionit/domain';
 import { Container } from '@/components/layout/Shells';
 import { AssuranceSummary, BidHistory, EvidenceList, Specs } from '@/components/lot/LotSections';
-import { AuctionStatusBadge, Banner, Button, ButtonLink, Card, ConfirmDialog, Countdown, EmptyState, ErrorState, LotAssuranceBadge, RetryIcon, Skeleton, StatusBadge, useToast } from '@/components/ui';
+import { AuctionStatusBadge, Banner, Button, ButtonLink, Card, ConfirmDialog, Countdown, EmptyState, ErrorState, EvidenceUploader, Field, LotAssuranceBadge, RetryIcon, Skeleton, StatusBadge, Textarea, useToast } from '@/components/ui';
 import { useData, useQuery } from '@/data';
 import { useSession } from '@/lib/SessionProvider';
 import { EmdPanel } from './EmdPanel';
@@ -170,7 +170,12 @@ export function SellerLotPage({ id }: { id: string }) {
       {d.result && (
         <Card className="flex flex-col gap-sm p-lg">
           <h2 className="text-h3 text-text-strong">Result</h2>
-          {d.result.outcome === 'sold' ? (
+          {d.result.outcome === 'withdrawn' ? (
+            <p className="text-body-md">
+              You took this auction down{l.withdrawal ? ` on ${when(l.withdrawal.at)}` : ''}: “{d.result.withdrawalReason}”. No bid wins. Every EMD you confirmed is owed back to
+              its buyer — record each refund above when you make it.
+            </p>
+          ) : d.result.outcome === 'sold' ? (
             <p className="text-body-md">
               Sold at <strong>{formatINR(d.result.winningBidPerMt ?? 0, { perMt: true })}</strong> — the highest stored bid, which met your reserve of{' '}
               {formatINR(l.reservePerMt, { perMt: true })}.
@@ -188,11 +193,25 @@ export function SellerLotPage({ id }: { id: string }) {
         </Card>
       )}
 
+      {(d.status === 'scheduled' || d.status === 'live') && (
+        <ManageAuction
+          lotId={l.id}
+          live={d.status === 'live'}
+          bidCount={d.bidCount}
+          onChanged={() => {
+            lot.reload();
+            rules.reload();
+          }}
+        />
+      )}
+
       <Card className="flex flex-col gap-xs text-body-md">
         <h2 className="text-h3 text-text-strong">What can change</h2>
         <p className="text-text-secondary">Listing details: {r.edit.details ? r.edit.details.what : 'editable until bidding opens.'}</p>
         <p className="text-text-secondary">Reserve: {r.edit.reserve ? r.edit.reserve.what : 'editable until bidding opens.'}</p>
         <p className="text-text-secondary">Bids and the winner: {r.edit.bids?.what}</p>
+        <p className="text-text-secondary">Photos and videos: you can add more until the auction ends; ones already shown stay.</p>
+        <p className="text-text-secondary">Taking it down: possible until the auction ends, with a reason bidders see.</p>
       </Card>
 
       {d.status !== 'draft' && <BidHistory d={d} />}
@@ -223,3 +242,85 @@ export function SellerLotPage({ id }: { id: string }) {
     </Container>
   );
 }
+
+/** Published and not ended: add photos, or take the auction down with a reason (D-104). */
+function ManageAuction({ lotId, live, bidCount, onChanged }: { lotId: string; live: boolean; bidCount: number; onChanged: () => void }) {
+  const { ds } = useData();
+  const { viewer } = useSession();
+  const toast = useToast();
+  const [media, setMedia] = useState<LotMedia[]>([]);
+  const [adding, setAdding] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <Card className="flex flex-col gap-md p-lg">
+      <h2 className="text-h3 text-text-strong">Manage this auction</h2>
+      <div className="flex flex-col gap-sm">
+        <EvidenceUploader
+          label="Add photos or videos"
+          helper="They appear on the lot straight away; buyers who paid an EMD or bid are told. Photos already shown can’t be removed."
+          stage="listing"
+          kinds={['photo', 'video']}
+          value={media}
+          onChange={setMedia}
+        />
+        {media.length > 0 && (
+          <div>
+            <Button
+              loading={adding}
+              onClick={async () => {
+                setAdding(true);
+                const r = await ds.addLotMedia(lotId, media, viewer);
+                setAdding(false);
+                if (!r.ok) return toast.show(`${r.error.what} ${r.error.next}`, 'error');
+                toast.show(`${media.length} ${media.length === 1 ? 'file' : 'files'} added to the lot.`, 'success');
+                setMedia([]);
+                onChanged();
+              }}
+            >
+              Add {media.length} {media.length === 1 ? 'file' : 'files'} to the lot
+            </Button>
+          </div>
+        )}
+      </div>
+      <div className="flex flex-col gap-xs border-t border-border pt-md">
+        <p className="text-label-md text-text-strong">Take the auction down</p>
+        <p className="text-body-md text-text-secondary">
+          {live && bidCount > 0
+            ? `It has ${bidCount} ${bidCount === 1 ? 'bid' : 'bids'}. Taking it down means no bid wins, bidders are told your reason, and you owe back every EMD you confirmed.`
+            : 'Buyers can no longer bid. Anyone who reported an EMD is told your reason, and you owe back every EMD you confirmed.'}
+        </p>
+        <div>
+          <Button variant="danger" onClick={() => (setOpen(true), setError(null))}>
+            Take down auction
+          </Button>
+        </div>
+      </div>
+      <ConfirmDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        busy={busy}
+        tone="danger"
+        title="Take this auction down?"
+        consequence="This can’t be undone. The lot stays on record as “Withdrawn by seller” with your reason."
+        confirmLabel="Take down auction"
+        onConfirm={async () => {
+          setBusy(true);
+          const r = await ds.withdrawLot(lotId, reason, viewer);
+          setBusy(false);
+          if (!r.ok) return setError(`${r.error.what} ${r.error.next}`);
+          setOpen(false);
+          toast.show('Auction taken down. Bidders have been told.', 'success');
+          onChanged();
+        }}
+      >
+        <Field label="Reason (bidders see this)" required error={error ?? undefined}>
+          <Textarea value={reason} onChange={(e) => (setReason(e.target.value), setError(null))} placeholder="For example: the material is needed back at our own plant." />
+        </Field>
+      </ConfirmDialog>
+    </Card>
+  );
+}
+

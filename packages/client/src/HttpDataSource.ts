@@ -97,6 +97,8 @@ export class HttpDataSource implements DataSource {
     lotId ? this.call('PUT', `/seller/lots/${encodeURIComponent(lotId)}`, draft, viewer) : this.call('POST', '/seller/lots', draft, viewer);
   publishLot: DataSource['publishLot'] = (lotId, viewer) => this.call('POST', `/seller/lots/${encodeURIComponent(lotId)}/publish`, {}, viewer);
   deleteDraft: DataSource['deleteDraft'] = (lotId, viewer) => this.call('DELETE', `/seller/lots/${encodeURIComponent(lotId)}`, undefined, viewer);
+  withdrawLot: DataSource['withdrawLot'] = (lotId, reason, viewer) => this.call('POST', `/seller/lots/${encodeURIComponent(lotId)}/withdraw`, { reason }, viewer);
+  addLotMedia: DataSource['addLotMedia'] = (lotId, media, viewer) => this.call('POST', `/seller/lots/${encodeURIComponent(lotId)}/media`, { media }, viewer);
 
   registerBuyer: DataSource['registerBuyer'] = (input) => this.call('POST', '/onboarding/buyer', input);
   registerSeller: DataSource['registerSeller'] = (input) => this.call('POST', '/onboarding/seller', input);

@@ -173,6 +173,8 @@ export function createRouter(service: ApiService, media: MediaStore, env: Env, i
   r.post('/seller/lots', requireRole('seller'), wrap(async (req, res) => send(res, await service.saveDraft(null, { ...S.DraftBody.parse(req.body), media: checkMedia(S.DraftBody.parse(req.body).media ?? []) }, viewerOf(res)))));
   r.put('/seller/lots/:id', requireRole('seller'), wrap(async (req, res) => send(res, await service.saveDraft(id(req), { ...S.DraftBody.parse(req.body), media: checkMedia(S.DraftBody.parse(req.body).media ?? []) }, viewerOf(res)))));
   r.post('/seller/lots/:id/publish', requireRole('seller'), wrap(async (req, res) => send(res, await service.publishLot(id(req), viewerOf(res)))));
+  r.post('/seller/lots/:id/withdraw', requireRole('seller'), wrap(async (req, res) => send(res, await service.withdrawLot(id(req), S.WithdrawBody.parse(req.body).reason, viewerOf(res)))));
+  r.post('/seller/lots/:id/media', requireRole('seller'), wrap(async (req, res) => send(res, await service.addLotMedia(id(req), checkMedia(S.LotMediaBody.parse(req.body).media), viewerOf(res)))));
   r.delete('/seller/lots/:id', requireRole('seller'), wrap(async (req, res) => send(res, await service.deleteDraft(id(req), viewerOf(res)))));
 
   // ── Accounts ──

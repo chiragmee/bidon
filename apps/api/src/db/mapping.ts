@@ -118,6 +118,7 @@ export function rowsFromState(s: DemoState): Rows {
       published_at: ts(l.publishedAt),
       closed_at: ts(l.closedAt),
       winning_bid_id: l.winningBidId,
+      withdrawal: l.withdrawal ?? null,
     })),
     bids: s.bids.map((b) => ({ id: b.id, lot_id: b.lotId, bidder_id: b.bidderId, amount_per_mt: b.amountPerMt, placed_at: ts(b.placedAt), client_request_id: b.clientRequestId })),
     emd_records: s.emds.map((e) => ({
@@ -328,6 +329,7 @@ export function stateFromRows(r: Rows): DemoState {
         publishedAt: ts(l.published_at),
         closedAt: ts(l.closed_at),
         winningBidId: (l.winning_bid_id as string | null) ?? null,
+        ...(l.withdrawal ? { withdrawal: l.withdrawal as Lot['withdrawal'] } : {}),
       }),
     ),
     bids: r.bids.map((b): Bid => ({ id: String(b.id), lotId: String(b.lot_id), bidderId: String(b.bidder_id), amountPerMt: num(b.amount_per_mt), placedAt: iso(b.placed_at), clientRequestId: String(b.client_request_id) })),

@@ -12,7 +12,7 @@ import { accountIdentityProblem, clone, stateCtx } from './operations';
 import { eligibilityRejection, isEligible } from './eligibilityPolicy';
 import { policyFor, suggestedEmd } from './policy';
 import type { DemoState } from './seed';
-import type { CategoryId, Company, Iso, Lot, User } from './types';
+import type { CategoryId, Company, Iso, Lot, LotMedia, User } from './types';
 
 const MEASUREMENT_BASIS = 'Final payable quantity is the net weight at the mutually agreed certified weighbridge at lifting.';
 
@@ -196,3 +196,76 @@ export function registerSeller(state: DemoState, input: SellerRegistration, now:
   next.audit.push(audit({ ...ctx, actor: { id: user.id, role: 'seller' } }, { entity: 'user', entityId: user.id, action: 'register_seller', to: 'incomplete' }));
   return { ok: true, state: next, value: { user, company } };
 }
+
+// ── After publishing (D-104) ─────────────────────────────────────────────────
+
+/** Whether the seller can still change a published lot: until its end time, and never once closed or withdrawn. */
+const stillOpen = (lot: Lot, now: Iso) => {
+  const st = deriveAuctionStatus(lot, now);
+  return st === 'scheduled' || st === 'live';
+};
+
+/** Everyone with a stake in a lot: its bidders and buyers who reported an EMD. */
+function interestedBuyers(state: DemoState, lotId: string): string[] {
+  return [...new Set([...state.bids.filter((b) => b.lotId === lotId).map((b) => b.bidderId), ...state.emds.filter((e) => e.lotId === lotId).map((e) => e.buyerId)])];
+}
+
+/**
+ * The seller takes an upcoming or live auction down before its end time, with a reason (owner's decision, D-104).
+ * Bids stay on record but none wins; every confirmed EMD becomes owed back, and EMDs still awaiting confirmation are
+ * refunded once confirmed (payments.decideEmd). Bidders and EMD payers are told why.
+ */
+export function withdrawLot(state: DemoState, lotId: string, input: { reason: string }, actor: Actor, now: Iso): OpResult<Lot> {
+  const lot = state.lots.find((l) => l.id === lotId);
+  if (!lot || actor.role !== 'seller' || lot.sellerId !== actor.id) return rejected(state, 'not_found', 'That lot isn’t one of yours.', 'Go back to your lots.');
+  if (lot.status === 'draft') return rejected(state, 'not_published', 'This lot was never published.', 'Delete the draft instead.');
+  if (!stillOpen(lot, now)) return rejected(state, 'already_closed', 'This auction has already ended or been taken down.', 'Its result stays on record.');
+  const reason = input.reason.trim();
+  if (reason.length < 10) return rejected(state, 'reason_required', 'Give a reason (at least 10 characters).', 'Bidders see it, so say plainly why the auction is being taken down.');
+  const next = clone(state);
+  const ctx = stateCtx(next, now, actor);
+  const from = deriveAuctionStatus(lot, now);
+  const bids = next.bids.filter((b) => b.lotId === lotId).length;
+  const withdrawn: Lot = { ...lot, status: 'withdrawn', closedAt: now, withdrawal: { reason, at: now, by: actor.id, bidsAtWithdrawal: bids } };
+  next.lots = next.lots.map((l) => (l.id === lotId ? withdrawn : l));
+  for (const emd of next.emds.filter((e) => e.lotId === lotId && e.status === 'confirmed')) emd.status = 'refund_due';
+  next.audit.push(audit(ctx, { entity: 'lot', entityId: lotId, action: 'withdraw', from, to: 'withdrawn', reason }));
+  for (const userId of interestedBuyers(next, lotId)) {
+    next.notifications.push({
+      id: ctx.newId('N'),
+      userId,
+      kind: 'lot_withdrawn',
+      title: `${lotId} was taken down by the seller`,
+      body: `“${reason}” No bid wins. If you paid an EMD, the seller owes it back and records the refund here.`,
+      href: `/auctions/${lotId}`,
+      read: false,
+      at: now,
+    });
+  }
+  return { ok: true, state: next, value: withdrawn };
+}
+
+/**
+ * Add photos or videos to a published lot until it ends (D-104). Only additions: nothing already shown to bidders —
+ * description, quantity, reserve, existing media — can change.
+ */
+export function addLotMedia(state: DemoState, lotId: string, media: readonly LotMedia[], actor: Actor, now: Iso): OpResult<Lot> {
+  const lot = state.lots.find((l) => l.id === lotId);
+  if (!lot || actor.role !== 'seller' || lot.sellerId !== actor.id) return rejected(state, 'not_found', 'That lot isn’t one of yours.', 'Go back to your lots.');
+  if (lot.status === 'draft') return rejected(state, 'not_published', 'This lot isn’t published yet.', 'Add photos in the listing wizard.');
+  if (!stillOpen(lot, now)) return rejected(state, 'already_closed', 'Photos can only be added until the auction ends.', 'Its record stays as it was at closing.');
+  const add = media.filter((m) => (m.kind === 'photo' || m.kind === 'video') && !lot.media.some((x) => x.id === m.id));
+  if (!add.length) return rejected(state, 'invalid_input', 'Choose at least one photo or video to add.', 'JPG, PNG or WebP photos; MP4, MOV or WebM videos.');
+  if (lot.media.length + add.length > 40) return rejected(state, 'too_many_files', 'A lot can show up to 40 photos and videos.', 'Add fewer files.');
+  const next = clone(state);
+  const ctx = stateCtx(next, now, actor);
+  const updated: Lot = { ...lot, media: [...lot.media, ...add.map((m) => ({ ...m, stage: 'listing' as const, uploadedAt: now }))] };
+  next.lots = next.lots.map((l) => (l.id === lotId ? updated : l));
+  next.audit.push(audit(ctx, { entity: 'lot', entityId: lotId, action: 'add_media', to: `${add.length} file(s)` }));
+  const n = add.length;
+  for (const userId of interestedBuyers(next, lotId)) {
+    next.notifications.push({ id: ctx.newId('N'), userId, kind: 'lot_photos_added', title: `New photos on ${lotId}`, body: `The seller added ${n} ${n === 1 ? 'file' : 'files'} to ${lot.title}.`, href: `/auctions/${lotId}`, read: false, at: now });
+  }
+  return { ok: true, state: next, value: updated };
+}
+

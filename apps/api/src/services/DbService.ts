@@ -28,6 +28,8 @@ import {
   claimReview,
   closeDemoAuction,
   deleteDraft,
+  withdrawLot,
+  addLotMedia,
   listLots,
   lotDetail,
   markNotificationsRead,
@@ -177,6 +179,8 @@ export class DbService implements Service {
   saveDraft: Service['saveDraft'] = (lotId, draft, viewer) => this.write((s, at) => saveDraft(s, { lotId, draft }, actor(viewer), at));
   publishLot: Service['publishLot'] = (lotId, viewer) => this.write((s, at) => publishLot(s, lotId, actor(viewer), at));
   deleteDraft: Service['deleteDraft'] = (lotId, viewer) => this.write((s, at) => deleteDraft(s, lotId, actor(viewer), at));
+  withdrawLot: Service['withdrawLot'] = (lotId, reason, viewer) => this.write((s, at) => withdrawLot(s, lotId, { reason }, actor(viewer), at));
+  addLotMedia: Service['addLotMedia'] = (lotId, media, viewer) => this.write((s, at) => addLotMedia(s, lotId, media, actor(viewer), at));
   registerBuyer: Service['registerBuyer'] = (input) => this.write((s, at) => registerBuyer(s, input, at));
   registerSeller: Service['registerSeller'] = (input) => this.write((s, at) => registerSeller(s, input, at));
 

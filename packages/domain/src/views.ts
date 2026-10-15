@@ -222,7 +222,7 @@ export interface LotDetailView {
     /** Set when the viewer is a party to this lot's transaction. */
     transactionId: string | null;
   };
-  result: { outcome: 'sold' | 'unsold'; winningBidPerMt: number | null; wonByViewer: boolean } | null;
+  result: { outcome: 'sold' | 'unsold' | 'withdrawn'; winningBidPerMt: number | null; wonByViewer: boolean; withdrawalReason?: string } | null;
 }
 
 export function lotDetail(state: DemoState, lotId: string, viewer: Viewer, now: Iso): LotDetailView | null {
@@ -253,7 +253,7 @@ export function lotDetail(state: DemoState, lotId: string, viewer: Viewer, now: 
   const mine = viewer.id ? bids.filter((b) => b.bidderId === viewer.id) : [];
   const tx = state.transactions.find((t) => t.lotId === lot.id);
   const isParty = !!tx && !!viewer.id && (tx.buyerId === viewer.id || tx.sellerId === viewer.id || viewer.role === 'ops');
-  const closed = status === 'closed_reserve_met' || status === 'closed_unsold' || status === 'awarded';
+  const closed = status === 'closed_reserve_met' || status === 'closed_unsold' || status === 'awarded' || status === 'withdrawn';
   const winning = lot.winningBidId ? bids.find((b) => b.id === lot.winningBidId) : undefined;
   const emds = viewer.id ? state.emds.filter((e) => e.lotId === lot.id && e.buyerId === viewer.id) : [];
   const viewerCompany = viewer.id ? companyOf(state, state.users.find((u) => u.id === viewer.id)?.companyId ?? '') : undefined;
@@ -294,7 +294,8 @@ export function lotDetail(state: DemoState, lotId: string, viewer: Viewer, now: 
     },
     result: closed
       ? {
-          outcome: status === 'closed_unsold' ? 'unsold' : 'sold',
+          outcome: status === 'withdrawn' ? 'withdrawn' : status === 'closed_unsold' ? 'unsold' : 'sold',
+          ...(lot.withdrawal ? { withdrawalReason: lot.withdrawal.reason } : {}),
           winningBidPerMt: winning?.amountPerMt ?? null,
           wonByViewer: !!winning && winning.bidderId === viewer.id,
         }

@@ -47,6 +47,7 @@ const AUCTION_BADGE: Record<DerivedStatus, { kind: StatusKind; label: string }> 
   closed_reserve_met: { kind: 'reserve_met', label: 'Closed · Reserve met' },
   closed_unsold: { kind: 'unsold', label: 'Unsold' },
   awarded: { kind: 'success', label: 'Awarded' },
+  withdrawn: { kind: 'unsold', label: 'Withdrawn by seller' },
 };
 
 export function AuctionStatusBadge({ status, className }: { status: DerivedStatus; className?: string }) {

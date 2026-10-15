@@ -3,6 +3,8 @@ import {
   claimReview,
   closeDemoAuction,
   deleteDraft,
+  withdrawLot,
+  addLotMedia,
   kindOf,
   listLots,
   lotDetail,
@@ -155,6 +157,8 @@ export class LocalDataSource implements DataSource {
   saveDraft: DataSource['saveDraft'] = (lotId, draft: ListingDraft, viewer) => this.as(viewer, () => this.write('saveDraft', (s) => saveDraft(s, { lotId, draft }, actor(viewer), this.now())));
   publishLot: DataSource['publishLot'] = (lotId, viewer) => this.as(viewer, () => this.write('publishLot', (s) => publishLot(s, lotId, actor(viewer), this.now())));
   deleteDraft: DataSource['deleteDraft'] = (lotId, viewer) => this.as(viewer, () => this.write('deleteDraft', (s) => deleteDraft(s, lotId, actor(viewer), this.now())));
+  withdrawLot: DataSource['withdrawLot'] = (lotId, reason, viewer) => this.as(viewer, () => this.write('withdrawLot', (s) => withdrawLot(s, lotId, { reason }, actor(viewer), this.now())));
+  addLotMedia: DataSource['addLotMedia'] = (lotId, media, viewer) => this.as(viewer, () => this.write('addLotMedia', (s) => addLotMedia(s, lotId, media, actor(viewer), this.now())));
   registerSeller: DataSource['registerSeller'] = (input) => this.write('registerSeller', (s) => registerSeller(s, input, this.now()));
   registerBuyer: DataSource['registerBuyer'] = (input) => this.write('registerBuyer', (s) => registerBuyer(s, input, this.now()));
 
