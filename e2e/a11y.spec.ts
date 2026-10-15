@@ -19,6 +19,7 @@ const SCREENS: [string, 'guest' | 'buyer' | 'seller' | 'ops', string][] = [
   ['lot detail', 'buyer', '/auctions/LOT-2025-0891'],
   ['standard lot', 'guest', '/auctions/LOT-2025-0899'],
   ['how Lot Assurance works', 'guest', '/lot-assurance'],
+  ['how it works guide', 'guest', '/how-it-works'],
   ['sign in', 'guest', '/sign-in'],
   ['buyer onboarding', 'guest', '/onboarding/buyer'],
   ['seller onboarding', 'guest', '/onboarding/seller'],

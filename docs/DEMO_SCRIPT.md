@@ -21,7 +21,7 @@ Everything on screen is sample data, and the sample sellers' bank details are fi
 
 ## 1. The problem (0:00–1:00) — Landing page
 
-**Show:** the hero, then scroll to "Lot Assurance: the auction stays the same, the lot gets clearer".
+**Show:** the hero and the four trust points, then scroll past the categories to **"Buying steel? Look for Lot Assurance."**
 
 **Say:**
 > "In the case study, half the lots clear and 18% of winning bids default, so only about 41% of listed lots become completed transactions. Our hypothesis is that buyers can't trust what they can't see. Lot Assurance tackles that without changing how the auction works — and only on eligible steel lots for the pilot."

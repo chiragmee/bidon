@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, BadgeCheck, ClipboardList, Gavel, Landmark, Scale, ShieldCheck, Wallet } from 'lucide-react';
+import { ArrowRight, BadgeCheck, ClipboardList, Gavel, Landmark, Scale, Wallet } from 'lucide-react';
 import { ButtonLink, LotAssuranceBadge, Overline } from '@/components/ui';
 import { FeaturedLots } from '@/components/marketing/FeaturedLots';
 import { HowToStart } from '@/components/marketing/HowToStart';
@@ -102,19 +102,19 @@ export default function Landing() {
           <h2 id="cat-h" className="text-h2 text-text-strong">
             Industrial scrap and surplus, by category
           </h2>
-          <ul className="mt-lg grid gap-md sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="mt-lg grid grid-cols-2 gap-sm sm:gap-md lg:grid-cols-4">
             {CATEGORIES.map((c) => (
               <li key={c.id}>
                 <Link href={`/auctions?cat=${c.id}`} className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface hover:border-primary">
                   <div className="relative aspect-[4/3]">
                     <Image src={c.image} alt={c.alt} fill sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
                   </div>
-                  <div className="flex flex-1 flex-col gap-1 p-md">
-                    <span className="flex items-center justify-between gap-xs text-h3 text-text-strong">
+                  <div className="flex flex-1 flex-col gap-1 p-sm sm:p-md">
+                    <span className="flex items-center justify-between gap-xs text-label-md text-text-strong sm:text-h3">
                       {c.name}
-                      <ArrowRight className="size-4 shrink-0 text-primary" aria-hidden />
+                      <ArrowRight className="hidden size-4 shrink-0 text-primary sm:block" aria-hidden />
                     </span>
-                    <span className="text-body-md text-text-secondary">{c.body}</span>
+                    <span className="hidden text-body-md text-text-secondary sm:block">{c.body}</span>
                   </div>
                 </Link>
               </li>
@@ -166,7 +166,6 @@ export default function Landing() {
       <section aria-labelledby="la-h" className="mx-auto max-w-[1280px] px-4 py-xxl md:px-lg">
         <div className="flex flex-col gap-md rounded-lg bg-primary-container p-lg md:flex-row md:items-center md:justify-between">
           <div className="flex gap-md">
-            <ShieldCheck className="size-8 shrink-0 text-primary" aria-hidden />
             <div>
               <LotAssuranceBadge className="mb-xs" />
               <h2 id="la-h" className="text-h3 text-text-strong">

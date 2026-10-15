@@ -9,6 +9,7 @@ const ROUTES: [string, 'guest' | 'buyer' | 'seller' | 'ops'][] = [
   ['/auctions/LOT-2025-0899', 'guest'],
   ['/auctions/LOT-2025-0866', 'buyer'],
   ['/lot-assurance', 'guest'],
+  ['/how-it-works', 'guest'],
   ['/sign-in', 'guest'],
   ['/onboarding/buyer', 'guest'],
   ['/onboarding/seller', 'guest'],

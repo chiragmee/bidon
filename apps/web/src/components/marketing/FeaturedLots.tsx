@@ -56,8 +56,9 @@ export function FeaturedLots() {
   const picked = [...FEATURED.flatMap((id) => items.filter((i) => i.id === id)), ...items.filter((i) => !FEATURED.includes(i.id))].slice(0, 4);
   return (
     <ul className="grid gap-lg sm:grid-cols-2 lg:grid-cols-4">
-      {picked.map((lot) => (
-        <li key={lot.id} className="flex min-w-0">
+      {picked.map((lot, i) => (
+        // Phones show two; "See all auctions" covers the rest.
+        <li key={lot.id} className={i < 2 ? 'flex min-w-0' : 'hidden min-w-0 sm:flex'}>
           <div className="flex w-full min-w-0 flex-col">
             <LotCard lot={lot} />
           </div>

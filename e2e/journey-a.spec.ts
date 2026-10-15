@@ -4,10 +4,10 @@ import { action, confirmEmd, expect, test } from './fixtures';
 test('journey A 1–7: browse, review assurance, pay EMD, bid, see status', async ({ page }) => {
   // 1. Open the marketplace.
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1, name: /Industrial surplus/ })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: /Buy and sell industrial scrap/ })).toBeVisible();
 
   // 2. Browse live lots.
-  await page.getByRole('link', { name: 'Explore auctions' }).first().click();
+  await page.getByRole('link', { name: 'Browse auctions' }).first().click();
   await expect(page).toHaveURL(/\/auctions$/);
   await expect(page.getByRole('heading', { name: 'Live and upcoming auctions' })).toBeVisible();
   await expect(page.getByText('Showing 5 of')).toBeVisible();

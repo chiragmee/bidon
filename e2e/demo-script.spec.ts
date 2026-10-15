@@ -20,7 +20,7 @@ test('demo script, acts 1–7', async ({ page }) => {
   await page.getByRole('dialog', { name: 'Reset demo data?' }).getByRole('button', { name: 'Reset demo data' }).click();
 
   // 1. Landing.
-  await expect(page.getByRole('heading', { name: /Lot Assurance: the auction stays the same/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Buying steel\? Look for Lot Assurance/ })).toBeVisible();
 
   // 2. Buyer looks at an assured lot.
   await page.getByRole('button', { name: 'Explore as Buyer' }).click();

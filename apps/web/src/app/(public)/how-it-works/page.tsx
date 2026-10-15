@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { DOCUMENT_LABEL, documentRequirements, ENTITY_TYPES, PAYMENT_METHODS, policyFor } from '@auctionit/domain';
+import { DOCUMENT_LABEL, documentRequirements, PAYMENT_METHODS, policyFor } from '@auctionit/domain';
 import { Container, PageHeader } from '@/components/layout/Shells';
 import { ButtonLink, Card } from '@/components/ui';
 import { signUpHref } from '@/lib/links';
@@ -103,7 +103,7 @@ export default function HowItWorksPage() {
           Who can trade
         </h2>
         <p className="mt-xs max-w-[760px] text-body-lg text-text-secondary">
-          Registered Indian businesses — {ENTITY_TYPES.map((t) => t.label.toLowerCase()).join(', ')}. Each business holds one account, as a buyer or a seller, and
+          Registered Indian businesses — sole proprietorships, partnership firms, LLPs, and private or public limited companies. Each business holds one account, as a buyer or a seller, and
           can trade once a reviewer approves it. Anyone can browse auctions without an account.
         </p>
       </section>
