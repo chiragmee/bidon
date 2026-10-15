@@ -14,9 +14,10 @@
     "e2e": "playwright test",
     "build": "pnpm generate && pnpm -r build",
     "format": "prettier --write .",
-    "db:reset": "echo 'db:reset arrives in Phase 2 (Supabase). Use demo mode until then.' && exit 1",
-    "demo:reset": "echo 'Demo mode keeps data in each browser: use \"Reset demo data\" in the header role menu. (pnpm db:reset resets Supabase from Phase 2.)'",
-    "generate": "pnpm --filter @auctionit/scripts generate"
+    "db:reset": "supabase db reset && pnpm --filter @auctionit/api db:seed",
+    "demo:reset": "pnpm --filter @auctionit/api db:seed || echo 'No database configured. In browser demo mode use \"Reset demo data\" in the header role menu.'",
+    "generate": "pnpm --filter @auctionit/scripts generate",
+    "e2e:http": "E2E_API_URL=http://localhost:4000 playwright test --project=desktop --workers=1"
   },
   "devDependencies": {
     "@playwright/test": "1.64.0",

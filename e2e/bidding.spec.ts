@@ -1,4 +1,4 @@
-import { action, expect, signIn, test } from './fixtures';
+import { action, expect, signIn, test, isHttp } from './fixtures';
 
 const KEY = 'auctionit:demo:v1';
 
@@ -11,6 +11,7 @@ async function payEmd(page: import('@playwright/test').Page) {
 }
 
 test('stale bid: another bidder gets in first → outbid, new minimum offered, retry succeeds', async ({ page, context }) => {
+  test.skip(isHttp, 'uses browser demo-mode failure injection / localStorage; covered by the API contract tests');
   await page.goto('/auctions/LOT-2025-0891');
   await payEmd(page);
   const dialog = page.getByRole('dialog', { name: /bid/i });
@@ -46,6 +47,7 @@ test('below the minimum is caught before review', async ({ page }) => {
 });
 
 test('a network failure never shows success, and retry is safe', async ({ page }) => {
+  test.skip(isHttp, 'uses browser demo-mode failure injection / localStorage; covered by the API contract tests');
   await page.goto('/auctions/LOT-2025-0891');
   await payEmd(page);
   const dialog = page.getByRole('dialog', { name: /bid/i });

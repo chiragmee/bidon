@@ -16,7 +16,7 @@ One sentence: a CEO/COO can watch journeys A, B, C (§22) run end-to-end on seed
 Run one phase per session ("Run Phase N from docs/PHASES.md"). Each ends: typecheck + lint + test green → PLAN ticked → report (done · decisions · gaps · next) → commit → stop.
 
 - [x] **Phase 1** (2026-10-15) — Plan, scaffold, design tokens + UI primitives (`/dev/components`), domain core + tests, seed
-- [ ] **Phase 2** — Supabase migrations, `place_bid` / `close_auction`, time-based status, seed/reset, API routes, DemoDataSource, contract tests
+- [x] **Phase 2** (2026-10-15) — Supabase migrations, `place_bid` / `close_auction`, time-based status, seed/reset, API routes, DemoDataSource, contract tests
 - [x] **Phase 3** (2026-10-15) — Guest + buyer journey (demo access, role switcher + reset, catalogue, lot detail, EMD, bid, onboarding, buyer dashboard) · e2e A1–A7
 - [x] **Phase 4** (2026-10-15) — Seller onboarding, dashboard, 4-step wizard, preview/publish, lot management · e2e B1–B9
 - [x] **Phase 5** (2026-10-15) — `/transactions/[id]`, lifting check, claims + seller response, `/ops`, track record, notifications · e2e A8–A14, B10, C
@@ -101,19 +101,19 @@ Enforced: **D** domain (`packages/domain`) · **A** API · **DB** Postgres const
 ### Bidding and auctions (§10, §20 Auctions)
 | ✓ | Rule | Enforced | Test |
 |---|---|---|---|
-| [ ] | EMD required before bid; simulated success records it, simulated failure doesn't | D A DB UI | U C E(A5) |
-| [ ] | Bid amount missing / not a positive number → `invalid_amount` | D A UI | U C |
-| [ ] | Bid below min next bid (highest or reserve + increment) → `below_minimum` | D A DB UI | U C E |
-| [ ] | Bid before start → `auction_not_started` | D A DB UI | U C |
-| [ ] | Bid after end / closed → `auction_closed` | D A DB UI | U C |
-| [ ] | No EMD → `emd_required` | D A DB UI | U C E |
+| [x] | EMD required before bid; simulated success records it, simulated failure doesn't | D A DB UI | U C E(A5) |
+| [x] | Bid amount missing / not a positive number → `invalid_amount` | D A UI | U C |
+| [x] | Bid below min next bid (highest or reserve + increment) → `below_minimum` | D A DB UI | U C E |
+| [x] | Bid before start → `auction_not_started` | D A DB UI | U C |
+| [x] | Bid after end / closed → `auction_closed` | D A DB UI | U C |
+| [x] | No EMD → `emd_required` | D A DB UI | U C E |
 | [ ] | Seller bidding own lot → `own_lot` | D A DB | U C |
-| [ ] | Duplicate client request id → `duplicate` (idempotent) | A DB UI | C |
-| [ ] | Stale bid (someone outbid meanwhile) → `outbid`, UI refreshes minimum | D A DB UI | U C |
-| [ ] | 20 concurrent bids → one consistent highest, no duplicates | DB | C |
-| [ ] | Status derived from time: Scheduled → Live at start, Live → Closed at end | D A | U C |
-| [ ] | Close: winner = highest stored bid ≥ reserve (earliest on tie), else Unsold; creates transaction | D A DB | U C E(A8) |
-| [ ] | Only Ops can close a demo auction early | D A UI | U C |
+| [x] | Duplicate client request id → `duplicate` (idempotent) | A DB UI | C |
+| [x] | Stale bid (someone outbid meanwhile) → `outbid`, UI refreshes minimum | D A DB UI | U C |
+| [x] | 20 concurrent bids → one consistent highest, no duplicates | DB | C |
+| [x] | Status derived from time: Scheduled → Live at start, Live → Closed at end | D A | U C |
+| [x] | Close: winner = highest stored bid ≥ reserve (earliest on tie), else Unsold; creates transaction | D A DB | U C E(A8) |
+| [x] | Only Ops can close a demo auction early | D A UI | U C |
 | [x] | No working bid button on upcoming/closed lots | UI | E |
 
 ### Listings (§13, §14, §20 Listings)
@@ -123,21 +123,21 @@ Enforced: **D** domain (`packages/domain`) · **A** API · **DB** Postgres const
 | [ ] | Reserve > 0; EMD > 0 | D A DB UI | U C |
 | [ ] | End after start; start not in past at publish | D A DB UI | U C E |
 | [ ] | Assurance only for eligible categories; requires agreement + evidence requirement met | D A UI | U C |
-| [ ] | Publish blocked with specific reasons; drafts saved and editable | D A UI | U C E |
-| [ ] | Status after publish reflects start time | D A | U C |
-| [ ] | Seller cannot edit live lot / change reserve after first bid / alter bids / change winner | D A UI | U C |
+| [x] | Publish blocked with specific reasons; drafts saved and editable | D A UI | U C E |
+| [x] | Status after publish reflects start time | D A | U C |
+| [x] | Seller cannot edit live lot / change reserve after first bid / alter bids / change winner | D A UI | U C |
 | [ ] | Seller cannot touch another seller's lot | A UI | C |
 
 ### Transactions (§15, §20 Transactions)
 | ✓ | Rule | Enforced | Test |
 |---|---|---|---|
 | [ ] | Won ≠ completed; completion needs balance paid, lifting confirmed, and (assured) accepted lifting check | D A | U C |
-| [ ] | Every transition has one allowed role; others rejected with reason | D A UI | U C |
+| [x] | Every transition has one allowed role; others rejected with reason | D A UI | U C |
 | [ ] | Invalid transition for current state rejected with reason | D A UI | U C |
 | [ ] | Buyer proposes lifting date; seller confirms | D A UI | U E(A11) |
-| [ ] | Payable = measured MT × winning price; reconcile vs balance paid | D | U |
+| [x] | Payable = measured MT × winning price; reconcile vs balance paid | D | U |
 | [ ] | Defaulted only by Ops after payment deadline (policy) | D A UI | U C |
-| [ ] | Weighbridge (ticket, MT, file, time) and condition check are separate records + cards | D A UI | U E(A12) |
+| [x] | Weighbridge (ticket, MT, file, time) and condition check are separate records + cards | D A UI | U E(A12) |
 | [ ] | Measurement accepted only when all required fields present | D A UI | U |
 
 ### Lot Assurance claims (§16, §20 Assurance)
@@ -151,8 +151,8 @@ Enforced: **D** domain (`packages/domain`) · **A** API · **DB** Postgres const
 | [ ] | Ineligible: after loading complete → `window_closed` | D A UI | U |
 | [ ] | Eligibility returns all failing reasons at once, each with a next step | D UI | U |
 | [ ] | Classify: within tolerance → normal; clear exception → remedy; disputed → Ops | D | U |
-| [ ] | Seller responds first: accept → remedy applied, resolved; dispute → Ops queue | D A UI | U C E |
-| [ ] | Only Ops decides disputed claims; decision needs reason; records actor + timestamp | D A UI | U C E(C5) |
+| [x] | Seller responds first: accept → remedy applied, resolved; dispute → Ops queue | D A UI | U C E |
+| [x] | Only Ops decides disputed claims; decision needs reason; records actor + timestamp | D A UI | U C E(C5) |
 | [ ] | Remedy (D-008): price adjustment = (observed − tolerance) × measured MT × rate; exit = EMD + balance refunded (simulated) | D | U (CLM-1042-01 → ₹83,376) |
 | [ ] | Track record updates after completion and claim resolution | D | U |
 | [ ] | Policy per category, every entry `demo: true` | D | U |

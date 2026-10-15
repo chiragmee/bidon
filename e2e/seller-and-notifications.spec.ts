@@ -1,4 +1,4 @@
-import { expect, PNG, signIn, switchTo, test } from './fixtures';
+import { expect, PNG, signIn, switchTo, test, isHttp } from './fixtures';
 
 test('journey B 10: the seller views a transaction and confirms lifting; the buyer is notified', async ({ page }) => {
   await signIn(page.context(), 'seller');
@@ -25,6 +25,7 @@ test('claims explain exactly why they are not available', async ({ page }) => {
 });
 
 test('evidence upload rejects unsupported files with a fix, and accepts photos', async ({ page }) => {
+  test.skip(isHttp, 'uses browser demo-mode failure injection / localStorage; covered by the API contract tests');
   await signIn(page.context(), 'seller');
   await page.goto('/transactions/TX-1045');
   await page.getByRole('button', { name: 'Confirm lifting date' }).click();

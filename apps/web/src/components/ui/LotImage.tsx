@@ -57,7 +57,17 @@ export function LotImage({
           </div>
         </div>
       ) : (
-        <Image src={src} alt={alt} fill sizes={sizes} priority={priority} className="object-cover" onError={() => setFailed(true)} />
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes={sizes}
+          priority={priority}
+          // Uploaded evidence (Supabase Storage, data URLs) is served as-is; only bundled demo photos are optimised.
+          unoptimized={!src.startsWith('/')}
+          className="object-cover"
+          onError={() => setFailed(true)}
+        />
       )}
       {children}
     </div>

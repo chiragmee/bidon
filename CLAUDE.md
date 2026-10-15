@@ -99,10 +99,11 @@ pnpm dev            # web :3000 + api :4000
 pnpm typecheck
 pnpm lint
 pnpm test           # unit + contract
-pnpm e2e            # Playwright journeys
+pnpm e2e            # Playwright journeys (browser demo mode)
+pnpm e2e:http       # same journeys against the API + Postgres (API on :4000, web started with NEXT_PUBLIC_DATA_SOURCE=http)
 pnpm build
-pnpm db:reset       # migrations + seed (Supabase) — arrives in Phase 2
-pnpm demo:reset     # demo mode: explains in-app "Reset demo data" (data lives in each browser)
+pnpm db:reset       # supabase db reset (migrations) + seed — needs `supabase start`
+pnpm demo:reset     # reseed the database (no migrations); browser demo mode uses "Reset demo data" in the header
 ```
 
 ## Definition of done (every change)

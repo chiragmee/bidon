@@ -1,4 +1,4 @@
-import { expect, isMobile, test } from './fixtures';
+import { expect, isMobile, test, isHttp } from './fixtures';
 
 test('filters are functional, synced to the URL, and clearable', async ({ page }) => {
   await page.goto('/auctions');
@@ -28,6 +28,7 @@ test('a shared filtered URL opens filtered, including closed lots', async ({ pag
 });
 
 test('a failed load shows what happened and recovers on retry', async ({ page }) => {
+  test.skip(isHttp, 'uses browser demo-mode failure injection / localStorage; covered by the API contract tests');
   await page.addInitScript(() => sessionStorage.setItem('auctionit:fail-next', 'listLots'));
   await page.goto('/auctions');
   await expect(page.getByText('We couldn’t load auctions.')).toBeVisible();

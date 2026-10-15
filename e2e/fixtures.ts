@@ -1,11 +1,31 @@
 import { test as base, expect, type BrowserContext, type Page } from '@playwright/test';
 
 /** Every test fails on console errors or uncaught page errors (CLAUDE.md Definition of done). */
-export const test = base.extend<{ consoleErrors: string[] }>({
+/** Set when the suite runs against the real API (pnpm e2e:http): each test starts from a fresh seed. */
+export const API_URL = process.env.E2E_API_URL;
+export const isHttp = !!API_URL;
+
+export const test = base.extend<{ consoleErrors: string[]; freshData: void }>({
+  freshData: [
+    async ({}, use) => {
+      if (API_URL) {
+        const res = await fetch(`${API_URL}/demo/reset`, { method: 'POST' });
+        if (!res.ok) throw new Error(`Could not reset the API data (${res.status}).`);
+      }
+      await use();
+    },
+    { auto: true },
+  ],
   consoleErrors: [
     async ({ page }, use) => {
       const errors: string[] = [];
-      page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
+      page.on('console', (m) => {
+        if (m.type() !== 'error') return;
+        // Chrome logs every 4xx fetch. A 422 is the API refusing a business rule on purpose (e.g. the
+        // simulated failed EMD payment); the page shows it. Anything else still fails the test.
+        if (/Failed to load resource: .* status of 422/.test(m.text())) return;
+        errors.push(m.text());
+      });
       page.on('pageerror', (e) => errors.push(String(e)));
       await use(errors);
       expect(errors, 'console errors').toEqual([]);
