@@ -13,7 +13,8 @@ echo "Changes to push (passwords hidden):"
 supabase config diff --project-ref "$REF" 2>/dev/null | grep '^{' | python3 -c '
 import json,sys
 for c in json.load(sys.stdin)["changes"]:
-    p=".".join(c["path"]); hide="pass" in p
-    print(f"  {p}: {\"<hidden>\" if hide else c.get(\"remote\")} -> {\"<hidden>\" if hide else c.get(\"local\")}")'
+    p=".".join(c["path"]); hide=("pass" in p)
+    old="<hidden>" if hide else c.get("remote"); new="<hidden>" if hide else c.get("local")
+    print("  %s: %s -> %s" % (p, old, new))'
 [ "${1:-}" = "--yes" ] || { read -r -p "Push these to the live project? [y/N] " a; [ "$a" = y ] || exit 1; }
 supabase config push --project-ref "$REF" --yes
