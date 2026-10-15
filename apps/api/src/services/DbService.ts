@@ -6,6 +6,13 @@ import {
   docView,
   eligibilityQueue,
   eligibilityReview,
+  appointReviewer,
+  removeReviewer,
+  setApplicationState,
+  setReviewerRegions,
+  teamView,
+  type AppointInput,
+  type User,
   recordEmdRefund,
   removeDocument,
   reviewEligibility,
@@ -50,9 +57,11 @@ import { closeDueAuctions, closeLot, insertNotifications, loadState, reseed, wit
 export type StoredDocument = Omit<AccountDocument, 'id' | 'companyId' | 'uploadedAt' | 'uploadedBy'>;
 
 /** The DataSource operations the API serves (uploads and change events are HTTP concerns). */
-export type Service = Omit<DataSource, 'kind' | 'subscribe' | 'uploadMedia' | 'uploadDocument'> & {
+export type Service = Omit<DataSource, 'kind' | 'subscribe' | 'uploadMedia' | 'uploadDocument' | 'appointReviewer'> & {
   /** Record a file the route already put in private storage. */
   addDocument(doc: StoredDocument, viewer: Viewer): Promise<DsResult<DocumentView>>;
+  /** Appoint a reviewer (D-102). `dryRun` checks the rules without writing — the route checks before it sends the invitation. */
+  appointReviewer(input: AppointInput, viewer: Viewer, opts?: { dryRun?: boolean }): Promise<DsResult<User>>;
 };
 
 /** Unique-index names → the refusal the domain would give, for writes that race past its checks. */
@@ -188,8 +197,8 @@ export class DbService implements Service {
     if (!canViewDocument(s, id, viewer)) return { ok: false, error: { kind: 'rule', code: 'forbidden', what: 'You can’t open this document.', next: 'Only its owner, a reviewer, or the seller a receipt was sent to can open it.' } };
     return { ok: true, data: { url: s.documents.find((d) => d.id === id)?.path || null } };
   };
-  eligibilityQueue: Service['eligibilityQueue'] = (viewer) => this.read((s) => (viewer.role === 'ops' ? eligibilityQueue(s) : null));
-  eligibilityReview: Service['eligibilityReview'] = (companyId, viewer) => this.read((s) => (viewer.role === 'ops' ? eligibilityReview(s, companyId) : null));
+  eligibilityQueue: Service['eligibilityQueue'] = (viewer) => this.read((s) => (viewer.role === 'ops' ? eligibilityQueue(s, viewer.id) : null));
+  eligibilityReview: Service['eligibilityReview'] = (companyId, viewer) => this.read((s) => (viewer.role === 'ops' ? eligibilityReview(s, companyId, viewer.id) : null));
   reviewEligibility: Service['reviewEligibility'] = (companyId, decision, viewer) => this.write((s, at) => reviewEligibility(s, companyId, decision, actor(viewer), at));
 
   getUser: Service['getUser'] = async (id) => {
@@ -225,8 +234,26 @@ export class DbService implements Service {
   }
 
   /** The profile a verified Supabase Auth user owns — the only source of their id and role. */
+  team: Service['team'] = (viewer) => this.read((s) => (viewer.role === 'ops' && viewer.id ? teamView(s, viewer.id) : null));
+  appointReviewer: Service['appointReviewer'] = async (input, viewer, opts) => {
+    if (!opts?.dryRun) return this.write((s, at) => appointReviewer(s, input, actor(viewer), at));
+    const r = await this.read((s, at) => appointReviewer(s, input, actor(viewer), at));
+    if (!r.ok) return r;
+    return r.data.ok ? { ok: true, data: r.data.value } : { ok: false, error: { ...r.data.error, kind: 'rule' } };
+  };
+  setReviewerRegions: Service['setReviewerRegions'] = (userId, regions, viewer) => this.write((s, at) => setReviewerRegions(s, userId, regions, actor(viewer), at));
+  removeReviewer: Service['removeReviewer'] = (userId, viewer) => this.write((s, at) => removeReviewer(s, userId, actor(viewer), at));
+  setApplicationState: Service['setApplicationState'] = (companyId, code, viewer) => this.write((s, at) => setApplicationState(s, companyId, code, actor(viewer), at));
+
+  /** The Supabase sign-in for an email, if one exists (to invite only people who haven't set a password). */
+  async authUserByEmail(email: string): Promise<{ id: string; confirmed: boolean } | null> {
+    const [u] = await this.sql`select id, email_confirmed_at from auth.users where lower(email) = ${email.trim().toLowerCase()}`;
+    return u ? { id: String(u.id), confirmed: !!u.email_confirmed_at } : null;
+  }
+
+  /** Signed-in staff who were removed (D-102) resolve to no profile: no Operations access. */
   async profileForAuthUser(authUserId: string): Promise<{ id: string; role: 'buyer' | 'seller' | 'ops' } | null> {
-    const [u] = await this.sql`select id, role from profiles where auth_user_id = ${authUserId}`;
+    const [u] = await this.sql`select id, role from profiles where auth_user_id = ${authUserId} and staff_level is distinct from 'removed'`;
     return u ? { id: String(u.id), role: u.role as 'buyer' | 'seller' | 'ops' } : null;
   }
 }

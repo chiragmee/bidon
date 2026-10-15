@@ -4,7 +4,11 @@ import { useState } from 'react';
 import {
   CONSTITUTION_HINT,
   ENTITY_TYPES,
+  INDIAN_STATES,
+  REGION_LABEL,
   STATUS_TEXT,
+  stateByCode,
+  stateFromGstin,
   type AccountView,
   type DocumentKind,
   type EligibilityInput,
@@ -39,6 +43,8 @@ function inputFrom(v: AccountView): EligibilityInput {
     gstin: e.gstin,
     registrationNumber: e.registrationNumber,
     registeredAddress: e.registeredAddress,
+    // Pre-filled from the GSTIN, else the state given at sign-up; the applicant confirms it.
+    state: e.state || stateFromGstin(e.gstin)?.code || INDIAN_STATES.find((s) => s.name === v.company.state)?.code || '',
     representative: { ...e.representative },
     sellerDeclaration: v.company.kind === 'seller' ? (e.sellerDeclaration ?? { authorisedToSell: false, materialSource: '' }) : null,
     bankDetails: v.company.kind === 'seller' ? (e.bankDetails ?? { accountName: '', bankName: '', accountNumber: '', ifsc: '', upiId: '' }) : null,
@@ -170,7 +176,11 @@ function ApplicationForm({ v, reload }: { v: AccountView; reload: () => void }) 
             <Input value={f.pan} readOnly={ro} onChange={(e) => set('pan', e.target.value.toUpperCase())} placeholder="ABCDE1234F" autoComplete="off" />
           </Field>
           <Field label="GSTIN" required={seller} helper={seller ? 'Required to sell.' : 'If the business is GST-registered.'} error={problem('gstin')}>
-            <Input value={f.gstin} readOnly={ro} onChange={(e) => set('gstin', e.target.value.toUpperCase())} placeholder="27ABCDE1234F1Z5" autoComplete="off" />
+            <Input value={f.gstin} readOnly={ro} onChange={(e) => {
+                const gstin = e.target.value.toUpperCase();
+                const fromGst = stateFromGstin(gstin);
+                setF((x) => ({ ...x, gstin, state: x.state || fromGst?.code || '' }));
+              }} placeholder="27ABCDE1234F1Z5" autoComplete="off" />
           </Field>
           {entity?.hasRegistrationNumber && (
             <Field label={f.entityType === 'llp' ? 'LLPIN' : 'CIN'} required error={problem('registrationNumber')}>
@@ -180,6 +190,21 @@ function ApplicationForm({ v, reload }: { v: AccountView; reload: () => void }) 
         </div>
         <Field label="Registered address" required error={problem('registeredAddress')}>
           <Textarea value={f.registeredAddress} readOnly={ro} onChange={(e) => set('registeredAddress', e.target.value)} />
+        </Field>
+        <Field
+          label="State of the registered address"
+          required
+          error={problem('state')}
+          helper={stateByCode(f.state) ? `Reviewed by the AuctionIT ${REGION_LABEL[stateByCode(f.state)!.region]} team.` : 'Decides which AuctionIT team reviews your application.'}
+        >
+          <Select value={f.state} disabled={ro} onChange={(e) => set('state', e.target.value)}>
+            <option value="">Choose…</option>
+            {[...INDIAN_STATES].sort((a, b) => a.name.localeCompare(b.name)).map((st) => (
+              <option key={st.code} value={st.code}>
+                {st.name}
+              </option>
+            ))}
+          </Select>
         </Field>
         <div className="grid gap-md sm:grid-cols-2">
           <Field label="Authorised representative" required error={problem('representative')}>

@@ -16,6 +16,11 @@ import {
   docView,
   eligibilityQueue,
   eligibilityReview,
+  appointReviewer,
+  removeReviewer,
+  setApplicationState,
+  setReviewerRegions,
+  teamView,
   recordEmdRefund,
   removeDocument,
   reviewEligibility,
@@ -184,9 +189,16 @@ export class LocalDataSource implements DataSource {
         return { ok: true as const, data: { url: s.documents.find((d) => d.id === id)?.path || null } };
       }),
     );
-  eligibilityQueue: DataSource['eligibilityQueue'] = (viewer) => this.as(viewer, () => this.read('eligibilityQueue', (s) => (viewer.role === 'ops' ? eligibilityQueue(s) : null)));
-  eligibilityReview: DataSource['eligibilityReview'] = (companyId, viewer) => this.as(viewer, () => this.read('eligibilityReview', (s) => (viewer.role === 'ops' ? eligibilityReview(s, companyId) : null)));
+  eligibilityQueue: DataSource['eligibilityQueue'] = (viewer) => this.as(viewer, () => this.read('eligibilityQueue', (s) => (viewer.role === 'ops' ? eligibilityQueue(s, viewer.id) : null)));
+  eligibilityReview: DataSource['eligibilityReview'] = (companyId, viewer) => this.as(viewer, () => this.read('eligibilityReview', (s) => (viewer.role === 'ops' ? eligibilityReview(s, companyId, viewer.id) : null)));
   reviewEligibility: DataSource['reviewEligibility'] = (companyId, decision, viewer) => this.as(viewer, () => this.write('reviewEligibility', (s) => reviewEligibility(s, companyId, decision, actor(viewer), this.now())));
+
+  team: DataSource['team'] = (viewer) => this.as(viewer, () => this.read('team', (s) => (viewer.role === 'ops' && viewer.id ? teamView(s, viewer.id) : null)));
+  // Demo mode has no email: the appointed reviewer appears in the team list straight away.
+  appointReviewer: DataSource['appointReviewer'] = (input, viewer) => this.as(viewer, () => this.write('appointReviewer', (s) => appointReviewer(s, { ...input, authUserId: null }, actor(viewer), this.now())));
+  setReviewerRegions: DataSource['setReviewerRegions'] = (userId, regions, viewer) => this.as(viewer, () => this.write('setReviewerRegions', (s) => setReviewerRegions(s, userId, regions, actor(viewer), this.now())));
+  removeReviewer: DataSource['removeReviewer'] = (userId, viewer) => this.as(viewer, () => this.write('removeReviewer', (s) => removeReviewer(s, userId, actor(viewer), this.now())));
+  setApplicationState: DataSource['setApplicationState'] = (companyId, code, viewer) => this.as(viewer, () => this.write('setApplicationState', (s) => setApplicationState(s, companyId, code, actor(viewer), this.now())));
 
   getUser: DataSource['getUser'] = (id) =>
     this.read('getUser', (s) => {

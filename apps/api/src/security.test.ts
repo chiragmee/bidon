@@ -17,6 +17,14 @@ function fakeAuth(users: Record<string, AuthUser>, roles: Record<string, string>
     setProfile: async (id, p) => {
       roles[id] = `${p.role}:${p.profileId}`;
     },
+    clearProfile: async (id) => {
+      roles[id] = 'cleared';
+    },
+    invite: async (email) => {
+      const id = `invited-${email}`;
+      users[`tok-${email}`] = { id, email, emailVerified: true };
+      return { ok: true, authUserId: id };
+    },
   };
 }
 const noDocs: DocumentStore = { put: async () => ({ ok: true, data: { path: '' } }), signedUrl: async () => null };
@@ -69,6 +77,11 @@ const ROUTES: [string, string, Access, unknown?][] = [
   ['get', '/ops/eligibility', 'ops'],
   ['get', '/ops/eligibility/C-VARDHAN', 'ops'],
   ['post', '/ops/eligibility/C-VARDHAN/decision', 'ops', { decision: 'approved', reason: '' }],
+  ['put', '/ops/eligibility/C-VARDHAN/state', 'ops', { state: 'MH' }],
+  ['get', '/ops/team', 'ops'],
+  ['post', '/ops/team/reviewers', 'ops', { name: 'Sec Test', email: 'sec@auctionit.example', regions: ['west'] }],
+  ['put', '/ops/team/reviewers/U-NOPE/regions', 'ops', { regions: ['west'] }],
+  ['delete', '/ops/team/reviewers/U-NOPE', 'ops'],
   ['get', '/notifications', 'signed_in'],
   ['post', '/notifications/read', 'signed_in', {}],
   ['post', '/media?stage=lifting&name=a.png&type=image/png', 'signed_in'],
@@ -239,3 +252,44 @@ describe('sign-in (Supabase Auth) and account creation', () => {
     expect((await request(live1).post('/lots/LOT-2025-0891/emd').set('authorization', 'Bearer tok-asha').send({ amount: 100000, method: 'neft', paidOn: '2026-01-01', reference: 'UTR123', payerName: 'Asha', receiptDocumentId: null })).body.error.code).toBe('not_eligible');
   });
 });
+
+describe('team: the admin appoints and removes regional reviewers (D-102)', () => {
+  const live = loadEnv({ ALLOWED_ORIGINS: 'https://auctionit.example', DATA_MODE: 'supabase', DATABASE_URL: 'postgresql://u:p@db.example.com:5432/postgres' });
+  it('only the admin appoints; the invitee gets the ops role; removal takes Operations access away', async () => {
+    const users: Record<string, AuthUser> = { 'tok-admin': { id: 'auth-admin', email: 'devendra.nath@auctionit.example', emailVerified: true } };
+    const roles: Record<string, string> = {};
+    const svc = new MemoryService();
+    // The sample admin signs in through Supabase in this test.
+    (svc as unknown as { mem: { mutate(fn: (s: { users: { id: string; authUserId?: string | null }[] }) => void): void } }).mem.mutate((st) => {
+      st.users.find((u) => u.id === 'U-DEVENDRA')!.authUserId = 'auth-admin';
+    });
+    const app2 = createApp(live, svc, undefined, { auth: fakeAuth(users, roles), documents: noDocs });
+    const as = (tok: string) => ({ authorization: `Bearer ${tok}` });
+
+    const res = await request(app2).post('/ops/team/reviewers').set(as('tok-admin')).send({ name: 'Wasim West', email: 'West@AuctionIT.example', regions: ['west'] });
+    expect(res.status, JSON.stringify(res.body)).toBe(200);
+    const id = res.body.data.id as string;
+    expect(res.body.data).toMatchObject({ role: 'ops', staffLevel: 'reviewer', regions: ['west'], email: 'west@auctionit.example', authUserId: 'invited-west@auctionit.example' });
+    expect(roles['invited-west@auctionit.example']).toBe(`ops:${id}`);
+
+    // The reviewer is Operations but not the admin.
+    const reviewer = as('tok-west@auctionit.example');
+    expect((await request(app2).get('/ops/eligibility').set(reviewer)).status).toBe(200);
+    const byReviewer = await request(app2).post('/ops/team/reviewers').set(reviewer).send({ name: 'X', email: 'x@auctionit.example', regions: ['north'] });
+    expect([byReviewer.status, byReviewer.body.error.code]).toEqual([403, 'forbidden']);
+    expect((await request(app2).get('/ops/team').set(reviewer)).body.data).toBeNull();
+    expect((await request(app2).get('/ops/team').set(as('tok-admin'))).body.data.members.map((m: { name: string }) => m.name)).toContain('Wasim West');
+
+    // A buyer's email can't be appointed, and no invitation goes out for it.
+    const buyerEmail = await request(app2).post('/ops/team/reviewers').set(as('tok-admin')).send({ name: 'Rahul', email: 'rahul.sharma@vardhan.example', regions: ['west'] });
+    expect([buyerEmail.status, buyerEmail.body.error.code]).toEqual([409, 'duplicate_account']);
+    expect(users['tok-rahul.sharma@vardhan.example']).toBeUndefined();
+
+    const removed = await request(app2).delete(`/ops/team/reviewers/${id}`).set(as('tok-admin'));
+    expect(removed.status).toBe(200);
+    expect(roles['invited-west@auctionit.example']).toBe('cleared');
+    // Their sign-in still works, but it no longer reaches Operations.
+    expect((await request(app2).get('/ops/eligibility').set(reviewer)).status).toBe(401);
+  });
+});
+

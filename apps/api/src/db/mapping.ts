@@ -17,6 +17,8 @@ import type {
   User,
 } from '@auctionit/domain';
 
+import { isRegion } from '@auctionit/domain';
+
 export type Row = Record<string, unknown>;
 export type Rows = Record<TableName, Row[]>;
 
@@ -83,7 +85,7 @@ export function rowsFromState(s: DemoState): Rows {
       verification: c.verification,
       eligibility: c.eligibility ?? null,
     })),
-    profiles: s.users.map((u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, company_id: u.companyId, title: u.title, phone: u.phone ?? null, auth_user_id: u.authUserId ?? null })),
+    profiles: s.users.map((u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, company_id: u.companyId, title: u.title, phone: u.phone ?? null, auth_user_id: u.authUserId ?? null, staff_level: u.staffLevel ?? null, regions: u.regions ?? [] })),
     account_documents: s.documents.map((d) => ({ id: d.id, company_id: d.companyId, kind: d.kind, file_name: d.fileName, content_type: d.contentType, size: d.size, path: d.path, uploaded_at: ts(d.uploadedAt), uploaded_by: d.uploadedBy })),
     lots: s.lots.map((l) => ({
       id: l.id,
@@ -269,7 +271,8 @@ export function stateFromRows(r: Rows): DemoState {
         ...(c.yard !== null ? { yard: String(c.yard) } : {}),
         sample: Boolean(c.sample),
         verification: c.verification as Company['verification'],
-        ...(c.eligibility ? { eligibility: c.eligibility as Company['eligibility'] } : {}),
+        // Applications saved before regions existed have no state (D-102).
+        ...(c.eligibility ? { eligibility: { state: '', ...(c.eligibility as object) } as Company['eligibility'] } : {}),
       }),
     ),
     users: r.profiles.map(
@@ -282,6 +285,7 @@ export function stateFromRows(r: Rows): DemoState {
         title: String(u.title),
         phone: (u.phone as string | null) ?? null,
         authUserId: (u.auth_user_id as string | null) ?? null,
+        ...(u.role === 'ops' ? { staffLevel: (u.staff_level as User['staffLevel']) ?? null, regions: ((u.regions as string[] | null) ?? []).filter(isRegion) } : {}),
       }),
     ),
     documents: r.account_documents.map(

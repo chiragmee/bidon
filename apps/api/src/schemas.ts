@@ -133,9 +133,14 @@ export const EligibilityBody = z.object({
   gstin: text(20),
   registrationNumber: text(30),
   registeredAddress: text(500),
+  state: text(4).default(''),
   representative: z.object({ name: text(120), designation: text(120) }),
   sellerDeclaration: z.object({ authorisedToSell: z.boolean(), materialSource: text(1000) }).nullable(),
   bankDetails: z.object({ accountName: text(200), bankName: text(200), accountNumber: text(30), ifsc: text(20), upiId: text(100) }).nullable(),
 });
+const RegionList = z.array(z.enum(['north', 'west', 'central', 'south', 'north_east'])).max(5);
+export const AppointBody = z.object({ name: text(120), email: text(200), regions: RegionList });
+export const RegionsBody = z.object({ regions: RegionList });
+export const StateBody = z.object({ state: text(4) });
 export const ReviewBody = z.object({ decision: z.enum(['approved', 'needs_info', 'rejected']), reason: z.string().max(2000) });
 export const DOCUMENT_KINDS = ['pan_card', 'gst_certificate', 'constitution', 'address_proof', 'representative_id', 'authorisation_letter', 'premises_proof', 'cancelled_cheque', 'payment_receipt'] as const;

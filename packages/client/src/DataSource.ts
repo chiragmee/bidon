@@ -36,6 +36,8 @@ import type {
   EligibilityReviewView,
   PaymentInput,
   RefundInput,
+  Region,
+  TeamView,
 } from '@auctionit/domain';
 
 /**
@@ -105,6 +107,15 @@ export interface DataSource {
   eligibilityQueue(viewer: Viewer): Promise<DsResult<{ waiting: EligibilityQueueRow[]; decided: EligibilityQueueRow[] } | null>>;
   eligibilityReview(companyId: string, viewer: Viewer): Promise<DsResult<EligibilityReviewView | null>>;
   reviewEligibility(companyId: string, decision: { decision: EligibilityReview['decision']; reason: string }, viewer: Viewer): Promise<DsResult<Company>>;
+  // ── Staff and regions (D-102) — admin only, except the queue above, which is region-scoped ──
+  team(viewer: Viewer): Promise<DsResult<TeamView | null>>;
+  /** Invite someone as a reviewer for these regions (live: Supabase emails the invitation). */
+  appointReviewer(input: { name: string; email: string; regions: Region[] }, viewer: Viewer): Promise<DsResult<User>>;
+  setReviewerRegions(userId: string, regions: Region[], viewer: Viewer): Promise<DsResult<User>>;
+  removeReviewer(userId: string, viewer: Viewer): Promise<DsResult<User>>;
+  /** Record the state of an application that has none (registered before regions existed). */
+  setApplicationState(companyId: string, state: string, viewer: Viewer): Promise<DsResult<Company>>;
+
   getUser(id: string): Promise<DsResult<{ user: User; company: Company | null } | null>>;
   emailExists(email: string): Promise<DsResult<boolean>>;
 

@@ -20,6 +20,10 @@ export interface AuthGate {
    * guard know who is signed in from the verified JWT. The API itself always decides from the profile row.
    */
   setProfile(authUserId: string, profile: { role: 'buyer' | 'seller' | 'ops'; profileId: string }): Promise<void>;
+  /** Take the role off a sign-in (a removed reviewer, D-102). */
+  clearProfile(authUserId: string): Promise<void>;
+  /** Email an invitation; the link opens `redirectTo` (/auth/invite) to choose a password. Returns the new sign-in's id. */
+  invite(email: string, name: string, redirectTo: string): Promise<{ ok: true; authUserId: string } | { ok: false; message: string }>;
 }
 
 /** Private files: never public URLs; links are signed for one minute. */
@@ -50,6 +54,14 @@ export function createAuthGate(env: Env): AuthGate | null {
     async setProfile(authUserId, profile) {
       const { error } = await client.auth.admin.updateUserById(authUserId, { app_metadata: { role: profile.role, profile_id: profile.profileId } });
       if (error) console.warn(`Could not copy the profile to app_metadata for ${authUserId}: ${error.message}`);
+    },
+    async clearProfile(authUserId) {
+      const { error } = await client.auth.admin.updateUserById(authUserId, { app_metadata: { role: null, profile_id: null } });
+      if (error) console.warn(`Could not clear app_metadata for ${authUserId}: ${error.message}`);
+    },
+    async invite(email, name, redirectTo) {
+      const { data, error } = await client.auth.admin.inviteUserByEmail(email, { redirectTo, data: { invited_as: 'reviewer', name } });
+      return error || !data.user ? { ok: false, message: error?.message ?? 'no user returned' } : { ok: true, authUserId: data.user.id };
     },
   };
 }

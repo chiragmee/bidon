@@ -116,6 +116,11 @@ export class HttpDataSource implements DataSource {
   eligibilityQueue: DataSource['eligibilityQueue'] = (viewer) => this.call('GET', '/ops/eligibility', undefined, viewer);
   eligibilityReview: DataSource['eligibilityReview'] = (companyId, viewer) => this.call('GET', `/ops/eligibility/${encodeURIComponent(companyId)}`, undefined, viewer);
   reviewEligibility: DataSource['reviewEligibility'] = (companyId, decision, viewer) => this.call('POST', `/ops/eligibility/${encodeURIComponent(companyId)}/decision`, decision, viewer);
+  team: DataSource['team'] = (viewer) => this.call('GET', '/ops/team', undefined, viewer);
+  appointReviewer: DataSource['appointReviewer'] = (input, viewer) => this.call('POST', '/ops/team/reviewers', input, viewer);
+  setReviewerRegions: DataSource['setReviewerRegions'] = (userId, regions, viewer) => this.call('PUT', `/ops/team/reviewers/${encodeURIComponent(userId)}/regions`, { regions }, viewer);
+  removeReviewer: DataSource['removeReviewer'] = (userId, viewer) => this.call('DELETE', `/ops/team/reviewers/${encodeURIComponent(userId)}`, undefined, viewer);
+  setApplicationState: DataSource['setApplicationState'] = (companyId, state, viewer) => this.call('PUT', `/ops/eligibility/${encodeURIComponent(companyId)}/state`, { state }, viewer);
   emailExists: DataSource['emailExists'] = (email) => this.call('GET', `/users/exists?email=${encodeURIComponent(email)}`);
   notifications: DataSource['notifications'] = (viewer) => this.call('GET', '/notifications', undefined, viewer);
   markNotificationsRead: DataSource['markNotificationsRead'] = (viewer) => this.call('POST', '/notifications/read', {}, viewer);

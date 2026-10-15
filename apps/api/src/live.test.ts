@@ -30,7 +30,7 @@ if (!hasDb) console.warn(`[live] Postgres with the Phase 1 migrations not reacha
 const users: Record<string, AuthUser> = {
   'tok-asha': { id: '00000000-0000-4000-8000-00000000a5a1', email: 'asha@newco.example', emailVerified: true },
 };
-const auth: AuthGate = { verify: async (t) => users[t] ?? null, setProfile: async () => {} };
+const auth: AuthGate = { verify: async (t) => users[t] ?? null, setProfile: async () => {}, clearProfile: async () => {}, invite: async () => ({ ok: false, message: 'not in tests' }) };
 const documents: DocumentStore = { put: async () => ({ ok: true, data: { path: '' } }), signedUrl: async () => null };
 
 describe.skipIf(!hasDb)('live configuration on Postgres', () => {
@@ -84,7 +84,7 @@ describe.skipIf(!hasDb)('live configuration on Postgres', () => {
     await app2
       .put('/account/eligibility')
       .set(bearer)
-      .send({ entityType: 'private_limited', legalName: 'NewCo Metals Private Limited', pan: 'AABCN1234F', gstin: '', registrationNumber: 'U27100MH2010PTC123456', registeredAddress: 'Plot 4, MIDC Hingna, Nagpur 440016', representative: { name: 'Asha', designation: 'Director' }, sellerDeclaration: null, bankDetails: null })
+      .send({ entityType: 'private_limited', legalName: 'NewCo Metals Private Limited', pan: 'AABCN1234F', gstin: '', registrationNumber: 'U27100MH2010PTC123456', registeredAddress: 'Plot 4, MIDC Hingna, Nagpur 440016', state: 'MH', representative: { name: 'Asha', designation: 'Director' }, sellerDeclaration: null, bankDetails: null })
       .expect(200);
     for (const kind of ['pan_card', 'constitution', 'address_proof', 'representative_id', 'authorisation_letter']) {
       await app2.post(`/account/documents?kind=${kind}&name=${kind}.pdf&type=application/pdf`).set(bearer).set('content-type', 'application/octet-stream').send(Buffer.from('%PDF-1.4 test')).expect(200);

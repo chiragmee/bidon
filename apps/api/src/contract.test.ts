@@ -499,7 +499,7 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
     expect(code(await t.ds.submitEligibility(asha))).toBe('incomplete_application');
     must(
       await t.ds.saveEligibility(
-        { entityType: 'private_limited', legalName: 'NewCo Metals Private Limited', pan: 'AABCN1234F', gstin: '27AABCN1234F1Z5', registrationNumber: 'U27100MH2010PTC123456', registeredAddress: 'Plot 4, MIDC Hingna, Nagpur 440016', representative: { name: 'Asha Menon', designation: 'Director' }, sellerDeclaration: null, bankDetails: null },
+        { entityType: 'private_limited', legalName: 'NewCo Metals Private Limited', pan: 'AABCN1234F', gstin: '27AABCN1234F1Z5', registrationNumber: 'U27100MH2010PTC123456', registeredAddress: 'Plot 4, MIDC Hingna, Nagpur 440016', state: 'MH', representative: { name: 'Asha Menon', designation: 'Director' }, sellerDeclaration: null, bankDetails: null },
         asha,
       ),
     );
@@ -525,7 +525,7 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
     const ravi: Viewer = { id: sel.user.id, role: 'seller' };
     must(
       await t.ds.saveEligibility(
-        { entityType: 'private_limited', legalName: 'Other Traders Private Limited', pan: 'AABCN1234F', gstin: '27AABCN1234F1Z5', registrationNumber: 'U27100MH2010PTC654321', registeredAddress: 'Yard 1, Wadi, Nagpur 440023', representative: { name: 'Ravi', designation: 'Director' }, sellerDeclaration: { authorisedToSell: true, materialSource: 'Own fabrication offcuts' }, bankDetails: { accountName: 'Other Traders', bankName: 'HDFC Bank', accountNumber: '50100123456789', ifsc: 'HDFC0001234', upiId: '' } },
+        { entityType: 'private_limited', legalName: 'Other Traders Private Limited', pan: 'AABCN1234F', gstin: '27AABCN1234F1Z5', registrationNumber: 'U27100MH2010PTC654321', registeredAddress: 'Yard 1, Wadi, Nagpur 440023', state: 'MH', representative: { name: 'Ravi', designation: 'Director' }, sellerDeclaration: { authorisedToSell: true, materialSource: 'Own fabrication offcuts' }, bankDetails: { accountName: 'Other Traders', bankName: 'HDFC Bank', accountNumber: '50100123456789', ifsc: 'HDFC0001234', upiId: '' } },
         ravi,
       ),
     );

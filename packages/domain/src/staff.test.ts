@@ -112,7 +112,9 @@ describe('staff: admin and regional reviewers', () => {
 
   it('an application without a state is the admin’s alone, and the admin can set it', () => {
     const { s, west } = withReviewers();
-    let { st, companyId } = submitted(s, 'MH', '1001');
+    const sub = submitted(s, 'MH', '1001');
+    const companyId = sub.companyId;
+    let st = sub.st;
     st.companies.find((c) => c.id === companyId)!.eligibility!.state = ''; // registered before regions existed
     expect(eligibilityQueue(st, west).waiting).toHaveLength(0);
     expect(eligibilityQueue(st, 'U-DEVENDRA').waiting[0]).toMatchObject({ region: null, regionLabel: 'Region not set' });

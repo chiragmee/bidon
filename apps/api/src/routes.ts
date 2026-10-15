@@ -11,6 +11,7 @@ import type { AuthGate, AuthUser, DocumentStore } from './services/supabase';
 export type ApiService = Service & {
   verifySession(role: string, userId: string): Promise<boolean>;
   profileForAuthUser(authUserId: string): Promise<{ id: string; role: 'buyer' | 'seller' | 'ops' } | null>;
+  authUserByEmail(email: string): Promise<{ id: string; confirmed: boolean } | null>;
 };
 
 export interface Identity {
@@ -19,8 +20,8 @@ export interface Identity {
   documents: DocumentStore;
 }
 
-const FORBIDDEN_CODES = new Set(['forbidden', 'not_buyer', 'not_owner', 'own_lot', 'not_eligible']);
-const CONFLICT_CODES = new Set(['duplicate_account', 'duplicate_identity', 'already_registered']);
+const FORBIDDEN_CODES = new Set(['forbidden', 'other_region', 'not_buyer', 'not_owner', 'own_lot', 'not_eligible']);
+const CONFLICT_CODES = new Set(['already_staff', 'duplicate_account', 'duplicate_identity', 'already_registered']);
 
 /** Domain result → HTTP. Rule rejections keep their code and wording; the client shows them as-is. */
 function send<T>(res: Response, r: DsResult<T>) {
@@ -92,6 +93,9 @@ function filtersFrom(q: Request['query']): LotFilters {
     sort: typeof q.sort === 'string' ? (q.sort as LotSort) : undefined,
   };
 }
+
+/** Where invitation links land: the web app (first allowed origin). */
+const siteUrl = (env: Env) => (env.ALLOWED_ORIGINS.split(',')[0] ?? '').trim().replace(/\/$/, '');
 
 export function createRouter(service: ApiService, media: MediaStore, env: Env, identity: Identity): Router {
   const r = express.Router();
@@ -237,6 +241,43 @@ export function createRouter(service: ApiService, media: MediaStore, env: Env, i
   r.get('/ops/eligibility', requireRole('ops'), wrap(async (_req, res) => send(res, await service.eligibilityQueue(viewerOf(res)))));
   r.get('/ops/eligibility/:id', requireRole('ops'), wrap(async (req, res) => send(res, await service.eligibilityReview(id(req), viewerOf(res)))));
   r.post('/ops/eligibility/:id/decision', requireRole('ops'), wrap(async (req, res) => send(res, await service.reviewEligibility(id(req), S.ReviewBody.parse(req.body), viewerOf(res)))));
+  r.put('/ops/eligibility/:id/state', requireRole('ops'), wrap(async (req, res) => send(res, await service.setApplicationState(id(req), S.StateBody.parse(req.body).state, viewerOf(res)))));
+
+  // ── Team: the admin appoints regional reviewers (D-102); the domain refuses anyone but the admin ──
+  r.get('/ops/team', requireRole('ops'), wrap(async (_req, res) => send(res, await service.team(viewerOf(res)))));
+  r.post(
+    '/ops/team/reviewers',
+    requireRole('ops'),
+    wrap(async (req, res) => {
+      const viewer = viewerOf(res);
+      const body = S.AppointBody.parse(req.body);
+      const input = { ...body, email: body.email.trim().toLowerCase(), authUserId: null as string | null };
+      if (!identity.auth) return send(res, await service.appointReviewer(input, viewer)); // in-memory demo: no sign-in to invite
+      // Check the rules before any email goes out, then invite (unless they already have a sign-in), then record.
+      const check = await service.appointReviewer(input, viewer, { dryRun: true });
+      if (!check.ok) return send(res, check);
+      const existing = await service.authUserByEmail(input.email);
+      if (existing?.confirmed) input.authUserId = existing.id;
+      else {
+        const invited = await identity.auth.invite(input.email, input.name.trim(), `${siteUrl(env)}/auth/invite`);
+        if (!invited.ok) throw new ApiError(502, 'invite_failed', 'The invitation email couldn’t be sent.', 'Check the address and try again in a few minutes. Nothing was changed.');
+        input.authUserId = invited.authUserId;
+      }
+      const r2 = await service.appointReviewer(input, viewer);
+      if (r2.ok && input.authUserId) await identity.auth.setProfile(input.authUserId, { role: 'ops', profileId: r2.data.id });
+      send(res, r2);
+    }),
+  );
+  r.put('/ops/team/reviewers/:id/regions', requireRole('ops'), wrap(async (req, res) => send(res, await service.setReviewerRegions(id(req), S.RegionsBody.parse(req.body).regions, viewerOf(res)))));
+  r.delete(
+    '/ops/team/reviewers/:id',
+    requireRole('ops'),
+    wrap(async (req, res) => {
+      const r2 = await service.removeReviewer(id(req), viewerOf(res));
+      if (r2.ok && r2.data.authUserId && identity.auth) await identity.auth.clearProfile(r2.data.authUserId);
+      send(res, r2);
+    }),
+  );
 
   // ── Notifications ──
   // Lets anyone test whether an email holds an account, so only for the sample-data demo; the live sign-up checks duplicates itself.
