@@ -1,12 +1,12 @@
 # AuctionIT
 
-A working demo of a B2B marketplace for industrial scrap and surplus auctions. It is built to show one idea:
+A B2B marketplace for industrial scrap and surplus auctions, built around one idea:
 
 > **The auction does not change. Lot Assurance makes the material, the measurement rule and the outcome if it differs clear — and AuctionIT handles exceptions without inspecting every lot.**
 
-**Live demo:** https://auctionit-sand.vercel.app (API: https://auctionit-api-vmo3.onrender.com/health). The free API instance sleeps when idle, so open the health link first; it takes up to a minute to wake.
+**Live site:** https://auctionit-sand.vercel.app (API: https://auctionit-api-vmo3.onrender.com/health). The free API instance sleeps when idle, so open the health link first; it takes up to a minute to wake.
 
-**Everything here is a demo.** Companies, people, prices, ratings and metrics are sample data. EMD, balance payments and refunds are simulated; no real money moves. Tolerances and remedies are illustrative demo policy, not approved AuctionIT terms.
+**What isn't real yet** (details and exact missing dependencies: [docs/PRODUCTION_GAPS.md](docs/PRODUCTION_GAPS.md)): there is no password sign-in (sample accounts, any visitor can use any role); EMD, balance payments and refunds are recorded without moving money (no payment provider); business documents aren't checked (no KYC provider); tolerances and remedies are provisional. Seeded companies and lots are fictional and labelled "Sample data"; real registrations are not.
 
 ---
 
@@ -29,7 +29,7 @@ Open http://localhost:3000 and choose **Explore as Buyer / Seller / Operations**
 | Seller | Suresh Agrawal · Shree Balaji Steels | Seller dashboard, listing wizard, confirming lifting (TX-1045), the claim on TX-1042 |
 | Operations | Devendra Nath | Closing demo auctions, the disputed claim CLM-1042-01, marking TX-1035 defaulted |
 
-Switch roles at any time from **"Viewing as …"** in the header. The same menu has **Reset demo data**, which restores the starting sample data with fresh auction times. All seed dates are relative to the reset, so live lots are live on any day.
+Switch roles at any time from **"Viewing as …"** in the header. In browser demo mode the same menu has **Reset demo data**, which restores the starting sample data with fresh auction times. Presenter controls (reset, close an auction early, simulated failed EMD, Demo Mode pill) exist only in browser demo mode or with `NEXT_PUBLIC_DEMO_CONTROLS=true` / `DEMO_CONTROLS_ENABLED=true` — never on the live site (D-080).
 
 ---
 
@@ -41,9 +41,9 @@ Switch roles at any time from **"Viewing as …"** in the header. The same menu 
 | Rules run in | the browser (`packages/domain`) | `apps/api` (same `packages/domain`) + Postgres functions for bids and auction close |
 | Data lives in | localStorage, per browser | Supabase Postgres, shared by everyone |
 | Evidence files | photos kept as small previews in the browser | Supabase Storage bucket `lot-media` |
-| Reset | header → Reset demo data | header → Reset demo data, or `pnpm demo:reset` |
+| Reset | header → Reset demo data | only with presenter controls on, or `pnpm demo:reset` (replaces all data) |
 
-The two modes cannot disagree: they call the same domain functions, and the contract suite runs one set of tests against both (see [Testing](#testing)). If real mode can't reach the API, the web app **falls back to demo data with a visible banner** and a "Try the live backend again" button. It never falls back silently.
+The two modes cannot disagree: they call the same domain functions, and the contract suite runs one set of tests against both (see [Testing](#testing)). If real mode can't reach the API, the live site says **"Can't reach AuctionIT right now"** with a retry; it never shows browser sample data instead (D-081).
 
 ### Run real mode locally
 

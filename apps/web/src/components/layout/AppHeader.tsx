@@ -7,6 +7,7 @@ import { useState } from 'react';
 import type { Role } from '@auctionit/domain';
 import { ButtonLink, DemoModePill } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { DEMO_CONTROLS } from '@/lib/flags';
 import { useSession } from '@/lib/SessionProvider';
 import { NotificationBell } from './NotificationBell';
 import { RoleSwitcher } from './RoleSwitcher';
@@ -47,7 +48,7 @@ export function Wordmark() {
   );
 }
 
-/** 64px top bar on every page: wordmark, role nav, Demo Mode pill and the role switcher. */
+/** 64px top bar on every page: wordmark, role nav, account menu (and the Demo Mode pill with presenter controls). */
 export function AppHeader({ showNav = true }: { showNav?: boolean }) {
   const { session } = useSession();
   const pathname = usePathname();
@@ -97,7 +98,7 @@ export function AppHeader({ showNav = true }: { showNav?: boolean }) {
           </nav>
         )}
         <div className="ml-auto flex min-w-0 items-center gap-xs">
-          <DemoModePill />
+          {DEMO_CONTROLS && <DemoModePill />}
           {session.role === 'guest' && (
             <>
               <Link href="/sign-in" className="hidden rounded-md px-sm py-xs text-label-md text-primary hover:bg-primary-container lg:block">

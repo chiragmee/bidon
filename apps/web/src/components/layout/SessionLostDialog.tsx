@@ -40,12 +40,12 @@ export function SessionLostDialog() {
               setOpen(false);
             }}
           >
-            Continue as demo {ROLE_LABEL[role].toLowerCase()}
+            Continue as {ROLE_LABEL[role].toLowerCase()}
           </Button>
         </>
       }
     >
-      <p className="text-body-md text-text-secondary">This happens when a session expires or the demo data is reset in another tab.</p>
+      <p className="text-body-md text-text-secondary">This happens when a session expires or the account no longer exists.</p>
     </Dialog>
   );
 }

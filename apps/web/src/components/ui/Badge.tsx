@@ -96,12 +96,12 @@ export function LotAssuranceBadge({ variant = 'inline', className }: { variant?:
   );
 }
 
-/** Caption for illustrative values (tolerances, remedies, EMD rules). */
+/** Caption for provisional values (tolerances, remedies, EMD rules) — not yet approved terms (policy.ts `demo: true`). */
 export function DemoPolicyCaption({ className }: { className?: string }) {
   return (
     <span className={cn('inline-flex items-center gap-1 text-caption text-text-secondary', className)}>
       <FileText className="size-3" aria-hidden />
-      Demo policy
+      Provisional policy
     </span>
   );
 }

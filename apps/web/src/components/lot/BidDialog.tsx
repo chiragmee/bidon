@@ -179,7 +179,7 @@ export function BidDialog({
               On {formatMt(d.lot.estimatedQtyMt, { estimate: true })} that is about <strong>{formatINR(estimate ?? 0, { estimate: true })}</strong>. The
               final amount uses the weighbridge quantity at lifting.
             </p>
-            <p className="text-text-secondary">A placed bid can’t be withdrawn. If you win, the balance is due within 72 hours (demo policy).</p>
+            <p className="text-text-secondary">A placed bid can’t be withdrawn. If you win, the balance is due within 72 hours (provisional policy).</p>
           </div>
         )}
       </div>

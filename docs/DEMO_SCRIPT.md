@@ -6,11 +6,13 @@
 
 Everything on screen is sample data and every payment is simulated. Say so once, at the start, and point at the **Demo** pill in the header.
 
+> **Run this walkthrough in browser demo mode** (`pnpm dev`, http://localhost:3000) or on a private copy built with `NEXT_PUBLIC_DEMO_CONTROLS=true`. The live site (https://auctionit-sand.vercel.app) deliberately has no Reset, no early close and no simulated payment failure (D-080), so steps 0 and 4.1 don't exist there.
+
 ---
 
 ## Step 0 — before the meeting (2 minutes)
 
-1. Open the app (Vercel URL, or http://localhost:3000). If it's the hosted version, open `<API URL>/health` first to wake the API.
+1. Open the app in browser demo mode (http://localhost:3000).
 2. **Viewing as … (top right) → Reset demo data → Reset demo data.** Live auctions now close in about 3 hours, and one closes in 40 minutes.
 3. Have two small photos ready on the desktop, e.g. `ticket.jpg` and `pile.jpg`, for the lifting check.
 4. One browser window at laptop width. Use the header role switcher throughout; it keeps you on the same lot or transaction.
@@ -92,7 +94,7 @@ Everything on screen is sample data and every payment is simulated. Say so once,
 
 | What you see | Do this |
 |---|---|
-| "Showing demo data" banner (hosted) | The API was asleep. Click **Try the live backend again**, or carry on: demo data runs the same rules. |
+| "Can't reach AuctionIT right now" (live site) | The free API was asleep. Wait a minute and click **Try again**. |
 | "Your session has ended" | Click **Continue as demo …** — what was typed stays. |
 | Lost track of state | **Viewing as … → Reset demo data**, then pick up at the act you were on. |
 | An auction already ended | Reset demo data (all times are relative to the reset). |

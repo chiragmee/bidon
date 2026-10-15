@@ -303,6 +303,13 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
     expect(must(await t.ds.emailExists('Rahul.Sharma@vardhan.example'))).toBe(true);
     expect(code(await t.ds.registerBuyer({ name: 'X', email: 'rahul.sharma@vardhan.example', companyName: 'X', businessType: 'X', city: 'X', state: 'X', industry: 'X', materials: ['X'] }))).toBe('duplicate_email');
   });
+  it('a real registration is stored as real, not sample data; seeded companies stay sample', async () => {
+    const r = must(await t.ds.registerBuyer({ name: 'Asha Menon', email: 'asha@newco.example', companyName: 'NewCo Metals', businessType: 'Scrap trader / stockist', city: 'Nagpur', state: 'Maharashtra', industry: 'Steel', materials: ['Ferrous / HMS'] }));
+    expect(r.company.sample).toBe(false);
+    // Read back through the store (Postgres on the pg target) — not just the write's echo.
+    expect(must(await t.ds.buyerDashboard({ id: r.user.id, role: 'buyer' }))!.buyer.sample).toBe(false);
+    expect(must(await t.ds.buyerDashboard(RAHUL))!.buyer.sample).toBe(true);
+  });
   it('a seller can never bid on their own lot (domain and place_bid agree)', async () => {
     await t.setSeller('LOT-2025-0891', 'U-RAHUL');
     expect(code(await t.ds.payEmd('LOT-2025-0891', 'success', RAHUL))).toBe('own_lot');

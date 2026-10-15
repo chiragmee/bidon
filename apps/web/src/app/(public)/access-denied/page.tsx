@@ -25,14 +25,14 @@ function Denied() {
           <div className="flex flex-wrap justify-center gap-xs">
             {need && need !== 'signed_in' && need !== 'guest' && (
               <Button variant="primary" onClick={() => signInAs(demoSessionFor(need), from.startsWith('/') ? from : '/')}>
-                Continue as demo {ROLE_LABEL[need].toLowerCase()}
+                Continue as {ROLE_LABEL[need].toLowerCase()}
               </Button>
             )}
             <ButtonLink href={HOME[session.role]}>Go to my {session.role === 'guest' ? 'home page' : 'dashboard'}</ButtonLink>
           </div>
         }
       >
-        {from} needs {needLabel}. You’re viewing as {ROLE_LABEL[session.role]}. Switch to the right demo account to continue.
+        {from} needs {needLabel}. You’re viewing as {ROLE_LABEL[session.role]}. Sign in with an account that has this role to continue.
       </EmptyState>
     </Container>
   );

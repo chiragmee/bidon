@@ -69,7 +69,7 @@ export default function LotAssurancePage() {
           </table>
         </div>
         <p className="text-caption text-text-secondary">
-          These values are illustrative for the demo, not approved AuctionIT terms. Other categories are listed as standard lots, which simply
+          These values are provisional, not yet approved AuctionIT terms. Other categories are listed as standard lots, which simply
           don’t have the assurance mechanism.
         </p>
       </section>
@@ -80,7 +80,7 @@ export default function LotAssurancePage() {
           <li>Within tolerance: the transaction completes normally. You pay for the measured weight.</li>
           <li>Outside tolerance: raise a claim with evidence before loading is complete. The seller can accept a price adjustment or your exit.</li>
           <li>If the seller disputes it, AuctionIT Operations reviews the evidence and records a reasoned decision.</li>
-          <li>A refund is never automatic just because a claim was raised. All payments and refunds in this demo are simulated.</li>
+          <li>A refund is never automatic just because a claim was raised. Payments and refunds are recorded without moving money — no payment provider is connected yet.</li>
         </ul>
       </section>
 

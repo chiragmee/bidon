@@ -99,7 +99,7 @@ export function ClaimReview({ id }: { id: string }) {
           <StatusBadge kind={decidable ? 'warning' : claim.status === 'resolved' ? 'success' : 'neutral'}>
             {decidable ? 'Under Operations review' : claim.status === 'resolved' ? 'Resolved' : claim.status === 'rejected' ? 'Rejected' : 'Waiting for the seller'}
           </StatusBadge>
-          <span className="text-caption text-text-secondary">Open for {formatAge(d.ageMs)} · Sample data</span>
+          <span className="text-caption text-text-secondary">Open for {formatAge(d.ageMs)}{d.sample && ' · Sample data'}</span>
         </div>
         <h1 className="text-h1 text-text-strong">
           Claim {claim.id}: {lot.title}
@@ -260,7 +260,7 @@ export function ClaimReview({ id }: { id: string }) {
         onClose={() => setConfirm(false)}
         busy={busy}
         title="Record this decision?"
-        consequence={outcome ? `${formatRemedyOutcome(outcome, d.outcomes[outcome])}. The claim and transaction close, and both parties are notified. This can’t be undone in the demo.` : ''}
+        consequence={outcome ? `${formatRemedyOutcome(outcome, d.outcomes[outcome])}. The claim and transaction close, and both parties are notified. This can’t be undone.` : ''}
         confirmLabel="Record decision"
         onConfirm={async () => {
           if (!outcome) return;

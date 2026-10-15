@@ -306,7 +306,7 @@ export function ListingWizard({ lotId: initialId, initial, initialStep = 1, defa
               </Field>
               <Field
                 label="EMD per bidder"
-                helper={emdSuggestion ? `Suggested ${formatINR(emdSuggestion)} — ${p.emd.pctOfReserveValue}% of reserve value (demo policy).` : 'Refundable deposit each bidder pays before bidding.'}
+                helper={emdSuggestion ? `Suggested ${formatINR(emdSuggestion)} — ${p.emd.pctOfReserveValue}% of reserve value (provisional policy).` : 'Refundable deposit each bidder pays before bidding.'}
                 error={err('emdAmount')}
                 required
               >

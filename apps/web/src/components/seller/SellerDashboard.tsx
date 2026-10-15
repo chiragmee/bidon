@@ -37,7 +37,7 @@ export function SellerDashboard() {
     return (
       <Container>
         <EmptyState icon={Store} title="Seller profile not found" headingLevel={1} action={<ButtonLink href="/sign-in?as=seller">Sign in as a seller</ButtonLink>}>
-          This seller account no longer exists — the demo data may have been reset.
+          This seller account no longer exists. Sign in again to continue.
         </EmptyState>
       </Container>
     );
@@ -47,7 +47,7 @@ export function SellerDashboard() {
   return (
     <Container className="flex flex-col gap-xl">
       <PageHeader
-        overline={<>{d.company.name} · <SampleDataCaption className="normal-case" /></>}
+        overline={d.company.sample ? <>{d.company.name} · <SampleDataCaption className="normal-case" /></> : d.company.name}
         title="Seller dashboard"
         actions={
           <ButtonLink href="/seller/lots/new" variant="primary" icon={<Plus aria-hidden />}>
@@ -59,8 +59,8 @@ export function SellerDashboard() {
       </PageHeader>
 
       {welcome && (
-        <Banner tone="success" title="Your seller profile is ready (demo-approved)">
-          Create a lot: describe the material, add evidence, set the reserve and dates, preview it as a buyer, then publish. No real business verification was carried out.
+        <Banner tone="success" title="Your seller profile is ready">
+          Create a lot: describe the material, add evidence, set the reserve and dates, preview it as a buyer, then publish. Business documents haven’t been checked — document verification isn’t available yet.
         </Banner>
       )}
       {d.claimsToAnswer.map((c) => (
@@ -74,7 +74,7 @@ export function SellerDashboard() {
         <StatCard label="Upcoming" value={d.stats.upcoming} caption="Scheduled to open" />
         <StatCard label="Drafts" value={d.stats.drafts} caption="Not published" />
         <StatCard label="With buyers" value={d.stats.awaitingBuyer} caption="Payment, lifting or checks" />
-        <StatCard label="Completed sales" value={d.stats.completed} caption="Sample data" />
+        <StatCard label="Completed sales" value={d.stats.completed} caption={d.company.sample ? 'Sample data' : 'Shown to buyers'} />
         <StatCard label="Claims to answer" value={d.stats.claimsToAnswer} caption="Respond before Ops steps in" attention={d.stats.claimsToAnswer > 0} />
       </section>
 
@@ -84,7 +84,7 @@ export function SellerDashboard() {
           <p className="text-h3 text-text-strong">{d.trackRecord.hasHistory ? d.trackRecordText : 'New seller'}</p>
           <p className="text-caption text-text-secondary">Updates automatically after every completed sale and resolved claim.</p>
         </div>
-        <StatusBadge kind="neutral">{d.company.verification === 'demo_approved' ? 'Demo-approved (sample status)' : 'Pending'}</StatusBadge>
+        <StatusBadge kind="neutral">{d.company.verification === 'demo_approved' ? 'Documents not checked' : 'Pending'}</StatusBadge>
       </Card>
 
       {toDo.length > 0 && (

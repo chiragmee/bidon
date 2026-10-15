@@ -128,7 +128,7 @@ export function TransactionWorkspace({ id }: { id: string }) {
       <header className="flex flex-col gap-xs">
         <div className="flex flex-wrap items-center gap-xs">
           <StatusBadge kind={d.stepper.claim ? 'warning' : tx.status === 'defaulted' ? 'danger' : d.stepper.done ? 'success' : d.yourTurn ? 'warning' : 'neutral'}>{d.statusLabel}</StatusBadge>
-          <SampleDataCaption />
+          {d.sample && <SampleDataCaption />}
         </div>
         <h1 className="text-h1 text-text-strong">
           {d.lot.title} · {tx.id}

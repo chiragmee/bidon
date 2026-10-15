@@ -30,7 +30,7 @@ scripts/        tokens.ts (DESIGN.md → CSS variables + Tailwind preset), reset
 - `HttpDataSource` — calls `apps/api` (which uses Supabase server-side).
 - `DemoDataSource` — in-browser, uses `packages/domain` and the shared seed, persisted to localStorage, resettable.
 
-Chosen by `NEXT_PUBLIC_DATA_SOURCE=http|demo`. If the API is unreachable, fall back to demo **with a visible banner** — never silently.
+Chosen by `NEXT_PUBLIC_DATA_SOURCE=http|demo`. If the API is unreachable, the live site says so with a retry and never shows browser sample data (D-081); only with presenter controls on does it fall back to demo data, with a visible banner.
 
 ## Business invariants — enforce in domain, API and DB
 
@@ -72,7 +72,8 @@ Chosen by `NEXT_PUBLIC_DATA_SOURCE=http|demo`. If the API is unreachable, fall b
 
 - Never show "Verified", "Guaranteed" or "Certified" unless that step really happened.
 - All payments, EMD and refunds are simulated and labelled so. No real payment SDKs.
-- Seeded companies, ratings and metrics are labelled "Sample data". Never present them as real.
+- Seeded companies, ratings and metrics are labelled "Sample data". Never present them as real — and never label a real registration as sample (D-082).
+- On the live site, no "demo" wording: say plainly what isn't real yet (no payment provider, no password sign-in, documents not checked, provisional policy). Open gaps live in `docs/PRODUCTION_GAPS.md`.
 - Never show success unless the server (or domain, in demo mode) confirmed it.
 - Never claim something is deployed unless you deployed it and `/health` answered.
 
@@ -84,11 +85,11 @@ Chosen by `NEXT_PUBLIC_DATA_SOURCE=http|demo`. If the API is unreachable, fall b
 - Every data view has loading skeleton, empty state and error-with-retry. Errors answer: what happened, what it means, what to do next.
 - Consequential actions (bid, payment, Ops decision) confirm in a dialog. Toasts only for brief confirmations; outcomes also appear on the page.
 - Works at 1440px and 390px with no horizontal scroll. Visible focus rings, labelled inputs, `aria-live` for bid results.
-- Demo Mode pill in every header; demo-only actions use the dashed demo button.
+- Presenter controls (`NEXT_PUBLIC_DEMO_CONTROLS` / API `DEMO_CONTROLS_ENABLED`, D-080): Demo Mode pill, Reset demo data, close auction early, simulated failed EMD. On in browser demo mode, **off on the live site**. They use the dashed demo button.
 
 ## Roles
 
-Guest, Buyer, Seller, Operations. One-click demo entry for each (seeded accounts, no signup), plus a role switcher and "Reset demo data" in the header on every page. Guard routes in the web app **and** every API route; buyers never reach `/seller`, sellers never touch another seller's lot, only Operations reviews claims or closes demo auctions.
+Guest, Buyer, Seller, Operations. One-click entry to the seeded sample accounts (no password sign-in exists yet — docs/PRODUCTION_GAPS.md #13), plus an account switcher in the header; "Reset demo data" only with presenter controls. Guard routes in the web app **and** every API route; buyers never reach `/seller`, sellers never touch another seller's lot, only Operations reviews claims or closes demo auctions.
 
 ## Commands (keep this list accurate)
 
@@ -100,7 +101,8 @@ pnpm typecheck
 pnpm lint
 pnpm test           # unit + contract
 pnpm e2e            # Playwright journeys (browser demo mode)
-pnpm e2e:http       # same journeys against the API + Postgres (API on :4000, web started with NEXT_PUBLIC_DATA_SOURCE=http)
+pnpm e2e:http       # same journeys against the API + Postgres (API on :4000 with DEMO_CONTROLS_ENABLED=true, web started with NEXT_PUBLIC_DATA_SOURCE=http NEXT_PUBLIC_DEMO_CONTROLS=true)
+E2E_LIVE_CONFIG=1 pnpm exec playwright test e2e/live-config.spec.ts   # live configuration: API :4100 controls off, web http mode without NEXT_PUBLIC_DEMO_CONTROLS
 pnpm build
 pnpm db:reset       # supabase db reset (migrations) + seed — needs `supabase start`
 pnpm demo:reset     # reseed the database (no migrations); browser demo mode uses "Reset demo data" in the header

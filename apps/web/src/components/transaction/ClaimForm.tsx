@@ -21,8 +21,8 @@ const TYPES: { id: ClaimType; label: string; help: string }[] = [
 
 function expectedFor(d: TxDetailView, type: ClaimType): string {
   const tol = d.policy.tolerance;
-  if (type === 'contamination') return `Up to ${formatPct(d.lot.declaration.contaminationPct ?? 0)} declared; agreed limit ${formatPct(tol?.contaminationCeilingPct ?? 0)} (demo policy)`;
-  if (type === 'quantity') return `${formatMt(d.tx.estimatedQtyMt, { estimate: true })} estimated; within ±${tol?.quantityVariancePct ?? 0}% (demo policy)`;
+  if (type === 'contamination') return `Up to ${formatPct(d.lot.declaration.contaminationPct ?? 0)} declared; agreed limit ${formatPct(tol?.contaminationCeilingPct ?? 0)} (provisional policy)`;
+  if (type === 'quantity') return `${formatMt(d.tx.estimatedQtyMt, { estimate: true })} estimated; within ±${tol?.quantityVariancePct ?? 0}% (provisional policy)`;
   if (type === 'grade') return d.lot.grade;
   return d.lot.attributes.form ?? d.lot.description;
 }
@@ -174,7 +174,7 @@ function Form({ d }: { d: TxDetailView }) {
           <legend className="text-label-md text-text-strong">Requested remedy</legend>
           {(
             [
-              ['price_adjustment', 'Price adjustment', adjustmentAvailable ? `Deduct ${formatINR(adjustment)} — the excess over the limit × measured MT × your price (demo policy).` : 'Only for contamination outside tolerance. Quantity is already priced by the weighbridge.', !adjustmentAvailable],
+              ['price_adjustment', 'Price adjustment', adjustmentAvailable ? `Deduct ${formatINR(adjustment)} — the excess over the limit × measured MT × your price (provisional policy).` : 'Only for contamination outside tolerance. Quantity is already priced by the weighbridge.', !adjustmentAvailable],
               ['exit_refund', 'Exit and refund', `Leave the deal: ${formatINR(exit)} EMD and balance returned (simulated). The seller keeps the material.`, false],
             ] as const
           ).map(([id, label, help, disabled]) => (

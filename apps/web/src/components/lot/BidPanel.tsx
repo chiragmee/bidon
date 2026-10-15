@@ -25,7 +25,7 @@ export function bidAction(d: LotDetailView): BidAction {
   if (status !== 'live') return { kind: 'none', message: 'This lot isn’t open for bidding.' };
   if (viewer.role === 'guest') return { kind: 'sign_in', href: `/sign-in?next=${encodeURIComponent(`/auctions/${d.lot.id}`)}` };
   if (viewer.isOwnLot) return { kind: 'none', message: 'This is your lot. Sellers can’t bid on their own lots.' };
-  if (viewer.role !== 'buyer') return { kind: 'none', message: 'Only buyer accounts can bid. Switch to the demo buyer to try bidding.' };
+  if (viewer.role !== 'buyer') return { kind: 'none', message: 'Only buyer accounts can bid. Sign in with a buyer account to bid.' };
   return viewer.emdPaid ? { kind: 'bid' } : { kind: 'pay_emd' };
 }
 

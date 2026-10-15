@@ -100,10 +100,10 @@ export function BalancePanel({ d, run, primary }: { d: TxDetailView; run: RunAct
       {tx.status === 'won_awaiting_balance' && d.as === 'ops' &&
         (d.deadlinePassed ? (
           <Banner tone="warning" title="Payment deadline has passed" action={<Button variant="demo" onClick={() => setDefaultOpen(true)}>Mark as defaulted</Button>}>
-            The buyer didn’t pay by {when(tx.paymentDeadline)}. Under the demo policy the EMD of {formatINR(tx.emdAmount)} is forfeited if marked defaulted.
+            The buyer didn’t pay by {when(tx.paymentDeadline)}. Under the provisional policy the EMD of {formatINR(tx.emdAmount)} is forfeited if marked defaulted.
           </Banner>
         ) : (
-          <Waiting>The buyer has until {when(tx.paymentDeadline)} to pay. Operations can mark a default only after that (demo policy).</Waiting>
+          <Waiting>The buyer has until {when(tx.paymentDeadline)} to pay. Operations can mark a default only after that (provisional policy).</Waiting>
         ))}
 
       <ConfirmDialog
@@ -125,7 +125,7 @@ export function BalancePanel({ d, run, primary }: { d: TxDetailView; run: RunAct
         onClose={() => setDefaultOpen(false)}
         dismissible={!busy}
         title="Mark this transaction as defaulted?"
-        description="The buyer missed the payment deadline. This ends the transaction, forfeits the EMD (simulated, demo policy) and notifies both parties."
+        description="The buyer missed the payment deadline. This ends the transaction, forfeits the EMD (simulated, provisional policy) and notifies both parties."
         footer={
           <>
             <Button variant="ghost" onClick={() => setDefaultOpen(false)} disabled={busy}>
@@ -543,7 +543,7 @@ export function FinalPanel({ d }: { d: TxDetailView }) {
   if (tx.status === 'defaulted') {
     return (
       <Banner tone="danger" title="This transaction defaulted">
-        The balance wasn’t paid by the deadline. The EMD of {formatINR(tx.emdAmount)} was {d.emdStatus === 'forfeited' ? 'forfeited' : 'handled'} under the demo policy (simulated).
+        The balance wasn’t paid by the deadline. The EMD of {formatINR(tx.emdAmount)} was {d.emdStatus === 'forfeited' ? 'forfeited' : 'handled'} under the provisional policy (simulated).
       </Banner>
     );
   }

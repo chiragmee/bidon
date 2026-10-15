@@ -43,3 +43,28 @@ Classes: **Ready** = production-ready, no change · **Demo-only** = must be corr
 4. **Approved Lot Assurance and EMD terms** — tolerances, remedies, deadlines (`packages/domain/src/policy.ts`).
 5. **Seeded data in production** — keep or remove.
 6. **Support contact details** — none supplied, so the footer no longer shows a placeholder.
+
+Also under #13: a person who registers is signed in on that browser only. Once they switch account or the
+cookie expires (8 h), nothing lets them sign back in to their own account. Real authentication fixes this.
+
+## Changes made (2026-10-15)
+
+D-080 to D-086 in `docs/DECISIONS.md`. Items 1–11 fixed as listed. Items 12–17 kept honest and documented,
+not faked. Items 18–24 unchanged.
+
+## Checks run (targeted)
+
+- `pnpm typecheck`, `pnpm lint`: pass. Production web build with the Vercel env (`http`, Render API URL): pass.
+- Domain 228/228 (updated: real registrations not sample; Ops metric captions; timeline label).
+- API 173/173: the contract suite on all three targets (in-browser rules, API + memory, API + local Postgres),
+  including a new check that a registration reads back from Postgres as `sample=false`; the security suite,
+  including new checks that presenter controls are refused under the live configuration.
+- Web unit 5/5, scripts 18/18.
+- Playwright, browser demo mode, affected specs at 1440 and 390 px (onboarding, access, journeys A and B,
+  operations, resilience, demo script, design rules): 89 passed, 1 skipped by design.
+- Playwright `e2e/live-config.spec.ts` against the live configuration (web `http` with presenter controls off,
+  API with `DEMO_CONTROLS_ENABLED=false`), at both widths: 12/12. It checks: no Demo pill or demo wording on
+  the landing and sign-in pages; no Reset in the account menu; no simulated payment failure; no early close;
+  `/dev/components` returns 404; the API refuses reset and early close; an unreachable API shows an error,
+  not sample data.
+- Not re-run: the full `pnpm e2e` and `pnpm e2e:http` suites (rule 4). No production data was touched.

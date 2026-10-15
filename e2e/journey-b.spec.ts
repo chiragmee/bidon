@@ -105,7 +105,7 @@ test('a draft keeps its values across reloads', async ({ page }) => {
   await expect(page.getByText(/to fix before publishing/)).toBeVisible();
 });
 
-test('seller onboarding: validation and a demo-approved profile', async ({ page }) => {
+test('seller onboarding: validation and a profile active without document checks', async ({ page }) => {
   await page.goto('/onboarding/seller');
   await page.getByRole('button', { name: 'Create seller account' }).click();
   await expect(page.getByText('Enter your company name.')).toBeVisible();
@@ -123,8 +123,11 @@ test('seller onboarding: validation and a demo-approved profile', async ({ page 
   await page.getByLabel(/Mobile number/).fill('98765 43210');
   await page.getByRole('button', { name: 'Create seller account' }).click();
   await expect(page).toHaveURL(/\/seller\/dashboard\?welcome=1$/);
-  await expect(page.getByText('Your seller profile is ready (demo-approved)')).toBeVisible();
+  await expect(page.getByText('Your seller profile is ready')).toBeVisible();
   await expect(page.getByText('New seller')).toBeVisible();
+  await expect(page.getByText('Documents not checked')).toBeVisible();
+  // A real registration is not labelled as sample data.
+  await expect(page.getByText('Sample data')).toHaveCount(0);
   await page.getByRole('link', { name: 'Create a new lot' }).first().click();
   await expect(page.getByLabel(/Yard or plant/)).toHaveValue('Plot 12, MIDC Hingna');
 });

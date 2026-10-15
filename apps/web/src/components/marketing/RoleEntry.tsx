@@ -10,27 +10,27 @@ const ENTRIES: { role: Exclude<Role, 'guest'>; title: string; body: string; cta:
   {
     role: 'buyer',
     title: 'Explore as Buyer',
-    body: 'Browse lots, review the evidence, pay a simulated EMD and place bids as Rahul from Vardhan Infra Projects.',
+    body: 'Browse lots, review the evidence, pay the EMD (simulated) and place bids — sample account: Rahul Sharma, Vardhan Infra Projects.',
     cta: 'Explore as Buyer',
     Icon: Gavel,
   },
   {
     role: 'seller',
     title: 'Explore as Seller',
-    body: 'List surplus with a structured declaration, set the reserve and auction dates, and track sales as Shree Balaji Steels.',
+    body: 'List surplus with a structured declaration, set the reserve and auction dates, and track sales — sample account: Shree Balaji Steels.',
     cta: 'Explore as Seller',
     Icon: ClipboardList,
   },
   {
     role: 'ops',
     title: 'Explore as Operations',
-    body: 'See marketplace activity, close demo auctions and decide disputed Lot Assurance claims.',
+    body: 'See marketplace activity, follow transactions and decide disputed Lot Assurance claims.',
     cta: 'Explore as Operations',
     Icon: ShieldCheck,
   },
 ];
 
-/** One click into a seeded demo account — no signup (SPEC §6). */
+/** One click into a seeded sample account (SPEC §6) — no password sign-in exists yet (docs/PRODUCTION_GAPS.md #13). */
 export function RoleEntry({ highlight }: { highlight?: Role | null }) {
   const { signInAs } = useSession();
   return (

@@ -167,7 +167,7 @@ export function Catalogue() {
 
   return (
     <Container>
-      <PageHeader overline="Sample listings" title="Live and upcoming auctions">
+      <PageHeader overline="Auctions" title="Live and upcoming auctions">
         {data ? (
           <span aria-live="polite">
             Showing {data.items.length} of {data.total} lots

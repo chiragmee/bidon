@@ -23,19 +23,19 @@ test('journey A 1–7: browse, review assurance, pay EMD, bid, see status', asyn
   }
   await expect(la.getByText('Seller declared').first()).toBeVisible();
   await expect(la.getByText('Confirmed at lifting').first()).toBeVisible();
-  await expect(la.getByText('Demo policy').first()).toBeVisible();
+  await expect(la.getByText('Provisional policy').first()).toBeVisible();
   await expect(page.getByText(/net weight at the mutually agreed certified weighbridge/i).first()).toBeVisible();
   await expect(page.getByText(/Verified/)).toHaveCount(0);
 
   // Guest → sign in as the demo buyer and come back to the lot.
   await action(page, 'Sign in to bid').click();
-  await page.getByRole('button', { name: 'Continue as demo buyer' }).click();
+  await page.getByRole('button', { name: 'Continue as buyer' }).click();
   await expect(page).toHaveURL(/\/auctions\/LOT-2025-0891$/);
 
   // 5. Simulated EMD — failure first, then success.
   await action(page, 'Pay EMD to bid').click();
   const emd = page.getByRole('dialog', { name: 'Pay EMD to start bidding' });
-  await expect(emd.getByText('Demo payment — no real money will be charged.')).toBeVisible();
+  await expect(emd.getByText('No payment provider is connected yet — the EMD is recorded and no money is charged.')).toBeVisible();
   await emd.getByRole('button', { name: /Simulate a failed payment/ }).click();
   await expect(page.getByRole('dialog', { name: 'Payment failed' }).getByText(/Nothing was charged/)).toBeVisible();
   await page.getByRole('button', { name: 'Try again' }).click();

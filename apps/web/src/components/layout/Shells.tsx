@@ -12,17 +12,17 @@ import { useSession } from '@/lib/SessionProvider';
 import { AppHeader, isActive } from './AppHeader';
 
 function DataBanners() {
-  const { fallbackReason, retryLive } = useData();
+  const { fallbackReason, apiDown, retryLive } = useData();
   const recovered = useDataRecovered();
   const [checking, setChecking] = useState(false);
   const [stillDown, setStillDown] = useState(false);
-  if (!fallbackReason && !recovered) return null;
+  if (!fallbackReason && !apiDown && !recovered) return null;
   return (
     <div className="mx-auto flex max-w-[1280px] flex-col gap-xs px-4 pt-md md:px-lg">
-      {fallbackReason && (
+      {(fallbackReason || apiDown) && (
         <Banner
           tone="warning"
-          title="Showing demo data"
+          title={apiDown ? 'Can’t reach AuctionIT right now' : 'Showing sample data from this browser'}
           action={
             retryLive && (
               <Button
@@ -34,12 +34,12 @@ function DataBanners() {
                   setStillDown(!up);
                 }}
               >
-                Try the live backend again
+                {apiDown ? 'Try again' : 'Try the live backend again'}
               </Button>
             )
           }
         >
-          {fallbackReason}
+          {fallbackReason ?? 'The server didn’t answer. Lots, bids and transactions can’t load until it does — nothing you’ve done is lost.'}
           {stillDown && ' Still unreachable — try again in a moment.'}
         </Banner>
       )}
@@ -69,9 +69,9 @@ export function Footer() {
           <Link href="/sign-in" className="text-primary hover:underline">Sign in</Link>
         </nav>
         <div className="flex flex-col gap-xs text-text-secondary">
-          <p>Help and contact: support details will appear here (placeholder).</p>
-          <p className="rounded-md border border-dashed border-on-trust-declared px-sm py-xs text-caption text-on-trust-declared">
-            Demo environment. All companies, prices, ratings and metrics are sample data. Payments, EMD and refunds are simulated — no real money moves.
+          <p className="text-caption">
+            EMD, balance payments and refunds are recorded without moving money — no payment provider is connected yet. Records marked
+            “Sample data” are fictional examples. Lot Assurance tolerances and remedies are provisional, not yet approved terms.
           </p>
         </div>
       </div>

@@ -29,6 +29,8 @@ import {
   type LotCardData,
 } from '@/components/ui';
 import { tokens } from '@/styles/tokens';
+import { notFound } from 'next/navigation';
+import { DEMO_CONTROLS } from '@/lib/flags';
 import { InteractiveExamples } from './InteractiveExamples';
 
 export const metadata: Metadata = { title: 'UI components' };
@@ -50,7 +52,9 @@ function Section({ id, title, children }: { id: string; title: string; children:
   );
 }
 
+/** Internal component gallery; 404 on the live site (presenter controls off). */
 export default function ComponentsPage() {
+  if (!DEMO_CONTROLS) notFound();
   const now = new Date().toISOString();
   const s = createSeed(now);
   const cards = ['LOT-2025-0891', 'LOT-2025-0894', 'LOT-2025-0910'].map((id) => toCard(s, s.lots.find((l) => l.id === id)!, now));

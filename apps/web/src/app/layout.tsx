@@ -11,8 +11,8 @@ import '@/styles/globals.css';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: { default: 'AuctionIT — Industrial surplus auctions (demo)', template: '%s · AuctionIT' },
-  description: 'Demo of a B2B marketplace for industrial scrap and surplus auctions, with Lot Assurance.',
+  title: { default: 'AuctionIT — Industrial surplus auctions', template: '%s · AuctionIT' },
+  description: 'B2B marketplace for industrial scrap and surplus auctions, with Lot Assurance.',
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

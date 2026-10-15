@@ -12,6 +12,7 @@ import { BidDialog } from './BidDialog';
 import { BidPanel, MobileBidBar } from './BidPanel';
 import { EmdDialog } from './EmdDialog';
 import { AssuranceSummary, BidHistory, EvidenceList, Gallery, QuantityBasis, SellerCard, Specs } from './LotSections';
+import { DEMO_CONTROLS } from '@/lib/flags';
 
 function LoadingLot() {
   return (
@@ -79,7 +80,7 @@ export function LotDetail({ id }: { id: string }) {
   const openEmd = () => setEmdOpen(true);
 
   const opsClose =
-    viewer.role === 'ops' && d.status === 'live' ? (
+    DEMO_CONTROLS && viewer.role === 'ops' && d.status === 'live' ? (
       <Button variant="demo" fullWidth onClick={() => setCloseOpen(true)}>
         Close demo auction now
       </Button>
@@ -101,7 +102,7 @@ export function LotDetail({ id }: { id: string }) {
         <div className="flex flex-wrap items-center gap-xs">
           <AuctionStatusBadge status={status} />
           {d.lot.assurance.enabled && <LotAssuranceBadge />}
-          <SampleDataCaption label="Sample listing" />
+          {d.seller.sample && <SampleDataCaption label="Sample listing" />}
         </div>
         <h1 className="text-h1 text-text-strong">{d.lot.title}</h1>
         <p className="flex flex-wrap items-center gap-x-sm gap-y-1 text-body-md text-text-secondary">

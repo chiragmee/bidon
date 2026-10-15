@@ -23,6 +23,7 @@ import {
 } from '@/components/ui';
 import { useData, useQuery } from '@/data';
 import { useSession } from '@/lib/SessionProvider';
+import { DEMO_CONTROLS } from '@/lib/flags';
 
 const th = 'h-10 px-md text-left';
 
@@ -75,7 +76,7 @@ export function AuctionsTable({ rows, onClosed }: { rows: OpsAuctionRow[]; onClo
                   {r.status === 'closed_unsold' ? 'Unsold' : '—'}
                 </span>
               )}
-              {r.status === 'live' && (
+              {DEMO_CONTROLS && r.status === 'live' && (
                 <Button variant="demo" onClick={() => setTarget(r)}>
                   Close now
                 </Button>
@@ -156,7 +157,7 @@ export function AuctionsTable({ rows, onClosed }: { rows: OpsAuctionRow[]; onClo
                   )}
                 </td>
                 <td className="px-md text-right">
-                  {r.status === 'live' && (
+                  {DEMO_CONTROLS && r.status === 'live' && (
                     <Button variant="demo" onClick={() => setTarget(r)}>
                       Close now
                     </Button>
@@ -356,7 +357,7 @@ export function OpsOverview() {
 
   return (
     <Container className="flex flex-col gap-xl">
-      <PageHeader overline="Operations · Sample data" title="Operations overview">
+      <PageHeader overline={o.includesSample ? 'Operations · Includes sample data' : 'Operations'} title="Operations overview">
         AuctionIT handles exceptions — it doesn’t inspect every lot. Normal transactions finish
         without anyone here.
       </PageHeader>
@@ -377,8 +378,8 @@ export function OpsOverview() {
       )}
 
       <section aria-label="Summary" className="grid grid-cols-2 gap-sm sm:gap-md lg:grid-cols-5">
-        <StatCard label="Live auctions" value={o.stats.live} caption="Sample data" />
-        <StatCard label="Closed auctions" value={o.stats.closed} caption="Sample data" />
+        <StatCard label="Live auctions" value={o.stats.live} caption={o.includesSample ? 'Includes sample data' : 'Open for bidding'} />
+        <StatCard label="Closed auctions" value={o.stats.closed} caption={o.includesSample ? 'Includes sample data' : 'Bidding ended'} />
         <StatCard
           label="Awaiting action"
           value={o.stats.awaitingAction}
@@ -390,7 +391,7 @@ export function OpsOverview() {
           caption="Waiting on seller or Operations"
           attention={o.stats.openClaims > 0}
         />
-        <StatCard label="Completed" value={o.stats.completed} caption="Sample data" />
+        <StatCard label="Completed" value={o.stats.completed} caption={o.includesSample ? 'Includes sample data' : 'Transactions completed'} />
       </section>
 
       <section aria-labelledby="metrics-h" className="flex flex-col gap-sm">
@@ -398,7 +399,7 @@ export function OpsOverview() {
           <h2 id="metrics-h" className="text-h2 text-text-strong">
             Outcome metrics
           </h2>
-          <StatusBadge kind="neutral">Simulated — computed from demo data</StatusBadge>
+          <StatusBadge kind="neutral">{o.includesSample ? 'Computed from platform records, including sample data' : 'Computed from platform records'}</StatusBadge>
         </div>
         <div className="grid gap-md sm:grid-cols-2 lg:grid-cols-4">
           <div className="flex flex-col gap-1 rounded-lg border border-dashed border-border-control bg-surface p-md">
@@ -522,8 +523,8 @@ export function OpsAuctions() {
   return (
     <Container className="flex flex-col gap-lg">
       <PageHeader overline="Operations" title="Auctions and results">
-        Live auctions close automatically at their end time. “Close now” is a demo control; results
-        always come from stored bids and the reserve.
+        Live auctions close automatically at their end time. Results always come from stored bids and the reserve.
+        {DEMO_CONTROLS && ' “Close now” is a presenter control.'}
       </PageHeader>
       {q.error && !q.data ? (
         <ErrorState

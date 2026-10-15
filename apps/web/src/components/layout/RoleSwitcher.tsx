@@ -7,6 +7,7 @@ import { DEMO_ACCOUNTS, type Role } from '@auctionit/domain';
 import { ConfirmDialog, useToast } from '@/components/ui';
 import { ROLE_LABEL, useData } from '@/data';
 import { cn } from '@/lib/cn';
+import { DEMO_CONTROLS } from '@/lib/flags';
 import { HOME } from '@/lib/session';
 import { useSession } from '@/lib/SessionProvider';
 
@@ -18,8 +19,9 @@ const OPTIONS: { role: Role; who: string }[] = [
 ];
 
 /**
- * In every header (CLAUDE.md Roles): jump between demo roles mid-walkthrough without losing the
- * current lot or transaction when the new role may view it, and reset the demo data.
+ * Account menu in every header: switch between the sample accounts without losing the current lot
+ * or transaction when the new role may view it. Password sign-in doesn't exist yet
+ * (docs/PRODUCTION_GAPS.md #13). "Reset demo data" only with presenter controls.
  */
 export function RoleSwitcher() {
   const { session, user, switchRole } = useSession();
@@ -67,8 +69,8 @@ export function RoleSwitcher() {
       </button>
 
       {open && (
-        <div role="menu" aria-label="Switch demo role" className="absolute right-0 z-40 mt-xs w-72 rounded-lg border border-border bg-surface p-xs shadow-2">
-          <p className="px-xs pb-xs pt-0.5 text-overline uppercase text-text-secondary">Explore as</p>
+        <div role="menu" aria-label="Switch account" className="absolute right-0 z-40 mt-xs w-72 rounded-lg border border-border bg-surface p-xs shadow-2">
+          <p className="px-xs pb-xs pt-0.5 text-overline uppercase text-text-secondary">Sample accounts</p>
           {OPTIONS.map((o) => {
             const active = session.role === o.role && (o.role === 'guest' || isDemoAccount);
             return (
@@ -91,19 +93,23 @@ export function RoleSwitcher() {
               </button>
             );
           })}
-          <div className="my-xs border-t border-border" />
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              setConfirmReset(true);
-            }}
-            className="flex w-full items-center gap-xs rounded-md px-xs py-xs text-left text-label-md text-text hover:bg-surface-muted"
-          >
-            <RotateCcw className="size-4" aria-hidden />
-            Reset demo data
-          </button>
+          {DEMO_CONTROLS && (
+            <>
+              <div className="my-xs border-t border-border" />
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setOpen(false);
+                  setConfirmReset(true);
+                }}
+                className="flex w-full items-center gap-xs rounded-md px-xs py-xs text-left text-label-md text-text hover:bg-surface-muted"
+              >
+                <RotateCcw className="size-4" aria-hidden />
+                Reset demo data
+              </button>
+            </>
+          )}
         </div>
       )}
 

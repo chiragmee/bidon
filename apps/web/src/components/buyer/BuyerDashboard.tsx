@@ -114,7 +114,7 @@ export function BuyerDashboard() {
     return (
       <Container>
         <EmptyState icon={Inbox} title="Buyer profile not found" headingLevel={1} action={<ButtonLink href="/sign-in">Sign in</ButtonLink>}>
-          This buyer account no longer exists — the demo data may have been reset. Sign in again to continue.
+          This buyer account no longer exists. Sign in again to continue.
         </EmptyState>
       </Container>
     );
@@ -123,12 +123,12 @@ export function BuyerDashboard() {
 
   return (
     <Container className="flex flex-col gap-xl">
-      <PageHeader overline={<>{d.buyer.company} · <SampleDataCaption className="normal-case" /></>} title={`Welcome, ${d.buyer.name.split(' ')[0]}`}>
+      <PageHeader overline={d.buyer.sample ? <>{d.buyer.company} · <SampleDataCaption className="normal-case" /></> : d.buyer.company} title={`Welcome, ${d.buyer.name.split(' ')[0]}`}>
         Your bids, won lots and transactions in one place.
       </PageHeader>
 
       {welcome && (
-        <Banner tone="success" title="Your buyer profile is ready (demo-approved)" action={<ButtonLink href="/auctions">Browse auctions</ButtonLink>}>
+        <Banner tone="success" title="Your buyer profile is ready" action={<ButtonLink href="/auctions">Browse auctions</ButtonLink>}>
           Find a lot → review the evidence → pay the EMD (simulated) → bid. If you win, pay the balance, schedule lifting and complete the purchase from here.
         </Banner>
       )}

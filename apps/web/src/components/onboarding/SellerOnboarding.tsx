@@ -8,12 +8,13 @@ import { Banner, Button, ButtonLink, Card, Field, Input, Select, StatusBadge } f
 import { useData, type DsError } from '@/data';
 import { demoSessionFor } from '@/lib/session';
 import { useSession } from '@/lib/SessionProvider';
+import { DEMO_CONTROLS } from '@/lib/flags';
 
 const BUSINESS_TYPES = ['Steel processor', 'Fabricator', 'Manufacturer with surplus', 'Smelter', 'Demolition contractor', 'Scrap trader'];
 const STATES = ['Chhattisgarh', 'Delhi NCR', 'Gujarat', 'Jharkhand', 'Karnataka', 'Maharashtra', 'Odisha', 'Punjab', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal'];
 const EMPTY: SellerRegistration = { name: '', companyName: '', businessType: '', yard: '', city: '', state: '', categories: [], email: '', phone: '' };
 
-/** SPEC §12.1 — short, no documents; a sample verification status, never a real verification claim. */
+/** SPEC §12.1 — short, no documents; the status says documents weren't checked, never a verification claim. */
 export function SellerOnboarding() {
   const { ds } = useData();
   const { session, signInAs } = useSession();
@@ -56,10 +57,10 @@ export function SellerOnboarding() {
     <Container className="max-w-[640px]">
       <p className="text-overline uppercase text-text-secondary">Sell surplus</p>
       <h1 className="text-h1 text-text-strong">Create a seller account</h1>
-      <p className="mt-1 text-body-lg text-text-secondary">A few details so buyers know who they’re dealing with. No documents needed to try the demo.</p>
+      <p className="mt-1 text-body-lg text-text-secondary">A few details so buyers know who they’re dealing with.</p>
 
       <div className="mt-lg flex flex-col gap-md">
-        {session.role === 'guest' && (
+        {DEMO_CONTROLS && session.role === 'guest' && (
           <Banner tone="info" title="Just exploring?" action={<Button onClick={() => signInAs(demoSessionFor('seller'))}>Continue as demo seller</Button>}>
             Use the sample Shree Balaji Steels account instead.
           </Banner>
@@ -141,9 +142,9 @@ export function SellerOnboarding() {
         </div>
         <Card className="flex flex-col gap-xs bg-surface-muted">
           <StatusBadge kind="neutral" className="self-start">
-            Verification: demo-approved (sample status)
+            Verification: documents not checked
           </StatusBadge>
-          <p className="text-body-md text-text">In this demo your business is marked approved straight away. No real business or GST verification is carried out.</p>
+          <p className="text-body-md text-text">Your business is active straight away. Business and GST documents aren’t checked yet — document verification isn’t available.</p>
         </Card>
         <div className="flex flex-wrap justify-between gap-sm">
           <ButtonLink href="/sign-in?as=seller" variant="ghost">

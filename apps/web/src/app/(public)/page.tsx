@@ -2,6 +2,7 @@ import { Camera, Scale, ShieldCheck } from 'lucide-react';
 import { ButtonLink, LotAssuranceBadge, Overline } from '@/components/ui';
 import { FeaturedLots } from '@/components/marketing/FeaturedLots';
 import { RoleEntry } from '@/components/marketing/RoleEntry';
+import { DEMO_CONTROLS } from '@/lib/flags';
 
 const BUYER_STEPS = ['Find a lot', 'Review details and evidence', 'Pay EMD and bid', 'Win', 'Pay and lift'];
 const SELLER_STEPS = ['Create a listing', 'Set reserve and auction dates', 'Receive bids', 'Complete the sale'];
@@ -65,12 +66,14 @@ export default function Landing() {
         </div>
       </section>
 
-      <section aria-labelledby="explore-h" className="mx-auto max-w-[1280px] px-4 py-xxl md:px-lg">
-        <Overline>Demo access</Overline>
-        <h2 id="explore-h" className="text-h2 text-text-strong">Try it from any side of the marketplace</h2>
-        <p className="mt-1 mb-lg text-body-md text-text-secondary">One click, no signup. Every account and company is sample data.</p>
-        <RoleEntry />
-      </section>
+      {DEMO_CONTROLS && (
+        <section aria-labelledby="explore-h" className="mx-auto max-w-[1280px] px-4 py-xxl md:px-lg">
+          <Overline>Demo access</Overline>
+          <h2 id="explore-h" className="text-h2 text-text-strong">Try it from any side of the marketplace</h2>
+          <p className="mt-1 mb-lg text-body-md text-text-secondary">One click, no signup. Every account and company is sample data.</p>
+          <RoleEntry />
+        </section>
+      )}
 
       <section aria-labelledby="how-h" className="border-y border-border bg-surface">
         <div className="mx-auto max-w-[1280px] px-4 py-xxl md:px-lg">
@@ -105,7 +108,7 @@ export default function Landing() {
           ))}
         </ul>
         <p className="mt-md text-caption text-text-secondary">
-          Not every lot is assured. Tolerances and remedies shown in this demo are illustrative demo policy, not approved AuctionIT terms.
+          Not every lot is assured. Tolerances and remedies shown are provisional, not yet approved AuctionIT terms.
         </p>
         <div className="mt-lg">
           <ButtonLink href="/auctions?assured=1">Explore assured lots</ButtonLink>
@@ -116,7 +119,7 @@ export default function Landing() {
         <div className="mb-lg flex flex-wrap items-end justify-between gap-sm">
           <div>
             <h2 id="featured-h" className="text-h2 text-text-strong">Featured lots</h2>
-            <p className="text-body-md text-text-secondary">Sample listings — assured and standard lots side by side.</p>
+            <p className="text-body-md text-text-secondary">Assured and standard lots side by side.</p>
           </div>
           <ButtonLink href="/auctions" variant="ghost">
             See all auctions

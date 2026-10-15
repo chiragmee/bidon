@@ -4,7 +4,7 @@ test('guests are kept out of the buyer area, with a way in', async ({ page }) =>
   await page.goto('/buyer/dashboard');
   await expect(page).toHaveURL(/\/access-denied\?need=buyer/);
   await expect(page.getByRole('heading', { name: 'You don’t have access to this page' })).toBeVisible();
-  await page.getByRole('button', { name: 'Continue as demo buyer' }).click();
+  await page.getByRole('button', { name: 'Continue as buyer' }).click();
   await expect(page).toHaveURL(/\/buyer\/dashboard$/);
   await expect(page.getByRole('heading', { name: 'Welcome, Rahul' })).toBeVisible();
 });

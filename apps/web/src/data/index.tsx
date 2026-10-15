@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { HttpDataSource, type DataSource, type DsError, type DsResult } from '@auctionit/client';
+import { DEMO_CONTROLS } from '@/lib/flags';
 import { SESSION_COOKIE } from '@/lib/session';
 import { DemoDataSource } from './DemoDataSource';
 import { subscribe as subscribeStore, wasRecovered } from './demoStore';
@@ -10,9 +11,11 @@ export * from './DataSource';
 
 interface DataCtx {
   ds: DataSource;
-  /** Why we are on demo data when real mode was asked for; null when as configured. */
+  /** Why we are on browser data when real mode was asked for (presenter controls only); null when as configured. */
   fallbackReason: string | null;
-  /** Re-check the live backend and switch back to it if it answers (fallback banner's retry). */
+  /** The API didn't answer its health check; pages keep calling it and show their own error states. */
+  apiDown: boolean;
+  /** Re-check the live backend; switches back to it if it answers (banner's retry). */
   retryLive: (() => Promise<boolean>) | null;
 }
 
@@ -51,19 +54,22 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
 /**
  * NEXT_PUBLIC_DATA_SOURCE=http uses the API; demo (default) runs in the browser. If the API is
- * unreachable we fall back to demo data with a visible banner — never silently (CLAUDE.md).
+ * unreachable the live site says so and offers a retry — it never shows browser sample data in
+ * place of the marketplace. Only with presenter controls (local) does it fall back to browser data,
+ * with a visible banner.
  */
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [mode, setMode] = useState<'live' | 'demo' | 'fallback'>(WANT_HTTP ? 'live' : 'demo');
+  const [mode, setMode] = useState<'live' | 'demo' | 'fallback' | 'down'>(WANT_HTTP ? 'live' : 'demo');
   const [http] = useState(() => (WANT_HTTP ? new HttpDataSource({ baseUrl: API_URL, session: sessionFromCookie }) : null));
   const [live] = useState(() => (http ? watchSessions(http) : null));
-  const [demo] = useState(() => watchSessions(new DemoDataSource()));
+  // Browser data only exists where it can be used: demo mode, or the presenter fallback.
+  const [demo] = useState(() => (!WANT_HTTP || DEMO_CONTROLS ? watchSessions(new DemoDataSource()) : null));
 
   useEffect(() => {
     if (!http) return;
     let cancelled = false;
     void http.health().then((up) => {
-      if (!up && !cancelled) setMode('fallback');
+      if (!up && !cancelled) setMode(DEMO_CONTROLS ? 'fallback' : 'down');
     });
     return () => {
       cancelled = true;
@@ -71,18 +77,24 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [http]);
 
   const value = useMemo<DataCtx>(() => {
-    if (mode === 'live' && live) return { ds: live, fallbackReason: null, retryLive: null };
-    if (mode === 'fallback' && http)
-      return {
-        ds: demo,
-        fallbackReason: 'The live backend isn’t reachable right now, so you’re seeing demo data stored in this browser. Changes here won’t reach the server.',
-        retryLive: async () => {
+    const retryLive = http
+      ? async () => {
           const up = await http.health();
           if (up) setMode('live');
           return up;
-        },
+        }
+      : null;
+    if (live && (mode === 'live' || mode === 'down')) return { ds: live, fallbackReason: null, apiDown: mode === 'down', retryLive: mode === 'down' ? retryLive : null };
+    /* v8 ignore next */
+    if (!demo) throw new Error('No data source configured');
+    if (mode === 'fallback')
+      return {
+        ds: demo,
+        fallbackReason: 'The live backend isn’t reachable right now, so you’re seeing sample data stored in this browser. Changes here won’t reach the server.',
+        apiDown: false,
+        retryLive,
       };
-    return { ds: demo, fallbackReason: null, retryLive: null };
+    return { ds: demo, fallbackReason: null, apiDown: false, retryLive: null };
   }, [mode, live, demo, http]);
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }

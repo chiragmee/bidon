@@ -7,6 +7,7 @@ import { formatINR, formatMt } from '@auctionit/domain';
 import { Banner, Button, Dialog } from '@/components/ui';
 import { useData, type DsError } from '@/data';
 import { useSession } from '@/lib/SessionProvider';
+import { DEMO_CONTROLS } from '@/lib/flags';
 
 type Phase = 'choose' | 'success' | 'failed';
 
@@ -67,9 +68,11 @@ export function EmdDialog({ d, open, onClose, onPaid }: { d: LotDetailView; open
           </>
         ) : (
           <>
-            <Button variant="demo" onClick={() => pay('failure')} loading={busy === 'failure'} disabled={!!busy}>
-              Simulate a failed payment
-            </Button>
+            {DEMO_CONTROLS && (
+              <Button variant="demo" onClick={() => pay('failure')} loading={busy === 'failure'} disabled={!!busy}>
+                Simulate a failed payment
+              </Button>
+            )}
             <Button variant="primary" onClick={() => pay('success')} loading={busy === 'success'} disabled={!!busy}>
               Pay {formatINR(d.lot.emdAmount)} (simulated)
             </Button>
@@ -88,9 +91,9 @@ export function EmdDialog({ d, open, onClose, onPaid }: { d: LotDetailView; open
             refunded; if you win, it counts towards the price.
           </p>
           <p className="text-caption text-text-secondary">
-            Refund and forfeiture rules here are demo policy (for example, forfeiture if a winner doesn’t pay by the deadline), not approved AuctionIT terms.
+            Refund and forfeiture rules here are provisional policy (for example, forfeiture if a winner doesn’t pay by the deadline), not yet approved AuctionIT terms.
           </p>
-          <Banner tone="info">Demo payment — no real money will be charged.</Banner>
+          <Banner tone="info">No payment provider is connected yet — the EMD is recorded and no money is charged.</Banner>
           {error && (
             <Banner tone="danger" title={error.what}>
               {error.next}

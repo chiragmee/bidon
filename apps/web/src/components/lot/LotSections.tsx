@@ -52,7 +52,7 @@ export function Gallery({ d }: { d: LotDetailView }) {
               <div className="grid aspect-[4/3] place-items-center rounded-md bg-surface-muted text-center text-caption text-text-secondary" title={v.caption}>
                 <span className="flex flex-col items-center gap-0.5">
                   <Video className="size-5" aria-hidden />
-                  {DEMO_IMAGES.has(v.url) ? 'Video' : 'Video (demo file)'}
+                  {v.url.startsWith('/demo-images/') && !DEMO_IMAGES.has(v.url) ? 'Video (sample, no file)' : 'Video'}
                 </span>
               </div>
             </li>
@@ -122,7 +122,7 @@ function Row({ title, children, tier, policy }: { title: string; children: React
   );
 }
 
-/** The six questions of SPEC §8.2, each tagged with its trust tier or "Demo policy". */
+/** The six questions of SPEC §8.2, each tagged with its trust tier or "Provisional policy". */
 export function AssuranceSummary({ d }: { d: LotDetailView }) {
   const { lot, policy } = d;
   if (!lot.assurance.enabled || !policy.tolerance) {
@@ -172,7 +172,7 @@ export function AssuranceSummary({ d }: { d: LotDetailView }) {
           {declared !== null && <> (seller declared up to {formatPct(declared)})</>}. Measured quantity within ±{policy.tolerance.quantityVariancePct}% of the estimate.
         </Row>
         <Row title="If the lot is outside tolerance" policy>
-          You can ask for a price adjustment for the excess, or exit the deal with your EMD and any balance refunded (simulated in this demo).
+          You can ask for a price adjustment for the excess, or exit the deal with your EMD and any balance refunded (simulated — no money moves yet).
         </Row>
         <Row title="How to claim" policy>
           Raise a claim with at least {policy.claimEvidenceMin} files (lifting photos or the weighbridge ticket) before loading is complete. The
@@ -202,10 +202,10 @@ export function SellerCard({ d }: { d: LotDetailView }) {
               {d.seller.city}, {d.seller.state}
             </p>
           </div>
-          <SampleDataCaption className="ml-auto shrink-0" />
+          {d.seller.sample && <SampleDataCaption className="ml-auto shrink-0" />}
         </div>
         <div className="flex flex-wrap gap-xs">
-          <StatusBadge kind="neutral">{d.seller.verification === 'demo_approved' ? 'Demo-approved (sample status)' : 'Pending'}</StatusBadge>
+          <StatusBadge kind="neutral">{d.seller.verification === 'demo_approved' ? 'Documents not checked' : 'Pending'}</StatusBadge>
           {r.hasHistory ? <StatusBadge kind="reserve_met">{d.trackRecordText}</StatusBadge> : <StatusBadge kind="neutral">New seller</StatusBadge>}
         </div>
         <p className="text-caption text-text-secondary">

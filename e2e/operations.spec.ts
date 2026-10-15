@@ -4,7 +4,7 @@ test('journey C: Operations reviews the seeded disputed claim and the state upda
   await signIn(page.context(), 'ops');
   await page.goto('/ops');
   await expect(page.getByRole('heading', { name: 'Operations overview' })).toBeVisible();
-  await expect(page.getByText('Simulated — computed from demo data')).toBeVisible();
+  await expect(page.getByText('Computed from platform records, including sample data')).toBeVisible();
   await expect(page.getByText('~205 completed of 500 lots/month (case study, not platform data)')).toBeVisible();
 
   await page.getByRole('link', { name: 'Review CLM-1042-01' }).click();
@@ -50,7 +50,7 @@ test('Operations marks an overdue transaction defaulted, with a reason', async (
   await dialog.getByLabel(/Reason/).fill('Balance not paid within 72 hours of winning.');
   await dialog.getByRole('button', { name: 'Mark defaulted' }).click();
   await expect(page.getByText('This transaction defaulted')).toBeVisible();
-  await expect(page.getByText(/was forfeited under the demo policy/)).toBeVisible();
+  await expect(page.getByText(/was forfeited under the provisional policy/)).toBeVisible();
 });
 
 test('a buyer cannot reach Operations or another party’s transaction', async ({ page }) => {

@@ -30,7 +30,7 @@ test('a lost session asks to sign in again — and keeps what was typed', async 
   await page.getByLabel(/Lot title/).fill('Rolled steel offcuts, press shop A');
   const dialog = page.getByRole('dialog', { name: 'Your session has ended' });
   await expect(dialog).toBeVisible();
-  await dialog.getByRole('button', { name: 'Continue as demo seller' }).click();
+  await dialog.getByRole('button', { name: 'Continue as seller' }).click();
   await expect(dialog).toBeHidden();
 
   // Same page, same entries; the save now succeeds.

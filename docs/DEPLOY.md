@@ -51,7 +51,7 @@ Set these environment variables (Render supplies `PORT` itself):
 | `SUPABASE_URL` | `https://<ref>.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY` | service_role key (secret) |
 | `ALLOWED_ORIGINS` | your Vercel URL(s), comma-separated, e.g. `https://auctionit.vercel.app` — exact origins, no trailing slash |
-| `DEMO_RESET_ENABLED` | `true` for a demo environment (lets "Reset demo data" reseed); `false` otherwise |
+| `DEMO_CONTROLS_ENABLED` | leave **unset** on the live site (defaults to off with `DATA_MODE=supabase`). `true` only for a private presenter/staging copy: enables data reset, early close and the simulated failed EMD (D-080) |
 
 **Check:** `curl https://<service>.onrender.com/health` returns `{"status":"ok","mode":"supabase",…}`. If `mode` says `demo`, `DATA_MODE` or `DATABASE_URL` is missing.
 
@@ -80,19 +80,17 @@ Environment variables (Production and Preview):
 
 **Check:** open the Vercel URL. There should be **no** "Showing demo data" banner. Explore as Buyer → open LOT-2025-0891 → pay EMD → bid. Then open the same lot in another browser: the new bid is there, which proves you're on shared data.
 
-## Resetting the demo environment
+## Resetting data
 
-- In the app: **Viewing as … → Reset demo data** (calls `POST /demo/reset` when `DEMO_RESET_ENABLED=true`).
-- From a terminal: `DATABASE_URL=… pnpm --filter @auctionit/api db:seed`.
-
-Both restore the seed with dates relative to now, so live auctions are live again.
+The live site has no reset: `POST /demo/reset` answers 403 unless `DEMO_CONTROLS_ENABLED=true`, and the web app shows no reset item unless built with `NEXT_PUBLIC_DEMO_CONTROLS=true`.
+Reseeding a database is a deliberate operator action that **replaces all data**: `DATABASE_URL=… pnpm --filter @auctionit/api db:seed`. Never run it against the live database without the owner's go-ahead.
 
 ## Security notes
 
 - The browser never sees `DATABASE_URL` or the service-role key; the API is the only thing that talks to Postgres and Storage.
 - RLS is enabled on every table with no policies, so Supabase's public `anon` key can read or write nothing.
-- Identity is a **demo session** (`x-demo-session: role:userId`) that the API checks against the profiles table. This is fine for a sample-data demo and **not authentication**: anyone can pick any demo account. Wire up Supabase Auth before any real use (D-066).
-- `DEMO_RESET_ENABLED=true` lets anyone reset the data. Keep it to demo environments.
+- Identity is a session header (`x-demo-session: role:userId`) that the API checks against the profiles table. It is **not authentication**: anyone can act as any account, Operations included. Blocked on Supabase Auth setup — see docs/PRODUCTION_GAPS.md #13 (D-066).
+- `DEMO_CONTROLS_ENABLED=true` lets anyone reset the data and close auctions early. Never on the live site.
 
 ## Troubleshooting
 

@@ -9,6 +9,7 @@ import { Banner, Button, Card, Field, Input, Select, StatusBadge, Stepper } from
 import { useData, type DsError } from '@/data';
 import { demoSessionFor } from '@/lib/session';
 import { useSession } from '@/lib/SessionProvider';
+import { DEMO_CONTROLS } from '@/lib/flags';
 
 const DRAFT_KEY = 'auctionit:onboarding:buyer';
 const STEPS = ['Account', 'Business', 'Review'] as const;
@@ -19,7 +20,6 @@ const MATERIALS = ['Ferrous / HMS', 'Mixed steel', 'Copper and wire', 'Aluminium
 interface Draft {
   name: string;
   email: string;
-  password: string;
   companyName: string;
   businessType: string;
   city: string;
@@ -30,7 +30,7 @@ interface Draft {
   savedAt: number;
 }
 
-const EMPTY: Draft = { name: '', email: '', password: '', companyName: '', businessType: '', city: '', state: '', industry: '', materials: [], step: 1, savedAt: 0 };
+const EMPTY: Draft = { name: '', email: '', companyName: '', businessType: '', city: '', state: '', industry: '', materials: [], step: 1, savedAt: 0 };
 type Errors = Partial<Record<keyof Draft, string>>;
 
 function loadDraft(): { draft: Draft; restored: boolean } {
@@ -38,19 +38,12 @@ function loadDraft(): { draft: Draft; restored: boolean } {
     const raw = window.sessionStorage.getItem(DRAFT_KEY);
     if (raw) {
       const d = { ...EMPTY, ...(JSON.parse(raw) as Partial<Draft>) };
-      // Never restore a password.
-      return { draft: { ...d, password: '' }, restored: d.name !== '' || d.email !== '' };
+      return { draft: d, restored: d.name !== '' || d.email !== '' };
     }
   } catch {
     /* ignore */
   }
   return { draft: EMPTY, restored: false };
-}
-
-export function validatePassword(p: string): string | null {
-  if (p.length < 8) return 'Use at least 8 characters.';
-  if (!/[A-Za-z]/.test(p) || !/\d/.test(p)) return 'Use at least one letter and one number.';
-  return null;
 }
 
 function validateStep(step: 1 | 2, d: Draft): Errors {
@@ -59,8 +52,6 @@ function validateStep(step: 1 | 2, d: Draft): Errors {
     if (!d.name.trim()) e.name = 'Enter your full name.';
     const em = validateEmail(d.email);
     if (em) e.email = em;
-    const pw = validatePassword(d.password);
-    if (pw) e.password = pw;
   } else {
     if (!d.companyName.trim()) e.companyName = 'Enter your registered company name.';
     if (!d.businessType) e.businessType = 'Choose the type of business.';
@@ -85,11 +76,11 @@ export function BuyerOnboarding() {
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<DsError | null>(null);
 
-  // Keep entries between steps, reloads and failed submissions (password excluded).
+  // Keep entries between steps, reloads and failed submissions.
   useEffect(() => {
     if (d === EMPTY) return;
     try {
-      window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ ...d, password: '', savedAt: Date.now() }));
+      window.sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ ...d, savedAt: Date.now() }));
     } catch {
       /* ignore */
     }
@@ -121,7 +112,7 @@ export function BuyerOnboarding() {
   }
 
   async function submit() {
-    // Re-check everything: a restored draft has no password and may be incomplete.
+    // Re-check everything: a restored draft may be incomplete.
     const e = { ...validateStep(1, d), ...validateStep(2, d) };
     if (Object.keys(e).length) {
       setErrors(e);
@@ -164,10 +155,10 @@ export function BuyerOnboarding() {
         )}
         {restored && d.step !== 3 && (
           <Banner tone="info" title="We kept what you entered">
-            Your earlier entries were restored. For security, enter your password again.
+            Your earlier entries were restored.
           </Banner>
         )}
-        {d.step === 1 && session.role === 'guest' && (
+        {DEMO_CONTROLS && d.step === 1 && session.role === 'guest' && (
           <Banner tone="info" title="Just exploring?" action={<Button onClick={() => signInAs(demoSessionFor('buyer'))}>Continue as demo buyer</Button>}>
             Skip signup and use the sample buyer account.
           </Banner>
@@ -207,9 +198,6 @@ export function BuyerOnboarding() {
                 </Link>
               </p>
             )}
-            <Field label="Password" helper="At least 8 characters, with a letter and a number." error={errors.password} required>
-              <Input type="password" autoComplete="new-password" value={d.password} onChange={(e) => set('password', e.target.value)} />
-            </Field>
           </>
         )}
 
@@ -274,7 +262,7 @@ export function BuyerOnboarding() {
           <>
             {(
               [
-                ['Account', 1, [['Name', d.name], ['Email', d.email], ['Password', d.password ? '••••••••' : '']]],
+                ['Account', 1, [['Name', d.name], ['Email', d.email]]],
                 ['Business', 2, [['Company', d.companyName], ['Business type', d.businessType], ['Location', [d.city, d.state].filter(Boolean).join(', ')], ['Industry', d.industry], ['Materials', d.materials.join(', ')]]],
               ] as const
             ).map(([title, step, rows]) => (
@@ -297,10 +285,11 @@ export function BuyerOnboarding() {
             ))}
             <Card className="flex flex-col gap-xs bg-surface-muted">
               <StatusBadge kind="neutral" className="self-start">
-                Demo-approved (sample status)
+                Documents not checked
               </StatusBadge>
               <p className="text-body-md text-text">
-                In this demo your profile is approved straight away for trying the marketplace. No real KYC or business verification is carried out.
+                Your profile is active straight away. Business documents and KYC aren’t checked yet — document verification isn’t available.
+                Password sign-in isn’t available yet either; this browser stays signed in to the new account.
               </p>
               <p className="text-body-md text-text-secondary">Next: find a lot, pay the EMD (simulated) and place a bid.</p>
             </Card>

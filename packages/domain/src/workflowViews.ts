@@ -130,6 +130,14 @@ export interface TxDetailView {
 
 const day = (iso: Iso | null) => (iso ? new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : undefined);
 
+/** Either party of a transaction is a seeded (fictional) company. */
+function involvesSample(state: DemoState, tx: Transaction): boolean {
+  return [tx.buyerId, tx.sellerId].some((uid) => {
+    const companyId = state.users.find((u) => u.id === uid)?.companyId;
+    return state.companies.find((c) => c.id === companyId)?.sample ?? false;
+  });
+}
+
 export function transactionDetail(state: DemoState, txId: string, viewer: Viewer, now: Iso): TxDetailView | null {
   const tx = state.transactions.find((t) => t.id === txId);
   if (!tx || !viewer.id) return null;
@@ -158,10 +166,7 @@ export function transactionDetail(state: DemoState, txId: string, viewer: Viewer
     assured: lot.assurance.enabled,
     buyer: companyName(state, tx.buyerId),
     seller: companyName(state, tx.sellerId),
-    sample: [tx.buyerId, tx.sellerId].some((uid) => {
-      const companyId = state.users.find((u) => u.id === uid)?.companyId;
-      return state.companies.find((c) => c.id === companyId)?.sample ?? false;
-    }),
+    sample: involvesSample(state, tx),
     as,
     statusLabel: STATUS_LABEL[tx.status],
     stepper: stepperState(tx),
@@ -202,6 +207,8 @@ export interface ClaimReviewView {
   policy: CategoryPolicy;
   buyer: string;
   seller: string;
+  /** Either party is a seeded (fictional) company. */
+  sample: boolean;
   ageMs: number;
   tolerance: ToleranceCheck;
   listingEvidence: LotMedia[];
@@ -230,6 +237,7 @@ export function claimReview(state: DemoState, claimId: string, viewer: Viewer, n
     policy: policyFor(lot.category),
     buyer: companyName(state, tx.buyerId),
     seller: companyName(state, tx.sellerId),
+    sample: involvesSample(state, tx),
     ageMs: ms(now) - ms(claim.openedAt),
     tolerance: checkTolerance(lot, claim.type, claim.observedValue),
     listingEvidence: lot.media.filter((m) => m.stage === 'listing'),
