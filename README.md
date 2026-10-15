@@ -6,7 +6,7 @@ A B2B marketplace for industrial scrap and surplus auctions, built around one id
 
 **Live site:** https://auctionit-sand.vercel.app (API: https://auctionit-api-vmo3.onrender.com/health). The free API instance sleeps when idle, so open the health link first; it takes up to a minute to wake.
 
-**What isn't real yet** (details and exact missing dependencies: [docs/PRODUCTION_GAPS.md](docs/PRODUCTION_GAPS.md)): there is no password sign-in (sample accounts, any visitor can use any role); EMD, balance payments and refunds are recorded without moving money (no payment provider); business documents aren't checked (no KYC provider); tolerances and remedies are provisional. Seeded companies and lots are fictional and labelled "Sample data"; real registrations are not.
+**How it works for real users** ([docs/PHASE1_MVP.md](docs/PHASE1_MVP.md)): sign up as a buyer or seller with email and password (verified email), apply with business details and documents, and an AuctionIT reviewer approves before you can bid or publish. EMDs and balances are paid directly to the seller and reported in AuctionIT; the seller confirms receipt; refunds are recorded the same way — AuctionIT never holds money. **Not yet:** payment gateway, KYC provider, phone OTP (Phase 2); Lot Assurance tolerances and remedies are provisional. Live-site configuration still needed (Supabase Auth settings, SMTP, two Vercel variables): PHASE1_MVP.md → "Configuration".
 
 ---
 

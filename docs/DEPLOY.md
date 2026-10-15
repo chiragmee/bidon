@@ -29,6 +29,7 @@ Nothing here is deployed automatically. Each step ends with a check; don't call 
      pnpm --filter @auctionit/api db:seed
    ```
    **Check:** it prints `Seeded 20 lots (dates relative to …)`.
+   *Since D-093 the seed script refuses any non-local database — the live project was seeded once at launch and its sample records are now hidden from real users. A new project starts empty.*
 5. From **Project Settings → API**, note the **Project URL** and the **service_role** key. The service-role key is server-only: it goes on Render and nowhere else.
 
 ## 2. Render (API)
@@ -73,6 +74,8 @@ Environment variables (Production and Preview):
 |---|---|
 | `NEXT_PUBLIC_DATA_SOURCE` | `http` (or `demo` to run without the backend) |
 | `NEXT_PUBLIC_API_URL` | `https://<service>.onrender.com` — no trailing slash |
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://<project-ref>.supabase.co` — real sign-in |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | the project's anon (or publishable) key — public by design; never the service-role key |
 
 `NEXT_PUBLIC_*` values are built into the browser bundle, so never put a secret in them. Redeploy after changing them.
 
@@ -89,8 +92,10 @@ Reseeding a database is a deliberate operator action that **replaces all data**:
 
 - The browser never sees `DATABASE_URL` or the service-role key; the API is the only thing that talks to Postgres and Storage.
 - RLS is enabled on every table with no policies, so Supabase's public `anon` key can read or write nothing.
-- Identity is a session header (`x-demo-session: role:userId`) that the API checks against the profiles table. It is **not authentication**: anyone can act as any account, Operations included. Blocked on Supabase Auth setup — see docs/PRODUCTION_GAPS.md #13 (D-066).
-- `DEMO_CONTROLS_ENABLED=true` lets anyone reset the data and close auctions early. Never on the live site.
+- Identity: Supabase Auth access tokens, verified by the API on every request; the role comes from the profile row (D-087). The `x-demo-session` sample-account header works only with presenter controls on a **local** database.
+- Presenter controls (reset, early close, sample accounts) are refused against any non-local database even if `DEMO_CONTROLS_ENABLED=true`.
+- Private documents (eligibility files, payment receipts) live in the private `account-documents` bucket; the API issues 60-second signed links only to the owner, reviewers, or the receiving seller.
+- Supabase Auth configuration for the live site (Site URL, redirect URLs, confirm email, custom SMTP) and the first reviewer: docs/PHASE1_MVP.md → "Configuration".
 
 ## Troubleshooting
 

@@ -68,3 +68,14 @@ not faked. Items 18–24 unchanged.
   `/dev/components` returns 404; the API refuses reset and early close; an unreachable API shows an error,
   not sample data.
 - Not re-run: the full `pnpm e2e` and `pnpm e2e:http` suites (rule 4). No production data was touched.
+
+## Update — Phase 1 MVP (2026-10-15, docs/PHASE1_MVP.md)
+
+| # | Was | Now |
+|---|---|---|
+| 13 Authentication | Blocked | **Implemented**: Supabase Auth sign-up / verify / sign-in / reset, server-verified tokens, roles from the profile row, no role switching, reviewers by admin script. **Still needs live configuration** (Auth settings, custom SMTP, two Vercel env vars) — PHASE1_MVP.md "Configuration". |
+| 14 Payments | Blocked (simulated) | **Offline payments implemented**: buyer reports, seller confirms/rejects, refunds recorded by the seller, full history. No money moves through AuctionIT; a gateway stays Phase 2. |
+| 15 KYC | Blocked | **Manual eligibility review implemented** (application, private documents, reviewer decision, gates). A KYC provider stays Phase 2; phone OTP needs an SMS provider. |
+| 16 Seeded data | Blocked (decision) | **Hidden on the live site** by an API view filter; rows untouched (no production data changed). |
+| 1–3 Presenter controls | Off by default | Now also **impossible against a non-local database**, whatever the env says; reseed script refuses non-local databases. |
+| 12 Policy values | Provisional | Unchanged — business decisions listed in D-097. |

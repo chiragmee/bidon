@@ -37,7 +37,7 @@ Chosen by `NEXT_PUBLIC_DATA_SOURCE=http|demo`. If the API is unreachable, the li
 **Auctions**
 - Only Live lots accept bids; never before start or after end (server time is authoritative).
 - Minimum next bid = current highest (or reserve/start price if none) + configured increment.
-- Bid requires a recorded EMD for that buyer and lot. A seller can never bid on their own lot.
+- Bid requires an approved buyer account and an EMD the lot's seller has confirmed receiving. A seller can never bid on their own lot. Only approved sellers publish (docs/PHASE1_MVP.md).
 - Duplicate or stale submissions are rejected (client request id + row lock).
 - On close, the winner is the highest stored bid that meets the reserve; otherwise the lot is Unsold. Never hard-code a winner.
 - Lifecycle: Draft → Scheduled → Live → Closed (reserve met | reserve not met) → Awarded. Scheduled → Live and Live → Closed happen automatically at start and end time; Operations can close a demo auction early.
@@ -47,7 +47,7 @@ Chosen by `NEXT_PUBLIC_DATA_SOURCE=http|demo`. If the API is unreachable, the li
 - Sellers cannot edit live lots, change the reserve after bidding starts, alter bids, or change winners.
 
 **Transactions** (SPEC §15 states)
-- Winning ≠ completed. Completion requires balance paid (simulated), lifting scheduled and confirmed, and, for assured lots, an accepted lifting check.
+- Winning ≠ completed. Completion requires the balance confirmed by the seller, lifting scheduled and confirmed, and, for assured lots, an accepted lifting check.
 - Invalid transitions are rejected with a reason. Only the assigned role can take each action.
 - Payable = measured quantity × winning price per MT.
 - Lifting: buyer proposes a date, seller confirms it.
@@ -71,7 +71,7 @@ Chosen by `NEXT_PUBLIC_DATA_SOURCE=http|demo`. If the API is unreachable, the li
 ## Honesty rules
 
 - Never show "Verified", "Guaranteed" or "Certified" unless that step really happened.
-- All payments, EMD and refunds are simulated and labelled so. No real payment SDKs.
+- AuctionIT never collects, moves or verifies money: buyers pay sellers directly and report it; the receiving seller confirms or rejects; refunds are recorded by the seller. Never say a payment succeeded unless the seller confirmed it. No payment SDK (gateway is Phase 2).
 - Seeded companies, ratings and metrics are labelled "Sample data". Never present them as real — and never label a real registration as sample (D-082).
 - On the live site, no "demo" wording: say plainly what isn't real yet (no payment provider, no password sign-in, documents not checked, provisional policy). Open gaps live in `docs/PRODUCTION_GAPS.md`.
 - Never show success unless the server (or domain, in demo mode) confirmed it.
@@ -89,7 +89,7 @@ Chosen by `NEXT_PUBLIC_DATA_SOURCE=http|demo`. If the API is unreachable, the li
 
 ## Roles
 
-Guest, Buyer, Seller, Operations. One-click entry to the seeded sample accounts (no password sign-in exists yet — docs/PRODUCTION_GAPS.md #13), plus an account switcher in the header; "Reset demo data" only with presenter controls. Guard routes in the web app **and** every API route; buyers never reach `/seller`, sellers never touch another seller's lot, only Operations reviews claims or closes demo auctions.
+Guest, Buyer, Seller, Operations. Live site: Supabase Auth sign-up (Buyer or Seller only — never Operations), email verification, sign-in, reset; the role is fixed and read server-side from the profile; reviewers/Operations are granted only by `grant:reviewer`. Presenter controls only (local data): one-click sample accounts, the role switcher and "Reset demo data". Guard routes in the web app **and** every API route; buyers never reach `/seller`, sellers never touch another seller's lot, only Operations reviews claims or closes demo auctions.
 
 ## Commands (keep this list accurate)
 
@@ -102,7 +102,8 @@ pnpm lint
 pnpm test           # unit + contract
 pnpm e2e            # Playwright journeys (browser demo mode)
 pnpm e2e:http       # same journeys against the API + Postgres (API on :4000 with DEMO_CONTROLS_ENABLED=true, web started with NEXT_PUBLIC_DATA_SOURCE=http NEXT_PUBLIC_DEMO_CONTROLS=true)
-E2E_LIVE_CONFIG=1 pnpm exec playwright test e2e/live-config.spec.ts   # live configuration: API :4100 controls off, web http mode without NEXT_PUBLIC_DEMO_CONTROLS
+pnpm e2e:live       # live configuration with real sign-in: local Supabase Auth + mail catcher, API :4100 (controls off, SAMPLE_DATA_VISIBLE=false), web http with NEXT_PUBLIC_SUPABASE_* — see e2e/auth.spec.ts header
+pnpm --filter @auctionit/api grant:reviewer <email> "<name>"   # give a verified sign-in the Operations/reviewer role (admin only)
 pnpm build
 pnpm db:reset       # supabase db reset (migrations) + seed — needs `supabase start`
 pnpm demo:reset     # reseed the database (no migrations); browser demo mode uses "Reset demo data" in the header

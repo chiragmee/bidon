@@ -23,6 +23,8 @@ Run one phase per session ("Run Phase N from docs/PHASES.md"). Each ends: typech
 - [x] **Phase 6** (2026-10-15) — Hardening: §21 walk, role security matrix, resilience, a11y, visual pass vs Stitch
 - [x] **Phase 7** (2026-10-15) — Env, README, DEPLOY.md, DEMO_SCRIPT.md, clean-clone run, §26 report
 
+- [x] **Phase 1 MVP completion** (2026-10-15, docs/PHASE1_MVP.md) — real sign-in (Supabase Auth) and role separation · buyer/seller eligibility review with private documents · duplicate and cross-role account checks · offline EMD and balance payments with seller confirmation, refunds and history · non-assured sale verified end to end · production safeguards (no presenter controls or sample data against a non-local database) · e2e: eligibility, auth (local Supabase), live-config
+
 **Chosen order: fast track 1 → 3 → 5 → 4 → 2 → 6 → 7** (D-015). Phases 3–5 and 4 run on `DemoDataSource`, which moves from Phase 2.6 into Phase 3 (D-011). Phase 2 then adds Supabase + API + `HttpDataSource` + contract tests behind the same interface.
 
 ## 2. Screen map

@@ -4,9 +4,9 @@
 
 **The one idea to land:** *The auction does not change. Lot Assurance makes the material, the measurement rule and the outcome if it differs clear — and AuctionIT handles exceptions without inspecting every lot.*
 
-Everything on screen is sample data and every payment is simulated. Say so once, at the start, and point at the **Demo** pill in the header.
+Everything on screen is sample data, and the sample sellers' bank details are fictional. Say so once, at the start, and point at the **Demo** pill in the header.
 
-> **Run this walkthrough in browser demo mode** (`pnpm dev`, http://localhost:3000) or on a private copy built with `NEXT_PUBLIC_DEMO_CONTROLS=true`. The live site (https://auctionit-sand.vercel.app) deliberately has no Reset, no early close and no simulated payment failure (D-080), so steps 0 and 4.1 don't exist there.
+> **Run this walkthrough in browser demo mode** (`pnpm dev`, http://localhost:3000) or on a private copy built with `NEXT_PUBLIC_DEMO_CONTROLS=true`. The live site (https://auctionit-sand.vercel.app) deliberately has no Reset, no early close and no sample accounts (D-080, D-087), so steps 0 and 4.1 don't exist there.
 
 ---
 
@@ -41,19 +41,20 @@ Everything on screen is sample data and every payment is simulated. Say so once,
 **Say:**
 > "Nothing here says 'verified' unless it really was. The buyer knows what's declared, what's evidenced, what gets measured, and exactly what happens if the material is off — before they bid."
 
-## 3. Bidding is unchanged (3:00–4:00) — Journey A, steps 5–7
+## 3. The EMD, then bidding (3:00–4:30) — Journey A, steps 5–7
 
-1. **Pay EMD to bid → Pay ₹1,00,000 (simulated)** (optional: show **Simulate a failed payment** first, then **Try again**).
-2. **Continue to bid** → the minimum, ₹35,000/MT, is prefilled → **Review bid → Confirm bid**.
-3. Point to the green **"Bid placed: ₹35,000/MT"** and **You're the highest bidder**.
+1. **Pay EMD to bid.** The dialog shows the amount and the seller's bank details (sample, not a real account). Enter a **UTR number** (e.g. `UTR000123456`) and **Paid from** → **Report EMD payment → Done.**
+2. **Viewing as … → Seller → Dashboard.** Under **EMD payments to check**, **Confirm receipt** on Vardhan Infra Projects' EMD.
+3. **Viewing as … → Buyer**, back to the HMS lot → **Place bid** → the minimum, ₹35,000/MT, is prefilled → **Review bid → Confirm bid**.
+4. Point to the green **"Bid placed: ₹35,000/MT"** and **You're the highest bidder**.
 
-**Say:** "Same auction mechanics: deposit, minimum increment, confirm. Ties and races are handled on the server — twenty simultaneous bidders end in one consistent order."
+**Say:** "AuctionIT doesn't touch the money. The buyer pays the seller directly and reports it; only the seller's confirmation lets them bid. Same auction mechanics after that: minimum increment, confirm, and races handled on the server."
 
 ## 4. Win, pay, lift, measure (4:00–6:30) — Journey A, steps 8–12
 
 1. **Viewing as … → Operations.** You stay on the lot. **Close demo auction now → Close auction.** "The winner comes from the stored bids and the reserve — never hand-picked."
 2. **Viewing as … → Buyer → Go to your transaction** (TX-2000). Point to the stepper.
-3. **Pay ₹13,00,000 balance (simulated) → Pay balance (simulated).**
+3. In **Balance payment**, enter a **UTR number** and **Paid from** → **Report balance payment**. **Viewing as … → Seller → Confirm receipt of ₹13,00,000**, then **Viewing as … → Buyer**.
 4. Enter a vehicle number (e.g. `MH 04 GP 8812`) → **Propose lifting date**.
 5. **Viewing as … → Seller → Confirm lifting date → Confirm lifting date.** "The seller confirms; nobody can skip a step."
 6. **Viewing as … → Buyer.** In **Quantity — weighbridge measurement**: Ticket reference `WB-2026-0001`, Gross `54.2`, Tare `15.6` (the net 38.6 MT appears) → **Choose files** → `ticket.jpg` → wait for *1 file attached* → **Record measurement**.
@@ -94,6 +95,7 @@ Everything on screen is sample data and every payment is simulated. Say so once,
 
 | What you see | Do this |
 |---|---|
+| A buyer can't bid after reporting the EMD | The seller hasn't confirmed it yet: **Viewing as … → Seller → Dashboard → Confirm receipt**. |
 | "Can't reach AuctionIT right now" (live site) | The free API was asleep. Wait a minute and click **Try again**. |
 | "Your session has ended" | Click **Continue as demo …** — what was typed stays. |
 | Lost track of state | **Viewing as … → Reset demo data**, then pick up at the act you were on. |
