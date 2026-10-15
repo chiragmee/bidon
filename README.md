@@ -135,8 +135,8 @@ You don't need a database or any accounts to try it. The app ships with sample b
 **Requirements:** Node.js 22 or newer, and pnpm (`corepack enable`).
 
 ```bash
-git clone https://github.com/chiragmee/auctionit.git
-cd auctionit
+git clone https://github.com/chiragmee/bidon.git
+cd bidon
 pnpm install
 pnpm dev
 ```
@@ -238,4 +238,4 @@ pnpm e2e                                   # end-to-end, desktop (1440px) and ph
 
 ---
 
-<sub>Bid ON was developed under the working name AuctionIT, which is why the code, packages and repository still use `auctionit`.</sub>
+<sub>Bid ON was developed under the working name AuctionIT, which is why the code and packages still use `auctionit`.</sub>
