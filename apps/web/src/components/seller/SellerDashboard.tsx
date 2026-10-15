@@ -53,7 +53,7 @@ export function SellerDashboard() {
         title="Seller dashboard"
         actions={
           <ButtonLink href="/seller/lots/new" variant="primary" icon={<Plus aria-hidden />}>
-            Create a new lot
+            Create auction
           </ButtonLink>
         }
       >
@@ -74,7 +74,7 @@ export function SellerDashboard() {
       <EmdPanel emds={[...d.emdsToConfirm, ...d.emdRefundsDue]} onChanged={q.reload} title="EMD payments to check" />
       {welcome && (
         <Banner tone="success" title="Your seller profile is ready">
-          Create a lot: describe the material, add evidence, set the reserve and dates, preview it as a buyer, then publish. Business documents haven’t been checked — document verification isn’t available yet.
+          Next: verify your business from Account and verification — a reviewer checks it once, and you never go through review again. Meanwhile you can prepare auctions as drafts.
         </Banner>
       )}
       {d.claimsToAnswer.map((c) => (
@@ -134,7 +134,7 @@ export function SellerLots() {
   const q = useQuery(`seller-lots:${session.userId}`, (ds) => ds.sellerDashboard(viewer), { pollMs: 15_000, enabled: viewer.role === 'seller' });
   return (
     <Container className="flex flex-col gap-lg">
-      <PageHeader title="My lots" actions={<ButtonLink href="/seller/lots/new" variant="primary" icon={<Plus aria-hidden />}>Create a new lot</ButtonLink>}>
+      <PageHeader title="My lots" actions={<ButtonLink href="/seller/lots/new" variant="primary" icon={<Plus aria-hidden />}>Create auction</ButtonLink>}>
         Drafts, scheduled, live and closed auctions.
       </PageHeader>
       {q.error && !q.data ? (

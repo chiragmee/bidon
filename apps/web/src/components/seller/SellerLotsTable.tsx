@@ -56,7 +56,7 @@ export function SellerLotsTable({ lots, initialTab }: { lots: SellerLotRow[]; in
       </div>
       <div role="tabpanel" id="lots-panel" aria-labelledby={`tab-${tab}`}>
         {rows.length === 0 ? (
-          <EmptyState icon={FilePlus2} title={`No ${current.label.toLowerCase()} lots`} action={<ButtonLink href="/seller/lots/new">Create a new lot</ButtonLink>}>
+          <EmptyState icon={FilePlus2} title={`No ${current.label.toLowerCase()} lots`} action={<ButtonLink href="/seller/lots/new">Create auction</ButtonLink>}>
             {current.empty}
           </EmptyState>
         ) : (

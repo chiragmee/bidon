@@ -5,6 +5,7 @@ import { DOCUMENT_LABEL, documentRequirements, PAYMENT_METHODS, policyFor } from
 import { Container, PageHeader } from '@/components/layout/Shells';
 import { ButtonLink, Card } from '@/components/ui';
 import { signUpHref } from '@/lib/links';
+import { GuestOnly } from '@/components/auth/GuestOnly';
 
 export const metadata: Metadata = { title: 'How it works' };
 
@@ -114,11 +115,13 @@ export default function HowItWorksPage() {
             For buyers
           </h2>
           <Steps steps={BUYER_STEPS} />
-          <div className="mt-md">
-            <ButtonLink href={signUpHref('buyer')} variant="primary">
-              Create a buyer account
-            </ButtonLink>
-          </div>
+          <GuestOnly>
+            <div className="mt-md">
+              <ButtonLink href={signUpHref('buyer')} variant="primary">
+                Create a buyer account
+              </ButtonLink>
+            </div>
+          </GuestOnly>
         </div>
         <div className="relative hidden min-h-[320px] overflow-hidden rounded-lg lg:block">
           <Image src="/images/home/step-inspection.jpg" alt="Thickness gauge and caliper on a steel plate" fill sizes="35vw" className="object-cover" />
@@ -131,9 +134,11 @@ export default function HowItWorksPage() {
             For sellers
           </h2>
           <Steps steps={SELLER_STEPS} />
-          <div className="mt-md">
-            <ButtonLink href={signUpHref('seller')}>Create a seller account</ButtonLink>
-          </div>
+          <GuestOnly>
+            <div className="mt-md">
+              <ButtonLink href={signUpHref('seller')}>Create a seller account</ButtonLink>
+            </div>
+          </GuestOnly>
         </div>
         <div className="relative hidden min-h-[320px] overflow-hidden rounded-lg lg:block">
           <Image src="/images/home/cat-ferrous-hms.jpg" alt="Sorted heavy melting steel scrap in a seller’s yard" fill sizes="35vw" className="object-cover" />

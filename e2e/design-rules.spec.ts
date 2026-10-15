@@ -27,6 +27,9 @@ const ROUTES: [string, 'guest' | 'buyer' | 'seller' | 'ops'][] = [
   ['/seller/lots/LOT-2025-0891', 'seller'],
   ['/ops', 'ops'],
   ['/ops/auctions', 'ops'],
+  ['/ops/team', 'ops'],
+  ['/ops/eligibility', 'ops'],
+  ['/staff/sign-in', 'guest'],
   ['/ops/claims/CLM-1042-01', 'ops'],
   ['/notifications', 'buyer'],
 ];

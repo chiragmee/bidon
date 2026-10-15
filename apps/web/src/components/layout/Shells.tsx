@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ArrowLeftRight, BadgeCheck, ClipboardList, Gavel, LayoutDashboard, PlusSquare, ShieldCheck, UserCheck } from 'lucide-react';
+import { ArrowLeftRight, BadgeCheck, ClipboardList, Gavel, LayoutDashboard, PlusSquare, ShieldCheck, UserCheck, Users } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import type { Role } from '@auctionit/domain';
 import { Banner, Button } from '@/components/ui';
@@ -10,6 +10,7 @@ import { useData, useDataRecovered } from '@/data';
 import { cn } from '@/lib/cn';
 import { DEMO_CONTROLS } from '@/lib/flags';
 import { signUpHref } from '@/lib/links';
+import { HOME } from '@/lib/session';
 import { useSession } from '@/lib/SessionProvider';
 import { AppHeader, isActive } from './AppHeader';
 
@@ -54,6 +55,30 @@ function DataBanners() {
   );
 }
 
+function FooterAccount({ col, link }: { col: string; link: string }) {
+  const { session } = useSession();
+  return (
+    <nav aria-label="Account" className={col}>
+      <p className="text-overline uppercase text-text-secondary">Account</p>
+      {session.role === 'guest' ? (
+        <>
+          <Link href="/sign-in" className={link}>Sign in</Link>
+          <Link href={signUpHref('buyer')} className={link}>Create a buyer account</Link>
+          <Link href={signUpHref('seller')} className={link}>Sell on AuctionIT</Link>
+          <Link href="/staff/sign-in" className="text-caption text-text-secondary hover:text-primary hover:underline">AuctionIT staff sign-in</Link>
+        </>
+      ) : (
+        <>
+          <Link href={HOME[session.role]} className={link}>{session.role === 'ops' ? 'Operations' : 'Your dashboard'}</Link>
+          {session.role === 'seller' && <Link href="/seller/lots/new" className={link}>Create auction</Link>}
+          {session.role === 'buyer' && <Link href="/auctions" className={link}>Browse auctions</Link>}
+          {session.role !== 'ops' && <Link href="/account" className={link}>Account and verification</Link>}
+        </>
+      )}
+    </nav>
+  );
+}
+
 export function Footer() {
   const col = 'flex flex-col gap-xs';
   const link = 'text-text hover:text-primary hover:underline';
@@ -72,12 +97,7 @@ export function Footer() {
           <Link href="/how-it-works" className={link}>How it works</Link>
           <Link href="/lot-assurance" className={link}>Lot Assurance</Link>
         </nav>
-        <nav aria-label="Account" className={col}>
-          <p className="text-overline uppercase text-text-secondary">Account</p>
-          <Link href="/sign-in" className={link}>Sign in</Link>
-          <Link href={signUpHref('buyer')} className={link}>Create a buyer account</Link>
-          <Link href={signUpHref('seller')} className={link}>Sell on AuctionIT</Link>
-        </nav>
+        <FooterAccount col={col} link={link} />
       </div>
       <div className="border-t border-border">
         <p className="mx-auto max-w-[1280px] px-4 py-sm text-caption text-text-secondary md:px-lg">
@@ -116,7 +136,7 @@ const WORKSPACE_NAV: Record<Exclude<Role, 'guest'>, { href: string; label: strin
   seller: [
     { href: '/seller/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
     { href: '/seller/lots', label: 'My lots', Icon: ClipboardList },
-    { href: '/seller/lots/new', label: 'New lot', Icon: PlusSquare },
+    { href: '/seller/lots/new', label: 'Create auction', Icon: PlusSquare },
     { href: '/auctions', label: 'Auctions', Icon: Gavel },
     { href: '/account', label: 'Account', Icon: BadgeCheck },
   ],
@@ -132,9 +152,11 @@ const WORKSPACE_NAV: Record<Exclude<Role, 'guest'>, { href: string; label: strin
  * Signed-in workspace: 240px teal sidebar on desktop, bottom tab bar on mobile (DESIGN.md Layout).
  */
 export function WorkspaceShell({ children }: { children: ReactNode }) {
-  const { session } = useSession();
+  const { session, user } = useSession();
   const pathname = usePathname();
-  const items = session.role === 'guest' ? [] : WORKSPACE_NAV[session.role];
+  const base = session.role === 'guest' ? [] : WORKSPACE_NAV[session.role];
+  // The admin manages the team of regional reviewers (D-102).
+  const items = session.role === 'ops' && user?.staffLevel === 'admin' ? [...base.slice(0, 2), { href: '/ops/team', label: 'Team', Icon: Users }, ...base.slice(2)] : base;
   return (
     <>
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-surface focus:p-xs">

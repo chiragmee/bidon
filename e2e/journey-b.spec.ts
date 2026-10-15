@@ -11,7 +11,7 @@ test('journey B 1–9: seller creates, validates, previews and publishes an assu
   await expect(page.getByRole('heading', { name: 'Seller dashboard' })).toBeVisible();
 
   // 3. Create a new lot — step 1 validates inline and keeps the profile's yard.
-  await page.getByRole('link', { name: 'Create a new lot' }).click();
+  await page.getByRole('main').getByRole('link', { name: 'Create auction' }).first().click();
   await expect(page.getByRole('heading', { name: 'Basic details' })).toBeVisible();
   await expect(page.getByLabel(/Yard or plant/)).toHaveValue('Raipur Yard #4, Urla Industrial Area');
   await page.getByRole('button', { name: 'Continue' }).click();
@@ -128,6 +128,6 @@ test('seller onboarding: validation and a profile active without document checks
   await expect(page.getByText('Verify your business to publish auctions')).toBeVisible();
   // A real registration is not labelled as sample data.
   await expect(page.getByText('Sample data')).toHaveCount(0);
-  await page.getByRole('link', { name: 'Create a new lot' }).first().click();
+  await page.getByRole('main').getByRole('link', { name: 'Create auction' }).first().click();
   await expect(page.getByLabel(/Yard or plant/)).toHaveValue('Plot 12, MIDC Hingna');
 });

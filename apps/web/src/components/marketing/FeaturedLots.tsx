@@ -4,6 +4,7 @@ import { Gavel } from 'lucide-react';
 import { ButtonLink, LotCard, Skeleton, ErrorState, Button, RetryIcon } from '@/components/ui';
 import { useQuery } from '@/data';
 import { signUpHref } from '@/lib/links';
+import { GuestOnly } from '@/components/auth/GuestOnly';
 
 const FEATURED = ['LOT-2025-0891', 'LOT-2025-0899', 'LOT-2025-0905', 'LOT-2025-0910'];
 
@@ -40,15 +41,19 @@ export function FeaturedLots() {
           <div>
             <p className="text-h3 text-text-strong">No auctions are open right now</p>
             <p className="text-body-md text-text-secondary">
-              Approved sellers publish new lots here. Create your account and get approved now, so you’re ready to bid when they go live.
+              <GuestOnly signedIn="Approved sellers publish new lots here — check back soon.">
+                Approved sellers publish new lots here. Create your account and get approved now, so you’re ready to bid when they go live.
+              </GuestOnly>
             </p>
           </div>
         </div>
         <div className="flex shrink-0 flex-wrap gap-xs">
-          <ButtonLink href={signUpHref('buyer')}>Create a buyer account</ButtonLink>
-          <ButtonLink href={signUpHref('seller')} variant="ghost">
-            List your material
-          </ButtonLink>
+          <GuestOnly signedIn={(role) => role === 'seller' && <ButtonLink href="/seller/lots/new">Create auction</ButtonLink>}>
+            <ButtonLink href={signUpHref('buyer')}>Create a buyer account</ButtonLink>
+            <ButtonLink href={signUpHref('seller')} variant="ghost">
+              List your material
+            </ButtonLink>
+          </GuestOnly>
         </div>
       </div>
     );

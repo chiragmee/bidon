@@ -1,6 +1,6 @@
 # Plan — signed-in workspaces, one-time review, staff sign-in, master admin and regions (2026-10-16)
 
-Status: **awaiting approval (gate 3)**. Owner's request, 2026-10-16, with answers to the open questions.
+Status: **approved 2026-10-16 ('go'); built** — see D-102, D-103 and PROGRESS.md. Owner's request, 2026-10-16, with answers to the open questions.
 
 ## What the owner asked for (restated)
 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
+import { Gavel, Menu, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import type { Role } from '@auctionit/domain';
 import { ButtonLink, DemoModePill } from '@/components/ui';
@@ -38,6 +38,12 @@ export const NAV: Record<Role, { href: string; label: string }[]> = {
   ],
 };
 
+/** Pages that already lead with the same action (or are it) don't repeat it in the bar. */
+const ROLE_ACTION: Partial<Record<Role, { href: string; label: string; Icon: typeof Plus; hideOn: string[] }>> = {
+  seller: { href: '/seller/lots/new', label: 'Create auction', Icon: Plus, hideOn: ['/seller/lots/new', '/seller/dashboard', '/seller/lots'] },
+  buyer: { href: '/auctions?status=live', label: 'Live auctions', Icon: Gavel, hideOn: ['/buyer/dashboard'] },
+};
+
 export function isActive(pathname: string, href: string) {
   const path = href.split('?')[0] ?? href;
   return pathname === path || (path !== '/' && pathname.startsWith(`${path}/`));
@@ -53,10 +59,11 @@ export function Wordmark() {
 
 /** 64px top bar on every page: wordmark, role nav, account menu (and the Demo Mode pill with presenter controls). */
 export function AppHeader({ showNav = true }: { showNav?: boolean }) {
-  const { session } = useSession();
+  const { session, user } = useSession();
   const pathname = usePathname();
   const [menu, setMenu] = useState(false);
-  const links = NAV[session.role];
+  const links = session.role === 'ops' && user?.staffLevel === 'admin' ? [...NAV.ops, { href: '/ops/team', label: 'Team' }] : NAV[session.role];
+  const roleAction = ROLE_ACTION[session.role];
   // Close the mobile menu after navigating.
   const [menuPath, setMenuPath] = useState(pathname);
   if (pathname !== menuPath) {
@@ -114,13 +121,24 @@ export function AppHeader({ showNav = true }: { showNav?: boolean }) {
               </span>
             </>
           )}
+          {/* Each signed-in role's main job, always one click away (teal, so it never competes with the page's one orange action). */}
+          {roleAction && !roleAction.hideOn.includes(pathname) && (
+            <Link
+              href={roleAction.href}
+              // Phones: in the menu (and the workspace's bottom bar) instead, so the bar never overflows 390px.
+              className="hidden h-9 shrink-0 items-center gap-1 rounded-md bg-primary px-sm text-label-md text-on-primary hover:bg-primary-hover sm:inline-flex"
+            >
+              <roleAction.Icon className="size-4" aria-hidden />
+              {roleAction.label}
+            </Link>
+          )}
           <NotificationBell />
           {AUTH_ENABLED ? <AccountMenu /> : <RoleSwitcher />}
         </div>
       </div>
       {showNav && menu && (
         <nav id="mobile-nav" aria-label="Main" className="border-t border-border px-4 py-xs md:hidden">
-          {[...links, ...(session.role === 'guest' ? [{ href: '/sign-in', label: 'Sign in' }, { href: signUpHref('buyer'), label: 'Create account' }] : [])].map((l) => (
+          {[...(roleAction ? [{ href: roleAction.href, label: roleAction.label }] : []), ...links, ...(session.role === 'guest' ? [{ href: '/sign-in', label: 'Sign in' }, { href: signUpHref('buyer'), label: 'Create account' }] : [])].map((l) => (
             <Link
               key={l.href}
               href={l.href}

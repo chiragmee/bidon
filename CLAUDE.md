@@ -89,7 +89,7 @@ Chosen by `NEXT_PUBLIC_DATA_SOURCE=http|demo`. If the API is unreachable, the li
 
 ## Roles
 
-Guest, Buyer, Seller, Operations. Live site: Supabase Auth sign-up (Buyer or Seller only — never Operations), email verification, sign-in, reset; the role is fixed and read server-side from the profile; reviewers/Operations are granted only by `grant:reviewer`. Presenter controls only (local data): one-click sample accounts, the role switcher and "Reset demo data". Guard routes in the web app **and** every API route; buyers never reach `/seller`, sellers never touch another seller's lot, only Operations reviews claims or closes demo auctions.
+Guest, Buyer, Seller, Operations. Live site: Supabase Auth sign-up (Buyer or Seller only — never Operations), email verification, sign-in, reset; the role is fixed and read server-side from the profile; reviewers/Operations: the admin is created by `invite:reviewer`; the admin appoints regional reviewers in the app (Operations → Team), who see only their regions (D-102). Staff sign in at `/staff/sign-in`. Presenter controls only (local data): one-click sample accounts, the role switcher and "Reset demo data". Guard routes in the web app **and** every API route; buyers never reach `/seller`, sellers never touch another seller's lot, only Operations reviews claims or closes demo auctions.
 
 ## Commands (keep this list accurate)
 
@@ -103,7 +103,8 @@ pnpm test           # unit + contract
 pnpm e2e            # Playwright journeys (browser demo mode)
 pnpm e2e:http       # same journeys against the API + Postgres (API on :4000 with DEMO_CONTROLS_ENABLED=true, web started with NEXT_PUBLIC_DATA_SOURCE=http NEXT_PUBLIC_DEMO_CONTROLS=true)
 pnpm e2e:live       # live configuration with real sign-in: local Supabase Auth + mail catcher, API :4100 (controls off, SAMPLE_DATA_VISIBLE=false), web http with NEXT_PUBLIC_SUPABASE_* — see e2e/auth.spec.ts header
-pnpm --filter @auctionit/api grant:reviewer <email> "<name>"   # give a verified sign-in the Operations/reviewer role (admin only)
+pnpm --filter @auctionit/api invite:reviewer <email> "<name>"  # bootstrap the AuctionIT admin (all regions); regional reviewers are appointed in the app: Operations → Team (D-102)
+pnpm --filter @auctionit/api grant:reviewer <email> "<name>"   # same, for a sign-in that already exists
 pnpm build
 pnpm db:reset       # supabase db reset (migrations) + seed — needs `supabase start`
 pnpm demo:reset     # reseed the database (no migrations); browser demo mode uses "Reset demo data" in the header

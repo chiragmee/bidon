@@ -16,7 +16,7 @@ test('a lost session asks to sign in again — and keeps what was typed', async 
   await page.getByLabel(/Work email/).fill('kavita@raometal.example');
   await page.getByLabel(/Mobile number/).fill('98765 43210');
   await page.getByRole('button', { name: 'Create seller account' }).click();
-  await page.getByRole('link', { name: 'Create a new lot' }).first().click();
+  await page.getByRole('main').getByRole('link', { name: 'Create auction' }).first().click();
   await page.getByLabel(/Lot title/).fill('Rolled steel offcuts, press shop');
   await page.getByLabel(/Material type or grade/).fill('MS offcuts');
 

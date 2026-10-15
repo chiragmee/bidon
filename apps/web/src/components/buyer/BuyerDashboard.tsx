@@ -124,14 +124,29 @@ export function BuyerDashboard() {
 
   return (
     <Container className="flex flex-col gap-xl">
-      <PageHeader overline={d.buyer.sample ? <>{d.buyer.company} · <SampleDataCaption className="normal-case" /></> : d.buyer.company} title={`Welcome, ${d.buyer.name.split(' ')[0]}`}>
+      <PageHeader
+        overline={d.buyer.sample ? <>{d.buyer.company} · <SampleDataCaption className="normal-case" /></> : d.buyer.company}
+        title={`Welcome, ${d.buyer.name.split(' ')[0]}`}
+        actions={
+          // The page's one orange action: a next step on a won lot outranks browsing.
+          <ButtonLink href="/auctions?status=live" variant={urgent?.next ? 'secondary' : 'primary'} icon={<Gavel aria-hidden />}>
+            Browse live auctions
+          </ButtonLink>
+        }
+      >
         Your bids, won lots and transactions in one place.
       </PageHeader>
 
+      {urgent?.next && (
+        <Banner tone="warning" title={`Next step on ${urgent.id}: ${urgent.next.label}`} action={<ButtonLink href={`/transactions/${urgent.id}`} variant="primary">Open {urgent.id}</ButtonLink>}>
+          {urgent.lotTitle} · with {urgent.counterparty}
+        </Banner>
+      )}
+
       {welcome && (
         <Banner tone="success" title="Your buyer profile is ready" action={<ButtonLink href="/auctions">Browse auctions</ButtonLink>}>
-          Verify your business → find a lot → pay the EMD to the seller and report it → bid once they confirm. If you win, pay the balance the same way, schedule lifting and
-          complete the purchase from here.
+          Verify your business once from Account and verification → find a lot → pay its EMD to the seller and report it → bid once they confirm. If you win, pay the balance
+          the same way, schedule lifting and complete the purchase from here.
         </Banner>
       )}
       {!d.eligible && (
@@ -165,12 +180,6 @@ export function BuyerDashboard() {
             ))}
           </ul>
         </section>
-      )}
-
-      {urgent?.next && (
-        <Banner tone="warning" title={`Next step on ${urgent.id}: ${urgent.next.label}`} action={<ButtonLink href={`/transactions/${urgent.id}`} variant="primary">Open {urgent.id}</ButtonLink>}>
-          {urgent.lotTitle} · with {urgent.counterparty}
-        </Banner>
       )}
 
       <section aria-label="Summary" className="grid grid-cols-2 gap-sm sm:gap-md lg:grid-cols-5">

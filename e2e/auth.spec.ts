@@ -143,6 +143,7 @@ test.describe('real sign-in (Supabase Auth)', () => {
     await page.getByLabel(/Legal name/).fill(`NewCo ${run}`);
     await page.getByLabel(/Proprietor’s PAN/).fill(PAN);
     await page.getByRole('textbox', { name: /^Registered address/ }).fill('Plot 4, MIDC Hingna, Nagpur 440016');
+    await page.getByLabel(/State of the registered address/).selectOption('MH'); // West region (D-102)
     await page.getByRole('textbox', { name: /^Authorised representative/ }).fill('Asha Menon');
     await page.getByLabel(/Their designation/).fill('Proprietor');
     for (const doc of ['PAN card', 'Constitution document', 'Registered address proof', 'Authorised representative’s photo ID']) {
@@ -186,6 +187,35 @@ test.describe('real sign-in (Supabase Auth)', () => {
     await page.getByRole('button', { name: 'Approve' }).click();
     await page.getByRole('dialog').getByRole('button', { name: 'Approve' }).click();
     await expect(page.getByText(/approved by Riya Reviewer/)).toBeVisible();
+  });
+
+  test('the admin appoints a West reviewer, who sees only West applications and can’t manage the team', async ({ page }) => {
+    const west = `west-${run}@example.com`;
+    await page.context().clearCookies();
+    await signIn(page, reviewer); // the admin, created by the script
+    await page.getByRole('link', { name: 'Team' }).first().click();
+    await expect(page.getByRole('heading', { name: 'Team', level: 1 })).toBeVisible();
+    await page.getByLabel(/Full name/).fill('Wasim West');
+    await page.getByLabel(/Work email/).fill(west);
+    await page.getByRole('checkbox', { name: 'West' }).check();
+    await page.getByRole('button', { name: 'Send invitation' }).click();
+    await expect(page.getByText(`Invitation sent to ${west}.`)).toBeVisible();
+    await expect(page.getByRole('listitem').filter({ hasText: west }).getByText(/^West · \d+ waiting$/)).toBeVisible();
+
+    await page.context().clearCookies();
+    await page.goto(await linkFromEmail(west, /invite/i));
+    await page.getByLabel(/^Password/).fill(PASSWORD);
+    await page.getByLabel(/Confirm password/).fill(PASSWORD);
+    await page.getByRole('button', { name: 'Set password and continue' }).click();
+    await expect(page).toHaveURL(/\/ops\/eligibility$/);
+    await expect(page.getByText('Applications from your regions: West.', { exact: false })).toBeVisible();
+    // Every row is from West; the NewCo application (Maharashtra) is among the decided ones.
+    const badges = page.getByRole('main').getByText(/^(North|West|Central|South|North East|Region not set)( · .+)?$/);
+    await expect(badges.first()).toBeVisible();
+    for (const t of await badges.allTextContents()) expect(t).toMatch(/^West/);
+    await expect(page.getByRole('link', { name: new RegExp(`NewCo ${run}`) })).toBeVisible();
+    await page.goto('/ops/team');
+    await expect(page.getByRole('heading', { name: 'Only the admin manages the team' })).toBeVisible();
   });
 
   test('sign out, forgotten password, reset, sign in with the new password', async ({ page }) => {

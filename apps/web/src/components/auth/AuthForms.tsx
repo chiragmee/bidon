@@ -54,7 +54,8 @@ const friendly = (message: string) =>
         ? 'Too many attempts. Wait a few minutes and try again.'
         : message;
 
-export function SignInForm() {
+/** `staff`: the separate entry for AuctionIT Operations (reviewers and the admin) — no sign-up, staff wording (D-102). */
+export function SignInForm({ staff = false }: { staff?: boolean } = {}) {
   const params = useSearchParams();
   const router = useRouter();
   const { refreshAccount } = useSession();
@@ -80,16 +81,27 @@ export function SignInForm() {
 
   return (
     <AuthCard
-      title="Sign in"
+      overline={staff ? 'AuctionIT staff' : undefined}
+      title={staff ? 'Staff sign-in' : 'Sign in'}
       footer={
-        <>
-          New to AuctionIT?{' '}
-          <Link href={`/sign-up${next ? `?next=${encodeURIComponent(next)}` : ''}`} className="font-medium text-primary underline">
-            Create an account
-          </Link>
-        </>
+        staff ? (
+          <>
+            Reviewers are invited by the AuctionIT admin — there’s no sign-up here. Buying or selling?{' '}
+            <Link href="/sign-in" className="font-medium text-primary underline">
+              Sign in to your account
+            </Link>
+          </>
+        ) : (
+          <>
+            New to AuctionIT?{' '}
+            <Link href={`/sign-up${next ? `?next=${encodeURIComponent(next)}` : ''}`} className="font-medium text-primary underline">
+              Create an account
+            </Link>
+          </>
+        )
       }
     >
+      {staff && <p className="text-body-md text-text-secondary">For Operations: account reviews, claims and auctions. Use the email your invitation was sent to.</p>}
       {params.get('reset') === '1' && <Banner tone="success" title="Password changed">Sign in with your new password.</Banner>}
       {params.get('link') === 'expired' && (
         <Banner tone="warning" title="That link has expired or was already used">

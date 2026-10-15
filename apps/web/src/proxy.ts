@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { AUTH_ENABLED, SUPABASE_ANON_KEY, SUPABASE_URL } from '@/lib/flags';
 import { authStateFromClaims, SIGNED_OUT, type AuthState } from '@/lib/supabase/claims';
-import { parseSession, requiredRole, SESSION_COOKIE, type Session } from '@/lib/session';
+import { HOME, parseSession, requiredRole, SESSION_COOKIE, type Session } from '@/lib/session';
 
 /**
  * Server-side route guard (Next 16 "proxy", formerly middleware). Buyers never reach /seller, sellers never reach
@@ -34,6 +34,10 @@ export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const session: Session = auth ? auth.session : parseSession(req.cookies.get(SESSION_COOKIE)?.value);
 
+  // Signed in with an account: the marketing home and the sign-in/sign-up pages give way to their own workspace.
+  if (auth && session.role !== 'guest' && (path === '/' || path === '/sign-in' || path === '/sign-up' || path === '/staff/sign-in')) {
+    return redirect(req, res, HOME[session.role]);
+  }
   // Signed in but no AuctionIT account yet: finish onboarding before anything that needs an account.
   if (auth?.signedIn && session.role === 'guest' && requiredRole(path)) {
     return redirect(req, res, auth.intendedRole === 'seller' ? '/onboarding/seller' : '/onboarding/buyer');

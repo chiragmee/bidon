@@ -183,7 +183,7 @@ export function ListingWizard({ lotId: initialId, initial, initialStep = 1, defa
       <div className="flex flex-wrap items-end justify-between gap-sm">
         <div>
           <p className="text-overline uppercase text-text-secondary">
-            {lotId ? `Draft ${lotId}` : 'New lot'} · step {step} of 4
+            {lotId ? `Draft ${lotId}` : 'New auction'} · step {step} of 4
           </p>
           <h1 className="text-h1 text-text-strong">{STEPS[step - 1]}</h1>
         </div>

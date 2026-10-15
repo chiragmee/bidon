@@ -120,7 +120,7 @@ test('demo script, acts 1–7', async ({ page }) => {
   await expect(page).toHaveURL(/\/seller\/dashboard$/); // the claim page isn't open to sellers, so the switch goes home
   // The Ops decision in act 6 resolved TX-1042, so the track record has already moved on.
   await expect(page.getByText('7 completed sales · 2 resolved claims').first()).toBeVisible();
-  await page.getByRole('link', { name: 'Create a new lot' }).first().click();
+  await page.getByRole('main').getByRole('link', { name: 'Create auction' }).first().click();
   await expect(page.getByRole('heading', { name: 'Basic details' })).toBeVisible();
   await switchRole(page, 'Operations');
   await page.getByRole('link', { name: 'Operations', exact: true }).filter({ visible: true }).first().click();
