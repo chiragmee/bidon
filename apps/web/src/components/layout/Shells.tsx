@@ -109,7 +109,7 @@ const WORKSPACE_NAV: Record<Exclude<Role, 'guest'>, { href: string; label: strin
     { href: '/auctions', label: 'Auctions', Icon: Gavel },
   ],
   ops: [
-    { href: '/ops', label: 'Overview', Icon: LayoutDashboard },
+    { href: '/ops', label: 'Operations', Icon: LayoutDashboard },
     { href: '/ops/auctions', label: 'Auctions', Icon: Gavel },
     { href: '/auctions', label: 'Marketplace', Icon: ArrowLeftRight },
   ],

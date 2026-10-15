@@ -19,12 +19,12 @@ export const NAV: Record<Role, { href: string; label: string }[]> = {
   ],
   buyer: [
     { href: '/auctions', label: 'Auctions' },
-    { href: '/buyer/dashboard', label: 'My dashboard' },
+    { href: '/buyer/dashboard', label: 'Dashboard' },
     { href: '/lot-assurance', label: 'Lot Assurance' },
   ],
   seller: [
     { href: '/auctions', label: 'Auctions' },
-    { href: '/seller/dashboard', label: 'Seller dashboard' },
+    { href: '/seller/dashboard', label: 'Dashboard' },
     { href: '/lot-assurance', label: 'Lot Assurance' },
   ],
   ops: [

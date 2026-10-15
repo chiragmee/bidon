@@ -113,7 +113,8 @@ export class HttpDataSource implements DataSource {
   /** Liveness check used to fall back to demo mode with a visible banner. */
   async health(): Promise<boolean> {
     try {
-      const res = await (this.opts.fetch ?? fetch)(`${this.opts.baseUrl}/health`);
+      // A sleeping free-tier API can take a minute to wake; don't hold the first screen hostage.
+      const res = await (this.opts.fetch ?? fetch)(`${this.opts.baseUrl}/health`, { signal: AbortSignal.timeout(8000) });
       return res.ok;
     } catch {
       return false;
