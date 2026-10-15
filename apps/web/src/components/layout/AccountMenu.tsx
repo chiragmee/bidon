@@ -24,13 +24,8 @@ export function AccountMenu() {
     };
   }, [open]);
 
-  if (!auth?.signedIn) {
-    return (
-      <Link href="/sign-up" className="hidden rounded-md px-sm py-xs text-label-md text-primary hover:bg-primary-container sm:block">
-        Create account
-      </Link>
-    );
-  }
+  // Guests get "Sign in" and "Create account" from the header itself.
+  if (!auth?.signedIn) return null;
   const name = user?.name ?? auth.email ?? 'Your account';
   const role = session.role === 'guest' ? 'Account setup' : ROLE_LABEL[session.role];
   return (

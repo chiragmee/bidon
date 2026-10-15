@@ -9,15 +9,17 @@ import { ButtonLink, DemoModePill } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { AUTH_ENABLED, DEMO_CONTROLS } from '@/lib/flags';
 import { AccountMenu } from './AccountMenu';
+import { signUpHref } from '@/lib/links';
 import { useSession } from '@/lib/SessionProvider';
 import { NotificationBell } from './NotificationBell';
 import { RoleSwitcher } from './RoleSwitcher';
 
 export const NAV: Record<Role, { href: string; label: string }[]> = {
   guest: [
-    { href: '/auctions', label: 'Explore auctions' },
-    { href: '/lot-assurance', label: 'How Lot Assurance works' },
-    { href: '/sign-in?as=seller', label: 'Sell surplus' },
+    { href: '/auctions', label: 'Auctions' },
+    { href: '/how-it-works', label: 'How it works' },
+    { href: '/lot-assurance', label: 'Lot Assurance' },
+    { href: '/how-it-works#sellers', label: 'Sell on AuctionIT' },
   ],
   buyer: [
     { href: '/auctions', label: 'Auctions' },
@@ -108,7 +110,7 @@ export function AppHeader({ showNav = true }: { showNav?: boolean }) {
               {/* Secondary on purpose: the page body owns the single primary action (D-033).
                   Wrapped so `hidden` doesn't fight the button's own inline-flex. */}
               <span className="hidden lg:block">
-                <ButtonLink href="/auctions">Browse auctions</ButtonLink>
+                <ButtonLink href={signUpHref('buyer')}>Create account</ButtonLink>
               </span>
             </>
           )}
@@ -118,7 +120,7 @@ export function AppHeader({ showNav = true }: { showNav?: boolean }) {
       </div>
       {showNav && menu && (
         <nav id="mobile-nav" aria-label="Main" className="border-t border-border px-4 py-xs md:hidden">
-          {[...links, ...(session.role === 'guest' ? [{ href: '/sign-in', label: 'Sign in' }] : [])].map((l) => (
+          {[...links, ...(session.role === 'guest' ? [{ href: '/sign-in', label: 'Sign in' }, { href: signUpHref('buyer'), label: 'Create account' }] : [])].map((l) => (
             <Link
               key={l.href}
               href={l.href}

@@ -8,7 +8,8 @@ import type { Role } from '@auctionit/domain';
 import { Banner, Button } from '@/components/ui';
 import { useData, useDataRecovered } from '@/data';
 import { cn } from '@/lib/cn';
-import { AUTH_ENABLED } from '@/lib/flags';
+import { DEMO_CONTROLS } from '@/lib/flags';
+import { signUpHref } from '@/lib/links';
 import { useSession } from '@/lib/SessionProvider';
 import { AppHeader, isActive } from './AppHeader';
 
@@ -54,27 +55,35 @@ function DataBanners() {
 }
 
 export function Footer() {
+  const col = 'flex flex-col gap-xs';
+  const link = 'text-text hover:text-primary hover:underline';
   return (
-    <footer className="mt-xxl border-t border-border bg-surface">
-      <div className="mx-auto grid max-w-[1280px] gap-lg px-4 py-xl text-body-md md:grid-cols-3 md:px-lg">
-        <div>
+    <footer className="border-t border-border bg-surface">
+      <div className="mx-auto grid max-w-[1280px] gap-lg px-4 py-xl text-body-md md:grid-cols-[1.4fr_1fr_1fr] md:px-lg">
+        <div className={col}>
           <p className="text-h3 font-semibold text-text-strong">
             Auction<span className="text-primary">IT</span>
           </p>
-          <p className="mt-xs text-text-secondary">Online auctions for industrial scrap and surplus.</p>
+          <p className="max-w-[360px] text-text-secondary">Online auctions for industrial scrap and surplus between approved businesses.</p>
         </div>
-        <nav aria-label="Footer" className="flex flex-col gap-xs">
-          <Link href="/auctions" className="text-primary hover:underline">Explore auctions</Link>
-          <Link href="/lot-assurance" className="text-primary hover:underline">How Lot Assurance works</Link>
-          <Link href={AUTH_ENABLED ? '/sign-up?as=seller' : '/sign-in?as=seller'} className="text-primary hover:underline">Sell surplus</Link>
-          <Link href="/sign-in" className="text-primary hover:underline">Sign in</Link>
+        <nav aria-label="Marketplace" className={col}>
+          <p className="text-overline uppercase text-text-secondary">Marketplace</p>
+          <Link href="/auctions" className={link}>Auctions</Link>
+          <Link href="/how-it-works" className={link}>How it works</Link>
+          <Link href="/lot-assurance" className={link}>Lot Assurance</Link>
         </nav>
-        <div className="flex flex-col gap-xs text-text-secondary">
-          <p className="text-caption">
-            AuctionIT doesn’t collect or move money: buyers pay sellers directly, report the payment here, and the seller confirms receiving it. Records marked
-            “Sample data” are fictional examples. Lot Assurance tolerances and remedies are provisional, not yet approved terms.
-          </p>
-        </div>
+        <nav aria-label="Account" className={col}>
+          <p className="text-overline uppercase text-text-secondary">Account</p>
+          <Link href="/sign-in" className={link}>Sign in</Link>
+          <Link href={signUpHref('buyer')} className={link}>Create a buyer account</Link>
+          <Link href={signUpHref('seller')} className={link}>Sell on AuctionIT</Link>
+        </nav>
+      </div>
+      <div className="border-t border-border">
+        <p className="mx-auto max-w-[1280px] px-4 py-sm text-caption text-text-secondary md:px-lg">
+          AuctionIT doesn’t collect or move money: buyers pay sellers directly, and the seller confirms each payment here.
+          {DEMO_CONTROLS && ' Records marked “Sample data” are fictional examples.'}
+        </p>
       </div>
     </footer>
   );
