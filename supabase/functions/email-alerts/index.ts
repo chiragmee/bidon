@@ -5,19 +5,20 @@
 // so the URL needs no secret. `?check=1` logs in to the mail server and sends nothing.
 //
 // Secrets: SMTP_USER, SMTP_PASS (Gmail app password), optional SMTP_HOST/SMTP_PORT/SMTP_SECURE (default
-// smtp.gmail.com:465 over TLS — Edge Functions can't use port 587) and SITE_URL. SUPABASE_DB_URL is provided by Supabase.
-import postgres from 'npm:postgres@3.4.7';
+// smtp.gmail.com:465 over TLS — Edge Functions can't use port 587) and SITE_URL. SUPABASE_URL and
+// SUPABASE_SERVICE_ROLE_KEY are provided by Supabase; the queue is reached through claim_email_alerts / release_email_alerts.
+import { createClient } from 'npm:@supabase/supabase-js@2.58.0';
 import nodemailer from 'npm:nodemailer@6.10.1';
 
 const MAX_ATTEMPTS = 5;
 const BATCH = 20;
 
+
 const env = (k: string, fallback?: string) => Deno.env.get(k) ?? fallback;
 const siteUrl = (env('SITE_URL', 'https://auctionit-sand.vercel.app') as string).replace(/\/$/, '');
 const user = env('SMTP_USER');
 
-// ALERTS_DB_URL only locally: Deno can't resolve the underscored Docker host in SUPABASE_DB_URL.
-const sql = postgres(env('ALERTS_DB_URL', env('SUPABASE_DB_URL')) as string, { max: 1, prepare: false });
+const db = createClient(env('SUPABASE_URL') as string, env('SUPABASE_SERVICE_ROLE_KEY') as string, { auth: { persistSession: false } });
 const mailer = nodemailer.createTransport({
   host: env('SMTP_HOST', 'smtp.gmail.com'),
   port: Number(env('SMTP_PORT', '465')),
@@ -31,7 +32,7 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 const escape = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
 interface Alert {
-  id: string;
+  alert_id: string;
   title: string;
   body: string;
   href: string;
@@ -56,17 +57,9 @@ function message(a: Alert) {
 
 /** Claim a batch (so overlapping runs never send twice), send each, and put failures back for a later run. */
 async function drain() {
-  const alerts = await sql<Alert[]>`
-    update notifications n
-       set emailed_at = now(), email_attempts = n.email_attempts + 1
-      from profiles p
-     where n.id in (
-             select id from notifications
-              where emailed_at is null and kind = 'eligibility_submitted' and email_attempts < ${MAX_ATTEMPTS}
-              order by at limit ${BATCH}
-              for update skip locked)
-       and p.id = n.user_id
-    returning n.id, n.title, n.body, n.href, p.email, p.name`;
+  const { data, error } = await db.rpc('claim_email_alerts', { batch: BATCH, max_attempts: MAX_ATTEMPTS });
+  if (error) throw new Error(`claim_email_alerts: ${error.message}`);
+  const alerts = (data ?? []) as Alert[];
   let sent = 0;
   const failed: string[] = [];
   for (const a of alerts) {
@@ -75,11 +68,14 @@ async function drain() {
       await mailer.sendMail(message(a));
       sent++;
     } catch (e) {
-      console.error(`email-alerts: ${a.id} not sent: ${(e as Error).message}`);
-      failed.push(a.id);
+      console.error(`email-alerts: ${a.alert_id} not sent: ${(e as Error).message}`);
+      failed.push(a.alert_id);
     }
   }
-  if (failed.length) await sql`update notifications set emailed_at = null where id in ${sql(failed)}`;
+  if (failed.length) {
+    const { error: releaseError } = await db.rpc('release_email_alerts', { ids: failed });
+    if (releaseError) console.error(`email-alerts: release failed: ${releaseError.message}`);
+  }
   return { sent, failed: failed.length };
 }
 
