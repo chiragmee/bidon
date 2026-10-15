@@ -228,11 +228,13 @@ export function lotDetail(state: DemoState, lotId: string, viewer: Viewer, now: 
   const record = sellerTrackRecord(lot.sellerId, state.transactions, state.claims);
 
   const firstSeen = new Map<string, number>();
-  for (const b of [...bids].sort((a, c) => ms(a.placedAt) - ms(c.placedAt))) {
+  // Same-millisecond bids fall back to id order (ids are issued in placement order).
+  const chrono = (a: { placedAt: string; id: string }, c: { placedAt: string; id: string }) => ms(a.placedAt) - ms(c.placedAt) || a.id.localeCompare(c.id, 'en', { numeric: true });
+  for (const b of [...bids].sort(chrono)) {
     if (!firstSeen.has(b.bidderId)) firstSeen.set(b.bidderId, firstSeen.size + 1);
   }
   const rows: BidRow[] = [...bids]
-    .sort((a, b) => ms(b.placedAt) - ms(a.placedAt))
+    .sort((a, b) => chrono(b, a))
     .map((b) => {
       const mine = b.bidderId === viewer.id;
       return { id: b.id, label: mine ? 'You' : `Bidder ${firstSeen.get(b.bidderId)}`, mine, amountPerMt: b.amountPerMt, placedAt: b.placedAt };

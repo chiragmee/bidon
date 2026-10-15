@@ -1,9 +1,11 @@
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
-import { createApp } from './app.js';
-import { loadEnv } from './env.js';
+import { createApp } from './app';
+import { loadEnv } from './env';
 
-const app = createApp(loadEnv({ ALLOWED_ORIGINS: 'http://localhost:3000' }));
+import { MemoryService } from './services/MemoryService';
+
+const app = createApp(loadEnv({ ALLOWED_ORIGINS: 'http://localhost:3000' }), new MemoryService());
 
 describe('api shell', () => {
   it('GET /health answers ok with mode and server time', async () => {

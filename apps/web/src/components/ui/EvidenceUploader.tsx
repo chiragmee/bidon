@@ -4,6 +4,7 @@ import { Camera, FileText, LoaderCircle, RotateCcw, Trash2, Upload, Video } from
 import { useId, useRef, useState, type Dispatch, type SetStateAction } from 'react';
 import type { CategoryId, LotMedia } from '@auctionit/domain';
 import { useData } from '@/data';
+import { useSession } from '@/lib/SessionProvider';
 import { cn } from '@/lib/cn';
 import { ACCEPT, UPLOAD_RULES, validateUpload } from '@/lib/uploads';
 import { LotImage } from './LotImage';
@@ -45,6 +46,7 @@ export function EvidenceUploader({
   error?: string | null;
 }) {
   const { ds } = useData();
+  const { viewer } = useSession();
   const inputId = useId();
   const input = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<Pending[]>([]);
@@ -52,7 +54,7 @@ export function EvidenceUploader({
 
   async function upload(p: Pending) {
     setPending((xs) => [...xs.filter((x) => x.key !== p.key), { ...p, status: 'uploading', error: undefined }]);
-    const r = await ds.uploadMedia(p.file, stage);
+    const r = await ds.uploadMedia(p.file, stage, viewer);
     if (r.ok) {
       setPending((xs) => xs.filter((x) => x.key !== p.key));
       onChange((prev) => [...prev, r.data]);

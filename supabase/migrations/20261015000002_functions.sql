@@ -41,10 +41,11 @@ create or replace function place_bid(
   p_amount bigint,
   p_client_request_id text,
   p_seen_highest bigint,
-  p_now timestamptz default now()
+  p_now timestamptz default null
 ) returns jsonb
 language plpgsql as $$
 declare
+  v_at timestamptz;
   v_lot lots%rowtype;
   v_role user_role;
   v_top bids%rowtype;
@@ -52,6 +53,8 @@ declare
   v_id text;
 begin
   perform app_write_lock();
+  -- Time the bid when it actually gets the lock, so bid order and timestamps always agree.
+  v_at := coalesce(p_now, clock_timestamp());
 
   -- Same order as packages/domain placeBid → validateBid, so both return the same code.
   select * into v_lot from lots where id = p_lot_id for update;
@@ -72,10 +75,10 @@ begin
   if v_lot.status = 'draft' then
     return jsonb_build_object('ok', false, 'code', 'not_published');
   end if;
-  if v_lot.status = 'scheduled' and p_now < v_lot.start_at then
+  if v_lot.status = 'scheduled' and v_at < v_lot.start_at then
     return jsonb_build_object('ok', false, 'code', 'auction_not_started');
   end if;
-  if v_lot.status <> 'scheduled' or p_now >= v_lot.end_at then
+  if v_lot.status <> 'scheduled' or v_at >= v_lot.end_at then
     return jsonb_build_object('ok', false, 'code', 'auction_closed');
   end if;
   if v_lot.seller_id = p_bidder_id then
@@ -98,9 +101,9 @@ begin
 
   v_id := next_id('BID');
   insert into bids (id, lot_id, bidder_id, amount_per_mt, placed_at, client_request_id)
-  values (v_id, p_lot_id, p_bidder_id, p_amount, p_now, p_client_request_id);
+  values (v_id, p_lot_id, p_bidder_id, p_amount, v_at, p_client_request_id);
   insert into audit_log (id, entity, entity_id, action, actor_id, actor_role, to_status, at)
-  values (next_id('AUD'), 'bid', v_id, 'place_bid', p_bidder_id, 'buyer', format_inr(p_amount) || '/MT', p_now);
+  values (next_id('AUD'), 'bid', v_id, 'place_bid', p_bidder_id, 'buyer', format_inr(p_amount) || '/MT', v_at);
 
   return jsonb_build_object(
     'ok', true,

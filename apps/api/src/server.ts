@@ -1,7 +1,11 @@
-import { createApp } from './app.js';
-import { loadEnv } from './env.js';
+import { createApp } from './app';
+import { createSql } from './db/client';
+import { loadEnv } from './env';
+import { DbService } from './services/DbService';
+import { MemoryService } from './services/MemoryService';
 
 const env = loadEnv();
-createApp(env).listen(env.PORT, () => {
-  console.log(`AuctionIT API listening on :${env.PORT} (mode: ${env.DATA_MODE})`);
+const service = env.DATA_MODE === 'supabase' && env.DATABASE_URL ? new DbService(createSql(env.DATABASE_URL)) : new MemoryService();
+createApp(env, service).listen(env.PORT, () => {
+  console.log(`AuctionIT API listening on :${env.PORT} (data: ${env.DATA_MODE})`);
 });

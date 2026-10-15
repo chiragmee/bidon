@@ -72,7 +72,7 @@ export interface DataSource {
   registerSeller(input: SellerRegistration): Promise<DsResult<{ user: User; company: Company }>>;
 
   /** Validate and store one evidence file; it is attached when the action using it succeeds. */
-  uploadMedia(file: File, stage: LotMedia['stage']): Promise<DsResult<LotMedia>>;
+  uploadMedia(file: File, stage: LotMedia['stage'], viewer: Viewer): Promise<DsResult<LotMedia>>;
 
   registerBuyer(input: BuyerRegistration): Promise<DsResult<{ user: User; company: Company }>>;
   getUser(id: string): Promise<DsResult<{ user: User; company: Company | null } | null>>;

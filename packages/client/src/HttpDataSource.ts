@@ -97,9 +97,9 @@ export class HttpDataSource implements DataSource {
   notifications: DataSource['notifications'] = (viewer) => this.call('GET', '/notifications', undefined, viewer);
   markNotificationsRead: DataSource['markNotificationsRead'] = (viewer) => this.call('POST', '/notifications/read', {}, viewer);
 
-  uploadMedia: DataSource['uploadMedia'] = async (file, stage) => {
+  uploadMedia: DataSource['uploadMedia'] = async (file, stage, viewer) => {
     const path = `/media?stage=${encodeURIComponent(stage)}&name=${encodeURIComponent(file.name)}&type=${encodeURIComponent(file.type)}`;
-    const r = await this.call<LotMedia>('POST', path, file, undefined, false);
+    const r = await this.call<LotMedia>('POST', path, file, viewer, false);
     return r.ok || r.error.code !== 'network' ? r : { ok: false, error: { ...r.error, what: `The upload of ${file.name} was interrupted.`, next: 'Retry the upload. Nothing else was changed.' } };
   };
 
