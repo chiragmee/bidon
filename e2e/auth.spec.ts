@@ -119,12 +119,25 @@ test.describe('real sign-in (Supabase Auth)', () => {
     expect(res.status()).toBeGreaterThanOrEqual(400);
   });
 
-  test('a reviewer is granted by the admin script (never at sign-up) and approves the application', async ({ page }) => {
-    await signUp(page, reviewer, 'buyer');
-    execFileSync('pnpm', ['--filter', '@auctionit/api', 'grant:reviewer', reviewer, 'Riya Reviewer'], { env: { ...process.env, DATABASE_URL: DB }, stdio: 'pipe' });
+  test('a reviewer is invited by the admin script (never at sign-up), sets a password and approves the application', async ({ page }) => {
+    // An administrator invites the reviewer; the email link lets them choose a password and lands in Operations.
+    execFileSync('pnpm', ['--filter', '@auctionit/api', 'invite:reviewer', reviewer, 'Riya Reviewer'], {
+      env: { ...process.env, DATABASE_URL: DB, SUPABASE_URL: 'http://127.0.0.1:54321', SUPABASE_SERVICE_ROLE_KEY: process.env.E2E_SERVICE_ROLE_KEY ?? '', SITE_URL: 'http://localhost:3000' },
+      stdio: 'pipe',
+    });
+    await page.context().clearCookies();
+    await page.goto(await linkFromEmail(reviewer, /invite/i));
+    await expect(page.getByRole('heading', { name: 'Choose your password' })).toBeVisible();
+    expect(page.url()).not.toContain('access_token'); // tokens removed from the address bar
+    await page.getByLabel(/^Password/).fill(PASSWORD);
+    await page.getByLabel(/Confirm password/).fill(PASSWORD);
+    await page.getByRole('button', { name: 'Set password and continue' }).click();
+    await expect(page).toHaveURL(/\/ops\/eligibility$/);
+    // Signs in like anyone else afterwards, and lands on the Operations dashboard with the waiting count.
     await page.context().clearCookies();
     await signIn(page, reviewer);
     await expect(page).toHaveURL(/\/ops$/);
+    await expect(page.getByText(/account applications? waiting for review/)).toBeVisible();
     // Operations has no early close on the live site.
     await page.goto('/ops/auctions');
     await expect(page.getByRole('heading', { name: 'Auctions and results' })).toBeVisible();

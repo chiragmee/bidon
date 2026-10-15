@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "db:seed": "tsx --env-file-if-exists=.env src/db/reseed.ts",
-    "grant:reviewer": "tsx --env-file-if-exists=.env src/db/grantReviewer.ts"
+    "grant:reviewer": "tsx --env-file-if-exists=.env src/db/grantReviewer.ts",
+    "invite:reviewer": "tsx --env-file-if-exists=.env src/db/inviteReviewer.ts"
   },
   "dependencies": {
     "@auctionit/domain": "workspace:*",

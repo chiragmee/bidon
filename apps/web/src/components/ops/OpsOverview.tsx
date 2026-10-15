@@ -326,6 +326,7 @@ function Queue({ rows, empty }: { rows: OpsOverviewView['queue']; empty: string 
 export function OpsOverview() {
   const { viewer } = useSession();
   const q = useQuery('ops-overview', (ds) => ds.opsOverview(viewer), { pollMs: 10_000, enabled: viewer.role === 'ops' });
+  const applications = useQuery('eligibility-queue', (ds) => ds.eligibilityQueue(viewer), { pollMs: 15_000, enabled: viewer.role === 'ops' });
   if (q.error && !q.data) {
     return (
       <Container>
@@ -354,6 +355,7 @@ export function OpsOverview() {
   }
   const o = q.data;
   const firstReview = o.queue.find((r) => r.status === 'under_review');
+  const waitingApps = applications.data?.waiting ?? [];
 
   return (
     <Container className="flex flex-col gap-xl">
@@ -361,6 +363,16 @@ export function OpsOverview() {
         AuctionIT handles exceptions — it doesn’t inspect every lot. Normal transactions finish
         without anyone here.
       </PageHeader>
+
+      {waitingApps.length > 0 && (
+        <Banner
+          tone="warning"
+          title={`${waitingApps.length} account application${waitingApps.length === 1 ? '' : 's'} waiting for review`}
+          action={<ButtonLink href="/ops/eligibility">Review applications</ButtonLink>}
+        >
+          Oldest: {waitingApps[0]?.legalName || waitingApps[0]?.name} ({waitingApps[0]?.kind}). Buyers can’t bid and sellers can’t publish until approved.
+        </Banner>
+      )}
 
       {firstReview && (
         <Banner

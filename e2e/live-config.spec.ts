@@ -14,7 +14,7 @@ test.describe('live configuration: no presenter controls or demo presentation', 
 
   test('guest pages carry no demo pill, demo entry section or placeholder', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: /Featured lots/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Live and upcoming auctions' })).toBeVisible();
     await expect(page.getByText(/Demo Mode|Demo access|Demo environment|placeholder/)).toHaveCount(0);
     await expect(page).not.toHaveTitle(/demo/i);
     await expect(page.getByText(/AuctionIT doesn’t collect or move money/)).toBeVisible();

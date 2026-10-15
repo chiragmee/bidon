@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { MailCheck } from 'lucide-react';
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { validateEmail } from '@auctionit/domain';
 import { Container } from '@/components/layout/Shells';
 import { Banner, Button, Card, EmptyState, Field, Input } from '@/components/ui';
@@ -309,6 +309,107 @@ export function ResetPasswordForm() {
         {error && <Banner tone="danger" title={error} />}
         <Button variant="primary" type="submit" loading={busy}>
           Save new password
+        </Button>
+      </form>
+    </AuthCard>
+  );
+}
+
+/**
+ * Where an invitation email lands (reviewers are invited by an administrator — D-087). Supabase returns the session
+ * in the URL fragment; we start it here, remove the tokens from the address bar, and ask for a password.
+ */
+export function AcceptInviteForm() {
+  const { refreshAccount } = useSession();
+  const [state, setState] = useState<'starting' | 'ready' | 'invalid'>('starting');
+  const [problem, setProblem] = useState<string | null>(null);
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const sb = supabaseBrowser();
+    if (!sb) return;
+    const hash = new URLSearchParams(window.location.hash.slice(1));
+    const access_token = hash.get('access_token');
+    const refresh_token = hash.get('refresh_token');
+    // Never leave tokens in the address bar or history.
+    if (window.location.hash) window.history.replaceState(null, '', window.location.pathname);
+    void (async () => {
+      if (hash.get('error_description')) {
+        setProblem(hash.get('error_description'));
+        return setState('invalid');
+      }
+      if (access_token && refresh_token) {
+        const { error: err } = await sb.auth.setSession({ access_token, refresh_token });
+        if (err) {
+          setProblem(err.message);
+          return setState('invalid');
+        }
+        return setState('ready');
+      }
+      // Reloaded after the session started: carry on if signed in.
+      const { data } = await sb.auth.getSession();
+      setState(data.session ? 'ready' : 'invalid');
+    })();
+  }, []);
+
+  if (!AUTH_CONFIGURED) return <NotConfigured />;
+  if (state === 'starting') {
+    return (
+      <Container>
+        <p role="status" className="text-body-md text-text-secondary">
+          Opening your invitation…
+        </p>
+      </Container>
+    );
+  }
+  if (state === 'invalid') {
+    return (
+      <Container>
+        <EmptyState icon={MailCheck} headingLevel={1} title="This invitation link has expired or was already used">
+          {problem ? `${problem}. ` : ''}Ask the AuctionIT administrator to send a new invitation, or{' '}
+          <Link href="/sign-in" className="font-medium text-primary underline">
+            sign in
+          </Link>{' '}
+          if you’ve already set your password.
+        </EmptyState>
+      </Container>
+    );
+  }
+  return (
+    <AuthCard overline="Reviewer invitation" title="Choose your password">
+      <p className="text-body-md text-text-secondary">You’ve been invited to review accounts on AuctionIT. Set a password to finish — you’ll use it with your email to sign in.</p>
+      <form
+        className="flex flex-col gap-md"
+        noValidate
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const pw = validatePassword(password);
+          if (pw) return setError(pw);
+          if (confirm !== password) return setError('The passwords don’t match.');
+          const sb = supabaseBrowser();
+          if (!sb) return;
+          setBusy(true);
+          setError(null);
+          const { error: err } = await sb.auth.updateUser({ password });
+          if (err) {
+            setBusy(false);
+            return setError(friendly(err.message));
+          }
+          await refreshAccount('/ops/eligibility');
+        }}
+      >
+        <Field label="Password" helper="At least 8 characters, with a letter and a number." required>
+          <Input type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        </Field>
+        <Field label="Confirm password" required>
+          <Input type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+        </Field>
+        {error && <Banner tone="danger" title={error} />}
+        <Button variant="primary" type="submit" loading={busy}>
+          Set password and continue
         </Button>
       </form>
     </AuthCard>
