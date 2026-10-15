@@ -247,8 +247,8 @@ export function accountIdentityProblem(
     return {
       error: {
         code: 'duplicate_account',
-        what: 'An AuctionIT account already uses this email, mobile number or sign-in.',
-        next: 'Each person and business holds one account, as a buyer or a seller. Sign in to your existing account, or contact AuctionIT support.',
+        what: 'A Bid ON account already uses this email, mobile number or sign-in.',
+        next: 'Each person and business holds one account, as a buyer or a seller. Sign in to your existing account, or contact Bid ON support.',
       },
     };
   }

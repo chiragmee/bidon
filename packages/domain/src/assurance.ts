@@ -172,7 +172,7 @@ export function priceAdjustment(lot: Lot, tx: Transaction, type: ClaimType, obse
   return Math.round((t.excess / 100) * tx.weighbridge.measuredMt * tx.pricePerMt);
 }
 
-/** Exit: the seller returns the EMD and any balance paid (outside AuctionIT, recorded as refunds); seller keeps the material. */
+/** Exit: the seller returns the EMD and any balance paid (outside Bid ON, recorded as refunds); seller keeps the material. */
 export function exitRefund(tx: Transaction): Rupees {
   return tx.emdAmount + tx.balancePaid;
 }

@@ -15,7 +15,7 @@ const BATCH = 20;
 
 
 const env = (k: string, fallback?: string) => Deno.env.get(k) ?? fallback;
-const siteUrl = (env('SITE_URL', 'https://auctionit-sand.vercel.app') as string).replace(/\/$/, '');
+const siteUrl = (env('SITE_URL', 'https://bidonindia.vercel.app') as string).replace(/\/$/, '');
 const user = env('SMTP_USER');
 
 const db = createClient(env('SUPABASE_URL') as string, env('SUPABASE_SERVICE_ROLE_KEY') as string, { auth: { persistSession: false } });
@@ -25,7 +25,7 @@ const mailer = nodemailer.createTransport({
   secure: env('SMTP_SECURE', 'true') === 'true',
   auth: user ? { user, pass: env('SMTP_PASS') } : undefined,
 });
-const from = { name: 'AuctionIT', address: env('SMTP_FROM', user ?? 'no-reply@auctionit.local') as string };
+const from = { name: 'Bid ON', address: env('SMTP_FROM', user ?? 'no-reply@auctionit.local') as string };
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 
@@ -47,11 +47,11 @@ function message(a: Alert) {
     from,
     to: { name: a.name, address: a.email },
     subject: `New application: ${a.title}`,
-    text: `${a.title}.\n${a.body}\n\nReview it: ${link}\nAll waiting applications: ${queue}\n\nYou get this because you're an AuctionIT reviewer.`,
+    text: `${a.title}.\n${a.body}\n\nReview it: ${link}\nAll waiting applications: ${queue}\n\nYou get this because you're a Bid ON reviewer.`,
     html: `<p><strong>${escape(a.title)}.</strong><br>${escape(a.body)}</p>
 <p><a href="${escape(link)}" style="display:inline-block;padding:10px 16px;background:#0F4C5C;color:#fff;border-radius:6px;text-decoration:none">Review the application</a></p>
 <p><a href="${escape(queue)}">All waiting applications</a></p>
-<p style="color:#666;font-size:12px">You get this because you're an AuctionIT reviewer.</p>`,
+<p style="color:#666;font-size:12px">You get this because you're a Bid ON reviewer.</p>`,
   };
 }
 

@@ -147,7 +147,7 @@ export function ClaimPanel({ d, onDone, primary }: { d: TxDetailView; onDone: (m
         onClose={() => setConfirm(false)}
         busy={busy}
         title={decision === 'accept' ? 'Accept the claim?' : 'Dispute the claim?'}
-        consequence={decision === 'accept' ? `${remedyText}. This resolves the claim and the transaction.` : 'The claim goes to AuctionIT Operations, who decide on the evidence from both sides.'}
+        consequence={decision === 'accept' ? `${remedyText}. This resolves the claim and the transaction.` : 'The claim goes to Bid ON Operations, who decide on the evidence from both sides.'}
         confirmLabel={decision === 'accept' ? 'Accept claim' : 'Send dispute'}
         onConfirm={async () => {
           setBusy(true);

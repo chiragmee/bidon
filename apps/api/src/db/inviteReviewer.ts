@@ -1,7 +1,7 @@
 /**
  * pnpm --filter @auctionit/api invite:reviewer <email> "<Full name>"
  *
- * Makes someone the AuctionIT admin: Operations staff covering every region, who appoints regional reviewers in the
+ * Makes someone the Bid ON admin: Operations staff covering every region, who appoints regional reviewers in the
  * app (Operations → Team, D-102). Bootstraps the first admin; never offered at sign-up (D-087). Run by an administrator with the target project's DATABASE_URL, SUPABASE_URL and
  * SUPABASE_SERVICE_ROLE_KEY; SITE_URL is where the invite link lands (default: the live site).
  *
@@ -16,7 +16,7 @@ const [rawEmail, ...nameParts] = process.argv.slice(2);
 const email = (rawEmail ?? '').trim().toLowerCase();
 const name = nameParts.join(' ').trim();
 const { DATABASE_URL, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;
-const SITE_URL = (process.env.SITE_URL ?? 'https://auctionit-sand.vercel.app').replace(/\/$/, '');
+const SITE_URL = (process.env.SITE_URL ?? 'https://bidonindia.vercel.app').replace(/\/$/, '');
 if (!email || !name) {
   console.error('Usage: pnpm --filter @auctionit/api invite:reviewer <email> "<Full name>"');
   process.exit(2);
@@ -49,7 +49,7 @@ try {
       await tx`select app_write_lock()`;
       const [row] = await tx`select next_id('U') as id`;
       profileId = String(row?.id);
-      await tx`insert into profiles (id, name, email, role, company_id, title, auth_user_id) values (${profileId}, ${name}, ${email}, 'ops', null, 'AuctionIT admin', ${authId})`;
+      await tx`insert into profiles (id, name, email, role, company_id, title, auth_user_id) values (${profileId}, ${name}, ${email}, 'ops', null, 'Bid ON admin', ${authId})`;
       await tx`update profiles set staff_level = 'admin', regions = '{}' where id = ${profileId}`;
       await tx`insert into audit_log (id, entity, entity_id, action, actor_id, actor_role, to_status, at) values (next_id('AUD'), 'user', ${profileId}, ${invited ? 'invite_reviewer' : 'grant_reviewer'}, 'admin-script', 'ops', 'ops', now())`;
     });

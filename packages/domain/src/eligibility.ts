@@ -197,8 +197,8 @@ function duplicateIdentity(state: DemoState, company: Company): Rejection | null
   return clash
     ? {
         code: 'duplicate_identity',
-        what: 'These business details are already registered with AuctionIT.',
-        next: 'Each business can hold one account, as a buyer or a seller. If this is your business, sign in to that account; otherwise contact AuctionIT support.',
+        what: 'These business details are already registered with Bid ON.',
+        next: 'Each business can hold one account, as a buyer or a seller. If this is your business, sign in to that account; otherwise contact Bid ON support.',
       }
     : null;
 }
@@ -232,7 +232,7 @@ export function submitEligibility(state: DemoState, actor: Actor, now: Iso): OpR
 /** Reviewer's decision. A reason is required to ask for information or reject (and recommended to approve). */
 export function reviewEligibility(state: DemoState, companyId: string, input: { decision: EligibilityReview['decision']; reason: string }, actor: Actor, now: Iso): OpResult<Company> {
   const access = actor.role === 'ops' ? staffAccess(state, actor.id) : null;
-  if (!access) return rejected(state, 'forbidden', 'Only an AuctionIT reviewer can decide applications.', 'Ask a reviewer.');
+  if (!access) return rejected(state, 'forbidden', 'Only a Bid ON reviewer can decide applications.', 'Ask a reviewer.');
   const company = state.companies.find((c) => c.id === companyId);
   if (!company?.eligibility) return rejected(state, 'not_found', 'That application does not exist.', 'Go back to the review queue.');
   if (!coversCompany(access, company)) return rejected(state, 'other_region', 'This application is outside your regions.', 'A reviewer for its region, or the admin, decides it.');
@@ -322,7 +322,7 @@ export function accountView(state: DemoState, userId: string): AccountView | nul
     pending_review: 'Nothing to do — a reviewer is checking your application. You’ll be notified of the decision.',
     approved: company.kind === 'seller' ? 'You can publish auctions.' : 'You can pay EMDs and bid on live auctions.',
     needs_info: 'Update your application as the reviewer asked, then submit it again.',
-    rejected: 'Your application was not approved. Contact AuctionIT support if you think this is a mistake.',
+    rejected: 'Your application was not approved. Contact Bid ON support if you think this is a mistake.',
     demo_approved: 'Sample account — used for demonstrations only.',
   };
   return {

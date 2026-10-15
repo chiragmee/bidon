@@ -31,7 +31,7 @@ export function TeamPage() {
     return (
       <Container>
         <EmptyState icon={Users} headingLevel={1} title="Only the admin manages the team">
-          Ask the AuctionIT admin to change who reviews which region.
+          Ask the Bid ON admin to change who reviews which region.
         </EmptyState>
       </Container>
     );

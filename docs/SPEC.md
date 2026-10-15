@@ -1,4 +1,4 @@
-> **How to use this spec:** This is the full product specification for AuctionIT. Build order and checkpoints come from the phase prompts and `CLAUDE.md`: complete one phase, report, and stop. Visual details are defined by `DESIGN.md`, which wins over §5 wherever they differ. Screen layouts come from `design/stitch/`.
+> **How to use this spec:** This is the full product specification for Bid ON. Build order and checkpoints come from the phase prompts and `CLAUDE.md`: complete one phase, report, and stop. Visual details are defined by `DESIGN.md`, which wins over §5 wherever they differ. Screen layouts come from `design/stitch/`.
 
 # MASTER BUILD PROMPT: AUCTIONIT — END-TO-END INDUSTRIAL AUCTION MARKETPLACE
 
@@ -6,7 +6,7 @@
 
 Act as a senior product designer, staff-level full-stack engineer, and pragmatic product manager.
 
-Build a polished, interactive, end-to-end web prototype for **AuctionIT**, a B2B marketplace for industrial scrap and surplus auctions.
+Build a polished, interactive, end-to-end web prototype for **Bid ON**, a B2B marketplace for industrial scrap and surplus auctions.
 
 This is a real product demonstration intended for the company's CEO and COO. It should demonstrate that you understand the marketplace, can design an intuitive user experience, and can translate a business problem into a coherent working product.
 
@@ -18,7 +18,7 @@ First inspect the repository, identify the existing code and installed tools, an
 
 ## 2. Product context
 
-AuctionIT helps industrial sellers auction scrap and surplus material to business buyers.
+Bid ON helps industrial sellers auction scrap and surplus material to business buyers.
 
 The current transaction flow is:
 
@@ -70,9 +70,9 @@ Follow these principles throughout the application.
 
 **Do not make unsupported guarantees.** Lot Assurance must have clear conditions. A buyer cannot obtain a refund simply by claiming that material is wrong.
 
-**Avoid operational bloat.** Normal transactions should continue without manual intervention. Only disputed or ambiguous exceptions should reach AuctionIT operations.
+**Avoid operational bloat.** Normal transactions should continue without manual intervention. Only disputed or ambiguous exceptions should reach Bid ON operations.
 
-**Use realistic sample data, clearly labelled as demo data.** Never present seeded numbers, fictional companies, sample seller ratings, or illustrative tolerances as real AuctionIT data.
+**Use realistic sample data, clearly labelled as demo data.** Never present seeded numbers, fictional companies, sample seller ratings, or illustrative tolerances as real Bid ON data.
 
 **Build the complete core journey before peripheral features.** A working lot-to-completion journey matters more than dozens of incomplete dashboard widgets.
 
@@ -222,7 +222,7 @@ Create a polished landing page at `/`.
 
 ### Header
 
-- AuctionIT wordmark.
+- Bid ON wordmark.
 - Explore Auctions.
 - How Lot Assurance Works.
 - Sell Surplus.
@@ -237,7 +237,7 @@ Use straightforward language such as:
 
 **Industrial surplus. Competitive bidding. Clearer transactions.**
 
-Supporting copy should communicate that AuctionIT helps businesses buy and sell industrial surplus through online auctions.
+Supporting copy should communicate that Bid ON helps businesses buy and sell industrial surplus through online auctions.
 
 Primary CTA: Explore Auctions.
 
@@ -775,7 +775,7 @@ Do not silently approve refunds or claim that an external payment has been retur
 
 The current model should reflect this operating principle:
 
-**AuctionIT handles exceptions; it does not inspect every lot.**
+**Bid ON handles exceptions; it does not inspect every lot.**
 
 ---
 
@@ -1187,6 +1187,6 @@ If a feature is not necessary to demonstrate the core business idea, leave it ou
 
 The final result should communicate this product idea through the experience itself:
 
-**The auction does not change. The buyer gets a clearer understanding of the material, the measurement rules and the outcome if the material differs—and AuctionIT has a defined way to handle exceptions without manually inspecting every lot.**
+**The auction does not change. The buyer gets a clearer understanding of the material, the measurement rules and the outcome if the material differs—and Bid ON has a defined way to handle exceptions without manually inspecting every lot.**
 
 Do not return only with a plan or ask me to approve every implementation decision. Work through the phases in order, ending each with a short report.

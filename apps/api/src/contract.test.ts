@@ -531,7 +531,7 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
     );
     for (const kind of ['pan_card', 'gst_certificate', 'constitution', 'address_proof', 'representative_id', 'authorisation_letter', 'premises_proof', 'cancelled_cheque'] as const) must(await t.ds.uploadDocument(file(`${kind}.pdf`), kind, ravi));
     const dup = await t.ds.submitEligibility(ravi);
-    expect(dup.ok ? null : dup.error).toMatchObject({ code: 'duplicate_identity', what: 'These business details are already registered with AuctionIT.' });
+    expect(dup.ok ? null : dup.error).toMatchObject({ code: 'duplicate_identity', what: 'These business details are already registered with Bid ON.' });
     expect(JSON.stringify(dup)).not.toMatch(/NewCo|Asha/);
   });
 });

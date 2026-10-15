@@ -9,6 +9,7 @@ import { ButtonLink, DemoModePill } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { AUTH_ENABLED, DEMO_CONTROLS } from '@/lib/flags';
 import { AccountMenu } from './AccountMenu';
+import { LogoLink } from './Logo';
 import { signUpHref } from '@/lib/links';
 import { useSession } from '@/lib/SessionProvider';
 import { NotificationBell } from './NotificationBell';
@@ -19,7 +20,7 @@ export const NAV: Record<Role, { href: string; label: string }[]> = {
     { href: '/auctions', label: 'Auctions' },
     { href: '/how-it-works', label: 'How it works' },
     { href: '/lot-assurance', label: 'Lot Assurance' },
-    { href: '/how-it-works#sellers', label: 'Sell on AuctionIT' },
+    { href: '/how-it-works#sellers', label: 'Sell on Bid ON' },
   ],
   buyer: [
     { href: '/auctions', label: 'Auctions' },
@@ -50,11 +51,7 @@ export function isActive(pathname: string, href: string) {
 }
 
 export function Wordmark() {
-  return (
-    <Link href="/" className="flex items-center gap-1 text-h3 font-semibold tracking-tight text-text-strong" aria-label="AuctionIT home">
-      Auction<span className="text-primary">IT</span>
-    </Link>
-  );
+  return <LogoLink />;
 }
 
 /** 64px top bar on every page: wordmark, role nav, account menu (and the Demo Mode pill with presenter controls). */

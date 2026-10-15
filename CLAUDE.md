@@ -1,6 +1,6 @@
-# AuctionIT — project guide for Claude Code
+# Bid ON — project guide for Claude Code
 
-AuctionIT is a working demo of a B2B marketplace for industrial scrap and surplus auctions, built to show the CEO and COO one idea: **the auction does not change; Lot Assurance makes the material, the measurement rules and the outcome if it differs clear — and AuctionIT handles exceptions without inspecting every lot.**
+Bid ON (formerly AuctionIT — code, packages and storage keys still use `auctionit`; D-105) is a working demo of a B2B marketplace for industrial scrap and surplus auctions, built to show the CEO and COO one idea: **the auction does not change; Lot Assurance makes the material, the measurement rules and the outcome if it differs clear — and Bid ON handles exceptions without inspecting every lot.**
 
 ## Sources of truth
 
@@ -71,7 +71,7 @@ Chosen by `NEXT_PUBLIC_DATA_SOURCE=http|demo`. If the API is unreachable, the li
 ## Honesty rules
 
 - Never show "Verified", "Guaranteed" or "Certified" unless that step really happened.
-- AuctionIT never collects, moves or verifies money: buyers pay sellers directly and report it; the receiving seller confirms or rejects; refunds are recorded by the seller. Never say a payment succeeded unless the seller confirmed it. No payment SDK (gateway is Phase 2).
+- Bid ON never collects, moves or verifies money: buyers pay sellers directly and report it; the receiving seller confirms or rejects; refunds are recorded by the seller. Never say a payment succeeded unless the seller confirmed it. No payment SDK (gateway is Phase 2).
 - Seeded companies, ratings and metrics are labelled "Sample data". Never present them as real — and never label a real registration as sample (D-082).
 - On the live site, no "demo" wording: say plainly what isn't real yet (no payment provider, no password sign-in, documents not checked, provisional policy). Open gaps live in `docs/PRODUCTION_GAPS.md`.
 - Never show success unless the server (or domain, in demo mode) confirmed it.
@@ -103,7 +103,7 @@ pnpm test           # unit + contract
 pnpm e2e            # Playwright journeys (browser demo mode)
 pnpm e2e:http       # same journeys against the API + Postgres (API on :4000 with DEMO_CONTROLS_ENABLED=true, web started with NEXT_PUBLIC_DATA_SOURCE=http NEXT_PUBLIC_DEMO_CONTROLS=true)
 pnpm e2e:live       # live configuration with real sign-in: local Supabase Auth + mail catcher, API :4100 (controls off, SAMPLE_DATA_VISIBLE=false), web http with NEXT_PUBLIC_SUPABASE_* — see e2e/auth.spec.ts header
-pnpm --filter @auctionit/api invite:reviewer <email> "<name>"  # bootstrap the AuctionIT admin (all regions); regional reviewers are appointed in the app: Operations → Team (D-102)
+pnpm --filter @auctionit/api invite:reviewer <email> "<name>"  # bootstrap the Bid ON admin (all regions); regional reviewers are appointed in the app: Operations → Team (D-102)
 pnpm --filter @auctionit/api grant:reviewer <email> "<name>"   # same, for a sign-in that already exists
 pnpm build
 pnpm db:reset       # supabase db reset (migrations) + seed — needs `supabase start`

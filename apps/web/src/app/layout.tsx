@@ -14,7 +14,7 @@ import '@/styles/globals.css';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 
 export const metadata: Metadata = {
-  title: { default: 'AuctionIT — Industrial surplus auctions', template: '%s · AuctionIT' },
+  title: { default: 'Bid ON — Industrial surplus auctions', template: '%s · Bid ON' },
   description: 'B2B marketplace for industrial scrap and surplus auctions, with Lot Assurance.',
 };
 

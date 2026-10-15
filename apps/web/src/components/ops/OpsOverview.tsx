@@ -360,7 +360,7 @@ export function OpsOverview() {
   return (
     <Container className="flex flex-col gap-xl">
       <PageHeader overline={o.includesSample ? 'Operations · Includes sample data' : 'Operations'} title="Operations overview">
-        AuctionIT handles exceptions — it doesn’t inspect every lot. Normal transactions finish
+        Bid ON handles exceptions — it doesn’t inspect every lot. Normal transactions finish
         without anyone here.
       </PageHeader>
 
@@ -425,7 +425,7 @@ export function OpsOverview() {
         </div>
         <p className="text-caption text-text-secondary">
           These figures show how the workflow connects to the business outcome. They are not live
-          AuctionIT results and don’t prove that Lot Assurance works.
+          Bid ON results and don’t prove that Lot Assurance works.
         </p>
       </section>
 

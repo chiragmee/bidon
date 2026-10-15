@@ -1,6 +1,6 @@
-# Deploying AuctionIT
+# Deploying Bid ON
 
-**Current deployment (2026-10-15):** web https://auctionit-sand.vercel.app · API https://auctionit-api-vmo3.onrender.com (Render `srv-db85cv689jmc73c9ird0`) · Supabase project `auctionit` (`qainjxytjilrgajndogv`, ap-south-1). The production secrets live only in Render's environment and in the gitignored `apps/api/.env.production` on the deploying machine.
+**Current deployment (2026-10-15):** web https://bidonindia.vercel.app · API https://auctionit-api-vmo3.onrender.com (Render `srv-db85cv689jmc73c9ird0`) · Supabase project `auctionit` (`qainjxytjilrgajndogv`, ap-south-1). The production secrets live only in Render's environment and in the gitignored `apps/api/.env.production` on the deploying machine.
 
 Three pieces, deployed in this order:
 

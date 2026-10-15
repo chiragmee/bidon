@@ -1,4 +1,4 @@
-# AuctionIT — build phases
+# Bid ON — build phases
 
 Run one phase per session. Start each with: **"Run Phase N from docs/PHASES.md."**
 Each phase ends with typecheck, lint and tests green, `docs/PLAN.md` ticked, a short report (done · decisions · gaps · next), a commit, and a stop.

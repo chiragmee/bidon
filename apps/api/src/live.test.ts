@@ -91,7 +91,7 @@ describe.skipIf(!hasDb)('live configuration on Postgres', () => {
     }
     const res = await app2.post('/account/eligibility/submit').set(bearer).send({});
     expect(res.status).toBe(409);
-    expect(res.body.error).toMatchObject({ code: 'duplicate_identity', what: 'These business details are already registered with AuctionIT.' });
+    expect(res.body.error).toMatchObject({ code: 'duplicate_identity', what: 'These business details are already registered with Bid ON.' });
     expect(JSON.stringify(res.body)).not.toMatch(/Kaveri/);
   });
 });

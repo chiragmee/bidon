@@ -36,7 +36,7 @@ test('buyer onboarding: validation, duplicate email, kept values, success', asyn
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
 
   await expect(page.getByText('Business review needed')).toBeVisible();
-  await expect(page.getByText(/An AuctionIT reviewer checks them/)).toBeVisible();
+  await expect(page.getByText(/A Bid ON reviewer checks them/)).toBeVisible();
   await page.getByRole('button', { name: 'Create buyer account' }).click();
 
   await expect(page).toHaveURL(/\/buyer\/dashboard\?welcome=1/);

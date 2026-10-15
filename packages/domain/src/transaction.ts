@@ -46,7 +46,7 @@ export interface Reconciliation {
   payable: Rupees;
   adjustment: Rupees;
   paid: Rupees;
-  /** > 0: buyer owes more · < 0: refund due to buyer (paid outside AuctionIT and recorded here). */
+  /** > 0: buyer owes more · < 0: refund due to buyer (paid outside Bid ON and recorded here). */
   difference: Rupees;
 }
 
@@ -93,11 +93,11 @@ export function createTransaction(lot: Lot, winningBid: Bid, ctx: Ctx): Transact
 // ── Transitions ──────────────────────────────────────────────────────────────
 
 export type TxAction =
-  /** Buyer reports a balance payment made outside AuctionIT; the seller then confirms or rejects it. */
+  /** Buyer reports a balance payment made outside Bid ON; the seller then confirms or rejects it. */
   | { type: 'submit_balance_payment'; payment: PaymentInput }
   | { type: 'confirm_balance_payment' }
   | { type: 'reject_balance_payment'; reason: string }
-  /** Seller records a refund they made outside AuctionIT (measured quantity below what was paid, or an exit). */
+  /** Seller records a refund they made outside Bid ON (measured quantity below what was paid, or an exit). */
   | { type: 'record_refund'; refund: RefundInput }
   | { type: 'propose_lifting'; at: Iso; vehicle: string }
   | { type: 'confirm_lifting' }

@@ -1,12 +1,12 @@
-# AuctionIT — 10-minute CEO/COO walkthrough
+# Bid ON — 10-minute CEO/COO walkthrough
 
 > Kept honest by `e2e/demo-script.spec.ts`, which clicks through this script with the same labels.
 
-**The one idea to land:** *The auction does not change. Lot Assurance makes the material, the measurement rule and the outcome if it differs clear — and AuctionIT handles exceptions without inspecting every lot.*
+**The one idea to land:** *The auction does not change. Lot Assurance makes the material, the measurement rule and the outcome if it differs clear — and Bid ON handles exceptions without inspecting every lot.*
 
 Everything on screen is sample data, and the sample sellers' bank details are fictional. Say so once, at the start, and point at the **Demo** pill in the header.
 
-> **Run this walkthrough in browser demo mode** (`pnpm dev`, http://localhost:3000) or on a private copy built with `NEXT_PUBLIC_DEMO_CONTROLS=true`. The live site (https://auctionit-sand.vercel.app) deliberately has no Reset, no early close and no sample accounts (D-080, D-087), so steps 0 and 4.1 don't exist there.
+> **Run this walkthrough in browser demo mode** (`pnpm dev`, http://localhost:3000) or on a private copy built with `NEXT_PUBLIC_DEMO_CONTROLS=true`. The live site (https://bidonindia.vercel.app) deliberately has no Reset, no early close and no sample accounts (D-080, D-087), so steps 0 and 4.1 don't exist there.
 
 ---
 
@@ -48,7 +48,7 @@ Everything on screen is sample data, and the sample sellers' bank details are fi
 3. **Viewing as … → Buyer**, back to the HMS lot → **Place bid** → the minimum, ₹35,000/MT, is prefilled → **Review bid → Confirm bid**.
 4. Point to the green **"Bid placed: ₹35,000/MT"** and **You're the highest bidder**.
 
-**Say:** "AuctionIT doesn't touch the money. The buyer pays the seller directly and reports it; only the seller's confirmation lets them bid. Same auction mechanics after that: minimum increment, confirm, and races handled on the server."
+**Say:** "Bid ON doesn't touch the money. The buyer pays the seller directly and reports it; only the seller's confirmation lets them bid. Same auction mechanics after that: minimum increment, confirm, and races handled on the server."
 
 ## 4. Win, pay, lift, measure (4:00–6:30) — Journey A, steps 8–12
 
@@ -96,7 +96,7 @@ Everything on screen is sample data, and the sample sellers' bank details are fi
 | What you see | Do this |
 |---|---|
 | A buyer can't bid after reporting the EMD | The seller hasn't confirmed it yet: **Viewing as … → Seller → Dashboard → Confirm receipt**. |
-| "Can't reach AuctionIT right now" (live site) | The free API was asleep. Wait a minute and click **Try again**. |
+| "Can't reach Bid ON right now" (live site) | The free API was asleep. Wait a minute and click **Try again**. |
 | "Your session has ended" | Click **Continue as demo …** — what was typed stays. |
 | Lost track of state | **Viewing as … → Reset demo data**, then pick up at the act you were on. |
 | An auction already ended | Reset demo data (all times are relative to the reset). |

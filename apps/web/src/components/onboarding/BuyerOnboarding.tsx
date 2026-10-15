@@ -206,7 +206,7 @@ export function BuyerOnboarding() {
                 placeholder="name@company.com"
               />
             </Field>
-            <Field label="Mobile number" helper="One account per number. Used by sellers and AuctionIT to reach you about lots and payments." error={errors.phone} required>
+            <Field label="Mobile number" helper="One account per number. Used by sellers and Bid ON to reach you about lots and payments." error={errors.phone} required>
               <Input type="tel" autoComplete="tel" value={d.phone} onChange={(e) => set('phone', e.target.value)} placeholder="98765 43210" />
             </Field>
             {errors.email?.includes('already exists') && (
@@ -306,7 +306,7 @@ export function BuyerOnboarding() {
                 Business review needed
               </StatusBadge>
               <p className="text-body-md text-text">
-                Next you’ll add your business details and documents (PAN, GST if registered, address proof). An AuctionIT reviewer checks them; you can browse
+                Next you’ll add your business details and documents (PAN, GST if registered, address proof). A Bid ON reviewer checks them; you can browse
                 auctions meanwhile, and pay EMDs and bid once approved.
               </p>
             </Card>

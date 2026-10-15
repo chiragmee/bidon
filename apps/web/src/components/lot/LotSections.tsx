@@ -176,11 +176,11 @@ export function AssuranceSummary({ d }: { d: LotDetailView }) {
         </Row>
         <Row title="How to claim" policy>
           Raise a claim with at least {policy.claimEvidenceMin} files (lifting photos or the weighbridge ticket) before loading is complete. The
-          seller responds first; AuctionIT Operations decides only if the seller disputes it.
+          seller responds first; Bid ON Operations decides only if the seller disputes it.
         </Row>
       </div>
       <p className="bg-canvas px-lg py-sm text-caption text-text-secondary">
-        Claims are not automatic: they need evidence and must meet the conditions above. AuctionIT handles exceptions — it does not inspect every lot.
+        Claims are not automatic: they need evidence and must meet the conditions above. Bid ON handles exceptions — it does not inspect every lot.
       </p>
     </section>
   );
@@ -205,12 +205,12 @@ export function SellerCard({ d }: { d: LotDetailView }) {
           {d.seller.sample && <SampleDataCaption className="ml-auto shrink-0" />}
         </div>
         <div className="flex flex-wrap gap-xs">
-          <StatusBadge kind="neutral">{d.seller.verification === 'approved' ? 'Documents reviewed by AuctionIT' : d.seller.verification === 'demo_approved' ? 'Sample account' : 'Documents not reviewed'}</StatusBadge>
+          <StatusBadge kind="neutral">{d.seller.verification === 'approved' ? 'Documents reviewed by Bid ON' : d.seller.verification === 'demo_approved' ? 'Sample account' : 'Documents not reviewed'}</StatusBadge>
           {r.hasHistory ? <StatusBadge kind="reserve_met">{d.trackRecordText}</StatusBadge> : <StatusBadge kind="neutral">New seller</StatusBadge>}
         </div>
         <p className="text-caption text-text-secondary">
           {r.hasHistory
-            ? 'Track record counts completed sales and resolved Lot Assurance claims on AuctionIT, updated after every completion.'
+            ? 'Track record counts completed sales and resolved Lot Assurance claims on Bid ON, updated after every completion.'
             : 'This seller has fewer than 3 completed sales, so there isn’t a track record to show yet.'}
         </p>
       </Card>

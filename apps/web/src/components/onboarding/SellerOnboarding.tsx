@@ -151,7 +151,7 @@ export function SellerOnboarding() {
             Business review needed
           </StatusBadge>
           <p className="text-body-md text-text">
-            Next you’ll add your business details, bank account and documents (PAN, GST, premises proof). An AuctionIT reviewer checks them; you can prepare lots
+            Next you’ll add your business details, bank account and documents (PAN, GST, premises proof). A Bid ON reviewer checks them; you can prepare lots
             meanwhile, and publish once approved.
           </p>
         </Card>

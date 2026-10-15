@@ -39,7 +39,7 @@ function NotConfigured() {
   return (
     <Container>
       <EmptyState icon={MailCheck} headingLevel={1} title="Sign-in isn’t available right now">
-        AuctionIT’s sign-in service isn’t configured on this site yet. Please try again later or contact AuctionIT support.
+        Bid ON’s sign-in service isn’t configured on this site yet. Please try again later or contact Bid ON support.
       </EmptyState>
     </Container>
   );
@@ -54,7 +54,7 @@ const friendly = (message: string) =>
         ? 'Too many attempts. Wait a few minutes and try again.'
         : message;
 
-/** `staff`: the separate entry for AuctionIT Operations (reviewers and the admin) — no sign-up, staff wording (D-102). */
+/** `staff`: the separate entry for Bid ON Operations (reviewers and the admin) — no sign-up, staff wording (D-102). */
 export function SignInForm({ staff = false }: { staff?: boolean } = {}) {
   const params = useSearchParams();
   const router = useRouter();
@@ -81,19 +81,19 @@ export function SignInForm({ staff = false }: { staff?: boolean } = {}) {
 
   return (
     <AuthCard
-      overline={staff ? 'AuctionIT staff' : undefined}
+      overline={staff ? 'Bid ON staff' : undefined}
       title={staff ? 'Staff sign-in' : 'Sign in'}
       footer={
         staff ? (
           <>
-            Reviewers are invited by the AuctionIT admin — there’s no sign-up here. Buying or selling?{' '}
+            Reviewers are invited by the Bid ON admin — there’s no sign-up here. Buying or selling?{' '}
             <Link href="/sign-in" className="font-medium text-primary underline">
               Sign in to your account
             </Link>
           </>
         ) : (
           <>
-            New to AuctionIT?{' '}
+            New to Bid ON?{' '}
             <Link href={`/sign-up${next ? `?next=${encodeURIComponent(next)}` : ''}`} className="font-medium text-primary underline">
               Create an account
             </Link>
@@ -381,7 +381,7 @@ export function AcceptInviteForm() {
     return (
       <Container>
         <EmptyState icon={MailCheck} headingLevel={1} title="This invitation link has expired or was already used">
-          {problem ? `${problem}. ` : ''}Ask the AuctionIT administrator to send a new invitation, or{' '}
+          {problem ? `${problem}. ` : ''}Ask the Bid ON administrator to send a new invitation, or{' '}
           <Link href="/sign-in" className="font-medium text-primary underline">
             sign in
           </Link>{' '}
@@ -392,7 +392,7 @@ export function AcceptInviteForm() {
   }
   return (
     <AuthCard overline="Reviewer invitation" title="Choose your password">
-      <p className="text-body-md text-text-secondary">You’ve been invited to review accounts on AuctionIT. Set a password to finish — you’ll use it with your email to sign in.</p>
+      <p className="text-body-md text-text-secondary">You’ve been invited to review accounts on Bid ON. Set a password to finish — you’ll use it with your email to sign in.</p>
       <form
         className="flex flex-col gap-md"
         noValidate

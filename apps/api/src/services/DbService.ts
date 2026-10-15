@@ -68,11 +68,11 @@ export type Service = Omit<DataSource, 'kind' | 'subscribe' | 'uploadMedia' | 'u
 
 /** Unique-index names → the refusal the domain would give, for writes that race past its checks. */
 const UNIQUE: Record<string, { code: string; what: string; next: string }> = {
-  profiles_email_key: { code: 'duplicate_account', what: 'An AuctionIT account already uses this email, mobile number or sign-in.', next: 'Each person and business holds one account, as a buyer or a seller. Sign in to your existing account, or contact AuctionIT support.' },
-  profiles_phone_key: { code: 'duplicate_account', what: 'An AuctionIT account already uses this email, mobile number or sign-in.', next: 'Each person and business holds one account, as a buyer or a seller. Sign in to your existing account, or contact AuctionIT support.' },
-  profiles_auth_user_key: { code: 'duplicate_account', what: 'An AuctionIT account already uses this email, mobile number or sign-in.', next: 'Each person and business holds one account, as a buyer or a seller. Sign in to your existing account, or contact AuctionIT support.' },
-  companies_pan_key: { code: 'duplicate_identity', what: 'These business details are already registered with AuctionIT.', next: 'Each business can hold one account, as a buyer or a seller. If this is your business, sign in to that account; otherwise contact AuctionIT support.' },
-  companies_gstin_key: { code: 'duplicate_identity', what: 'These business details are already registered with AuctionIT.', next: 'Each business can hold one account, as a buyer or a seller. If this is your business, sign in to that account; otherwise contact AuctionIT support.' },
+  profiles_email_key: { code: 'duplicate_account', what: 'A Bid ON account already uses this email, mobile number or sign-in.', next: 'Each person and business holds one account, as a buyer or a seller. Sign in to your existing account, or contact Bid ON support.' },
+  profiles_phone_key: { code: 'duplicate_account', what: 'A Bid ON account already uses this email, mobile number or sign-in.', next: 'Each person and business holds one account, as a buyer or a seller. Sign in to your existing account, or contact Bid ON support.' },
+  profiles_auth_user_key: { code: 'duplicate_account', what: 'A Bid ON account already uses this email, mobile number or sign-in.', next: 'Each person and business holds one account, as a buyer or a seller. Sign in to your existing account, or contact Bid ON support.' },
+  companies_pan_key: { code: 'duplicate_identity', what: 'These business details are already registered with Bid ON.', next: 'Each business can hold one account, as a buyer or a seller. If this is your business, sign in to that account; otherwise contact Bid ON support.' },
+  companies_gstin_key: { code: 'duplicate_identity', what: 'These business details are already registered with Bid ON.', next: 'Each business can hold one account, as a buyer or a seller. If this is your business, sign in to that account; otherwise contact Bid ON support.' },
 };
 
 const actor = (v: Viewer) => ({ id: v.id ?? 'guest', role: v.role });

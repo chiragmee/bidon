@@ -150,7 +150,7 @@ function ApplicationForm({ v, reload }: { v: AccountView; reload: () => void }) 
       )}
       {v.status === 'approved' && (
         <Banner tone="success" title="Approved">
-          {seller ? 'You can publish auctions.' : 'You can pay EMDs and bid.'} AuctionIT reviewed the documents you supplied; that doesn’t make it a guarantor of your business or
+          {seller ? 'You can publish auctions.' : 'You can pay EMDs and bid.'} Bid ON reviewed the documents you supplied; that doesn’t make it a guarantor of your business or
           of any transaction.
         </Banner>
       )}
@@ -195,7 +195,7 @@ function ApplicationForm({ v, reload }: { v: AccountView; reload: () => void }) 
           label="State of the registered address"
           required
           error={problem('state')}
-          helper={stateByCode(f.state) ? `Reviewed by the AuctionIT ${REGION_LABEL[stateByCode(f.state)!.region]} team.` : 'Decides which AuctionIT team reviews your application.'}
+          helper={stateByCode(f.state) ? `Reviewed by the Bid ON ${REGION_LABEL[stateByCode(f.state)!.region]} team.` : 'Decides which Bid ON team reviews your application.'}
         >
           <Select value={f.state} disabled={ro} onChange={(e) => set('state', e.target.value)}>
             <option value="">Choose…</option>
@@ -223,7 +223,7 @@ function ApplicationForm({ v, reload }: { v: AccountView; reload: () => void }) 
             <Textarea value={f.sellerDeclaration.materialSource} readOnly={ro} onChange={(e) => set('sellerDeclaration', { ...f.sellerDeclaration!, materialSource: e.target.value })} />
           </Field>
           <Checkbox
-            label="I declare that this business owns, or is authorised to sell, the material it lists on AuctionIT, and that the details above are true."
+            label="I declare that this business owns, or is authorised to sell, the material it lists on Bid ON, and that the details above are true."
             checked={f.sellerDeclaration.authorisedToSell}
             disabled={ro}
             onChange={(e) => set('sellerDeclaration', { ...f.sellerDeclaration!, authorisedToSell: e.target.checked })}
@@ -254,7 +254,7 @@ function ApplicationForm({ v, reload }: { v: AccountView; reload: () => void }) 
         <div>
           <h2 className="text-h3 text-text-strong">Documents</h2>
           <p className="text-body-md text-text-secondary">
-            PDF or a clear photo, up to 10 MB each. Stored privately — only you and AuctionIT’s reviewers can open them. A reviewer reads each one; uploading alone doesn’t verify anything.
+            PDF or a clear photo, up to 10 MB each. Stored privately — only you and Bid ON’s reviewers can open them. A reviewer reads each one; uploading alone doesn’t verify anything.
           </p>
         </div>
         <ul className="flex flex-col divide-y divide-border">

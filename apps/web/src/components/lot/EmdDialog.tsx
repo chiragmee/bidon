@@ -11,7 +11,7 @@ import { useData } from '@/data';
 import { useSession } from '@/lib/SessionProvider';
 
 /**
- * EMD paid outside AuctionIT (SPEC §10.1, docs/PHASE1_MVP.md): where to pay, then the buyer reports the payment.
+ * EMD paid outside Bid ON (SPEC §10.1, docs/PHASE1_MVP.md): where to pay, then the buyer reports the payment.
  * It allows bidding only once the lot's seller confirms receiving it. A rejected report shows the seller's reason
  * and can be corrected.
  */
@@ -84,7 +84,7 @@ export function EmdDialog({ d, open, onClose, onSubmitted }: { d: LotDetailView;
             }}
           />
           <p className="text-caption text-text-secondary">
-            Refund and forfeiture rules are provisional policy (for example, forfeiture if a winner doesn’t pay by the deadline), not yet approved AuctionIT terms.
+            Refund and forfeiture rules are provisional policy (for example, forfeiture if a winner doesn’t pay by the deadline), not yet approved Bid ON terms.
           </p>
           {emd && emd.history.length > 0 && <PaymentHistory events={emd.history} />}
         </div>

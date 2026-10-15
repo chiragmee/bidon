@@ -55,7 +55,7 @@ export function EligibilityQueue() {
           ? 'You see applications from every region. Check each one against its documents; approve only what the documents support.'
           : mine && mine.length
             ? `Applications from your regions: ${mine.map((r) => REGION_LABEL[r]).join(', ')}. Approve only what the documents support; ask for more information when something is missing.`
-            : 'No regions are assigned to you yet — ask the AuctionIT admin.'}
+            : 'No regions are assigned to you yet — ask the Bid ON admin.'}
       </PageHeader>
       {chips.length > 1 && (
         <div role="group" aria-label="Filter by region" className="-mt-sm flex flex-wrap gap-xs">

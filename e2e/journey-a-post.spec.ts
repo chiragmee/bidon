@@ -25,7 +25,7 @@ async function winLot0891(page: Page) {
 
 /** Steps 10–12: pay, schedule (seller confirms), weighbridge + condition as separate records. */
 async function payLiftAndCheck(page: Page, contamination: string) {
-  // Paid outside AuctionIT: the buyer reports it, the seller confirms receipt.
+  // Paid outside Bid ON: the buyer reports it, the seller confirms receipt.
   await balanceConfirmed(page, '₹13,00,000');
   await expect(page.getByText('Balance confirmed by seller').first()).toBeVisible();
 
@@ -75,7 +75,7 @@ test('journey A 8–14, complete branch: same final state for buyer, seller and 
     await expect(outcome.getByText('₹13,51,000')).toBeVisible();
   }
 
-  // The seller refunds the ₹49,000 overpayment outside AuctionIT and records it; the buyer sees the record.
+  // The seller refunds the ₹49,000 overpayment outside Bid ON and records it; the buyer sees the record.
   await switchTo(page, 'seller');
   const refunds = page.getByRole('region', { name: 'Refunds' });
   await expect(refunds.getByText('₹49,000 is owed back to the buyer')).toBeVisible();

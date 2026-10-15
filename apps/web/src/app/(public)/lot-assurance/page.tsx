@@ -13,7 +13,7 @@ export default function LotAssurancePage() {
     <Container className="flex max-w-[960px] flex-col gap-xl">
       <PageHeader overline={<LotAssuranceBadge />} title="How Lot Assurance works">
         The auction doesn’t change. Lot Assurance makes the material, the measurement rule and the outcome if it differs clear — and gives
-        AuctionIT a defined way to handle exceptions without inspecting every lot.
+        Bid ON a defined way to handle exceptions without inspecting every lot.
       </PageHeader>
 
       <Card className="p-lg">
@@ -69,7 +69,7 @@ export default function LotAssurancePage() {
           </table>
         </div>
         <p className="text-caption text-text-secondary">
-          These values are provisional, not yet approved AuctionIT terms. Other categories are listed as standard lots, which simply
+          These values are provisional, not yet approved Bid ON terms. Other categories are listed as standard lots, which simply
           don’t have the assurance mechanism.
         </p>
       </section>
@@ -79,8 +79,8 @@ export default function LotAssurancePage() {
         <ul className="flex list-disc flex-col gap-xs pl-lg text-body-md text-text">
           <li>Within tolerance: the transaction completes normally. You pay for the measured weight.</li>
           <li>Outside tolerance: raise a claim with evidence before loading is complete. The seller can accept a price adjustment or your exit.</li>
-          <li>If the seller disputes it, AuctionIT Operations reviews the evidence and records a reasoned decision.</li>
-          <li>A refund is never automatic just because a claim was raised. Refunds are made by the seller outside AuctionIT and recorded here; AuctionIT doesn’t hold or move money.</li>
+          <li>If the seller disputes it, Bid ON Operations reviews the evidence and records a reasoned decision.</li>
+          <li>A refund is never automatic just because a claim was raised. Refunds are made by the seller outside Bid ON and recorded here; Bid ON doesn’t hold or move money.</li>
         </ul>
       </section>
 

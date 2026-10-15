@@ -1,6 +1,6 @@
 /**
- * Offline payments (docs/PHASE1_MVP.md). The payer reports a payment made outside AuctionIT; the receiving seller
- * checks their own account and confirms or rejects it. AuctionIT never collects, moves or verifies money — it keeps
+ * Offline payments (docs/PHASE1_MVP.md). The payer reports a payment made outside Bid ON; the receiving seller
+ * checks their own account and confirms or rejects it. Bid ON never collects, moves or verifies money — it keeps
  * the shared record and its history. Pure over a state snapshot, like operations.ts.
  */
 import { deriveAuctionStatus } from './auction';
@@ -33,7 +33,7 @@ export function emdFor(state: Pick<DemoState, 'emds'>, lotId: string, buyerId: s
   return state.emds.find((e) => e.lotId === lotId && e.buyerId === buyerId);
 }
 
-/** Buyer reports an EMD paid outside AuctionIT. It does not allow bidding until the seller confirms it. */
+/** Buyer reports an EMD paid outside Bid ON. It does not allow bidding until the seller confirms it. */
 export function submitEmd(state: DemoState, lotId: string, input: PaymentInput, actor: Actor, now: Iso): OpResult<EmdRecord> {
   const lot = state.lots.find((l) => l.id === lotId);
   if (!lot || lot.status === 'draft') return rejected(state, 'not_found', 'That lot does not exist.', 'Go back to the auctions list.');
@@ -95,7 +95,7 @@ export function decideEmd(state: DemoState, emdId: string, input: { decision: 'c
   return { ok: true, state: next, value: updated };
 }
 
-/** The seller records an EMD refund they made outside AuctionIT (losing bidder, or an exit remedy). */
+/** The seller records an EMD refund they made outside Bid ON (losing bidder, or an exit remedy). */
 export function recordEmdRefund(state: DemoState, emdId: string, input: RefundInput, actor: Actor, now: Iso): OpResult<EmdRecord> {
   const emd = state.emds.find((e) => e.id === emdId);
   const lot = emd && state.lots.find((l) => l.id === emd.lotId);

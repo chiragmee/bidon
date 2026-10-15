@@ -58,7 +58,7 @@ export function SubmissionDetails({ s }: { s: PaymentSubmission }) {
   );
 }
 
-/** Status words that never claim AuctionIT moved or verified money. */
+/** Status words that never claim Bid ON moved or verified money. */
 export function PaymentStatusBadge({ status }: { status: 'submitted' | 'confirmed' | 'rejected' | 'refund_due' | 'refunded' | 'forfeited' }) {
   const map = {
     submitted: ['warning', 'Reported — awaiting seller'],

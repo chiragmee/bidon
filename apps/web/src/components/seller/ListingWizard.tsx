@@ -66,7 +66,7 @@ function PilotChecklist({ category, media }: { category: CategoryId | undefined;
         ))}
       </ul>
       <p className="text-caption text-text-secondary">
-        Needed only if you enable Lot Assurance. Geotagged, timestamped photos are best — but location data is attached as-is and isn’t checked by AuctionIT.
+        Needed only if you enable Lot Assurance. Geotagged, timestamped photos are best — but location data is attached as-is and isn’t checked by Bid ON.
       </p>
     </Card>
   );
@@ -370,7 +370,7 @@ export function ListingWizard({ lotId: initialId, initial, initialStep = 1, defa
                         </div>
                       </dl>
                       <Checkbox
-                        label={`I agree: the declared grade and contamination will be checked at lifting, the buyer pays for the weighbridge quantity, and if the lot is outside the ${formatPct(p.tolerance.contaminationCeilingPct)} tolerance the buyer may claim a price adjustment or exit, decided by AuctionIT Operations if I dispute it.`}
+                        label={`I agree: the declared grade and contamination will be checked at lifting, the buyer pays for the weighbridge quantity, and if the lot is outside the ${formatPct(p.tolerance.contaminationCeilingPct)} tolerance the buyer may claim a price adjustment or exit, decided by Bid ON Operations if I dispute it.`}
                         checked={!!draft.assuranceAgreed}
                         onChange={(e) => set('assuranceAgreed', e.target.checked)}
                       />

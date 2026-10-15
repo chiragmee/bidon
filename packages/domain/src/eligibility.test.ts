@@ -127,7 +127,7 @@ describe('duplicate and cross-role accounts', () => {
     const seller = { id: reg.value.user.id, role: 'seller' as const };
     st = applied(reg.state, seller, { ...buyerApp, legalName: 'Other Name Traders Pvt Ltd', sellerDeclaration: { authorisedToSell: true, materialSource: 'Own fabrication offcuts' }, bankDetails: { accountName: 'Other', bankName: 'HDFC', accountNumber: '1234567890', ifsc: 'HDFC0001234', upiId: '' } }, [...BUYER_DOCS, 'gst_certificate', 'premises_proof', 'cancelled_cheque']);
     const r = submitEligibility(st, seller, NOW);
-    expect(r.ok ? 'ok' : r.error).toMatchObject({ code: 'duplicate_identity', what: 'These business details are already registered with AuctionIT.' });
+    expect(r.ok ? 'ok' : r.error).toMatchObject({ code: 'duplicate_identity', what: 'These business details are already registered with Bid ON.' });
     if (!r.ok) expect(`${r.error.what} ${r.error.next}`).not.toMatch(/NewCo|Asha/);
   });
 

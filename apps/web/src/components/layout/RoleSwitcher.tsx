@@ -15,7 +15,7 @@ const OPTIONS: { role: Role; who: string }[] = [
   { role: 'guest', who: 'Browse without signing in' },
   { role: 'buyer', who: 'Rahul Sharma · Vardhan Infra Projects' },
   { role: 'seller', who: 'Suresh Agrawal · Shree Balaji Steels' },
-  { role: 'ops', who: 'Devendra Nath · AuctionIT Operations' },
+  { role: 'ops', who: 'Devendra Nath · Bid ON Operations' },
 ];
 
 /**

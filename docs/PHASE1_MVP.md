@@ -58,7 +58,7 @@ design chosen, and the provisional business decisions (also logged in `docs/DECI
 - Email: Supabase Auth + `profiles` unique. Phone: normalised `+91XXXXXXXXXX`, unique across profiles.
   PAN and GSTIN: unique across **all** companies (buyer or seller), enforced in the domain and by unique indexes, so
   the same legal entity cannot hold a buyer and a seller account. Same legal name → flagged to the reviewer only.
-- Refusals never reveal the other account: "These business details are already registered with AuctionIT."
+- Refusals never reveal the other account: "These business details are already registered with Bid ON."
 
 ### Payments (offline, recorded and confirmed)
 - EMD: buyer submits method, amount, date, UTR/reference, payer name, optional receipt → `submitted`.

@@ -38,7 +38,7 @@ export function PaymentInstructions({ amount, payee, deadline }: { amount: numbe
           )}
         </dl>
       ) : (
-        <p className="text-text-secondary">The seller’s bank details aren’t on file. Contact AuctionIT support for payment instructions.</p>
+        <p className="text-text-secondary">The seller’s bank details aren’t on file. Contact Bid ON support for payment instructions.</p>
       )}
       <p className="text-caption text-text-secondary">
         Accepted: {PAYMENT_METHODS.map((m) => m.label).join(', ')}. Pay from your business account.{deadline ? ` ${deadline}` : ''}
@@ -50,7 +50,7 @@ export function PaymentInstructions({ amount, payee, deadline }: { amount: numbe
 const today = () => new Date().toISOString().slice(0, 10);
 
 /**
- * Report a payment made outside AuctionIT. Nothing is charged here: the receiving seller checks their account and
+ * Report a payment made outside Bid ON. Nothing is charged here: the receiving seller checks their account and
  * confirms or rejects the report. Used for the EMD and the winning balance.
  */
 export function PaymentForm({
@@ -120,7 +120,7 @@ export function PaymentForm({
         <Input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" disabled={uploading} onChange={(e) => void upload(e.target.files?.[0])} />
       </Field>
       <p className="text-caption text-text-secondary">
-        AuctionIT doesn’t collect or check payments. Reporting it here tells the seller to look for it; it counts only once they confirm receiving it.
+        Bid ON doesn’t collect or check payments. Reporting it here tells the seller to look for it; it counts only once they confirm receiving it.
       </p>
       {error && (
         <Banner tone="danger" title={error.what}>

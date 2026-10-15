@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 [ -t 0 ] || { echo "Run this in your own Terminal window — it needs to ask for the password." >&2; exit 1; }
-read -r -p "Gmail address that sends AuctionIT email: " user
+read -r -p "Gmail address that sends Bid ON email: " user
 [[ "$user" == *@*.* && "$user" != *" "* ]] || { echo "That doesn’t look like an email address — nothing saved." >&2; exit 1; }
 read -r -s -p "16-character app password (hidden): " pass; echo
 pass="${pass// /}"

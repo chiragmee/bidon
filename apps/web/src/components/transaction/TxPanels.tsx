@@ -102,7 +102,7 @@ export function BalancePanel({ d, run, primary }: { d: TxDetailView; run: RunAct
       <p className="text-caption text-text-secondary">
         {sampleRecord
           ? 'Sample record: this balance was recorded as paid without a payment report.'
-          : 'The buyer pays the seller directly and reports it here; it counts once the seller confirms receiving it. AuctionIT doesn’t collect or check money. The final amount is settled on the weighbridge quantity after lifting.'}
+          : 'The buyer pays the seller directly and reports it here; it counts once the seller confirms receiving it. Bid ON doesn’t collect or check money. The final amount is settled on the weighbridge quantity after lifting.'}
       </p>
 
       {report && (pending || paid) && (
@@ -670,7 +670,7 @@ export function FinalPanel({ d }: { d: TxDetailView }) {
   );
 }
 
-// ── Refunds (arranged outside AuctionIT, recorded by the seller) ────────────
+// ── Refunds (arranged outside Bid ON, recorded by the seller) ────────────
 
 export function RefundPanel({ d, run, onChanged }: { d: TxDetailView; run: RunAction; onChanged: () => void }) {
   const { ds } = useData();
@@ -688,7 +688,7 @@ export function RefundPanel({ d, run, onChanged }: { d: TxDetailView; run: RunAc
   return (
     <Panel title="Refunds" done={d.refundDue === 0 && !emdDue}>
       <p className="text-body-md text-text-secondary">
-        Refunds are made by the seller outside AuctionIT and recorded here with the bank reference, so both sides see the same record.
+        Refunds are made by the seller outside Bid ON and recorded here with the bank reference, so both sides see the same record.
       </p>
       {d.refundDue > 0 && <Banner tone="warning" title={`${formatINR(d.refundDue)} is owed back to the buyer`}>{seller ? 'Record the refund once you have made it.' : 'The seller records the refund here once made.'}</Banner>}
       {emdDue && (

@@ -17,7 +17,7 @@ test.describe('live configuration: no presenter controls or demo presentation', 
     await expect(page.getByRole('heading', { name: 'Live and upcoming auctions' })).toBeVisible();
     await expect(page.getByText(/Demo Mode|Demo access|Demo environment|placeholder/)).toHaveCount(0);
     await expect(page).not.toHaveTitle(/demo/i);
-    await expect(page.getByText(/AuctionIT doesn’t collect or move money/)).toBeVisible();
+    await expect(page.getByText(/Bid ON doesn’t collect or move money/)).toBeVisible();
     // Real sign-in: email and password, no sample accounts.
     await page.goto('/sign-in');
     await expect(page.getByLabel('Password')).toBeVisible();
@@ -50,6 +50,6 @@ base('live configuration: an unreachable API shows an error, never sample data',
   base.skip(!LIVE, 'Needs E2E_LIVE_CONFIG=1.');
   await page.route(`${API}/**`, (route) => route.abort());
   await page.goto('/auctions');
-  await base.expect(page.getByText('Can’t reach AuctionIT right now')).toBeVisible({ timeout: 15_000 });
+  await base.expect(page.getByText('Can’t reach Bid ON right now')).toBeVisible({ timeout: 15_000 });
   await base.expect(page.getByText(/Showing sample data/)).toHaveCount(0);
 });

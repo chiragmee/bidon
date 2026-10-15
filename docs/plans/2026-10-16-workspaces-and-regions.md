@@ -51,7 +51,7 @@ email, regions) sends the Supabase invitation (same flow as `invite:reviewer`, m
 remove a reviewer (revokes the role, keeps their decision history). The script stays for the first admin.
 
 **Staff sign-in.** `/staff/sign-in` — same Supabase sign-in, staff wording, no sign-up link; a buyer/seller who signs in
-there is told to use the normal sign-in. Linked discreetly from the footer ("AuctionIT staff") — not in the main header.
+there is told to use the normal sign-in. Linked discreetly from the footer ("Bid ON staff") — not in the main header.
 
 **Signed-in experience.**
 - `/` for a signed-in buyer/seller/staff redirects to their home (`/buyer/dashboard`, `/seller/dashboard`, `/ops`).
@@ -62,7 +62,7 @@ there is told to use the normal sign-in. Linked discreetly from the footer ("Auc
 - Buyer workspace: primary **Browse live auctions**; dashboard leads with Bidding now · Won — payment due ·
   EMDs awaiting the seller.
 - After approval, the onboarding checklist / "get approved" panels disappear; the account page shows the approved
-  status and details read-only (changing legal identity details = contact AuctionIT, D-097 policy).
+  status and details read-only (changing legal identity details = contact Bid ON, D-097 policy).
 - Before approval, the workspace shows one clear "Finish your application" / "Under review" banner instead.
 
 ## Tasks (each ends in a commit; docs/DECISIONS.md + PROGRESS.md updated each time)

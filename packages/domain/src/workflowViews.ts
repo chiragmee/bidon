@@ -54,7 +54,7 @@ const ACTION_LABEL: Record<string, string> = {
 };
 
 function actorName(state: DemoState, id: string): string {
-  if (id === 'system') return 'AuctionIT (automatic)';
+  if (id === 'system') return 'Bid ON (automatic)';
   const u = state.users.find((x) => x.id === id);
   if (!u) return id;
   const c = state.companies.find((x) => x.id === u.companyId);

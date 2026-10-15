@@ -33,7 +33,7 @@ try {
       await tx`select app_write_lock()`;
       const [row] = await tx`select next_id('U') as id`;
       const id = String(row?.id);
-      await tx`insert into profiles (id, name, email, role, company_id, title, auth_user_id) values (${id}, ${name}, ${String(auth.email).toLowerCase()}, 'ops', null, 'AuctionIT admin', ${auth.id})`;
+      await tx`insert into profiles (id, name, email, role, company_id, title, auth_user_id) values (${id}, ${name}, ${String(auth.email).toLowerCase()}, 'ops', null, 'Bid ON admin', ${auth.id})`;
       await tx`update profiles set staff_level = 'admin' where id = ${id}`;
       await tx`insert into audit_log (id, entity, entity_id, action, actor_id, actor_role, to_status, at) values (next_id('AUD'), 'user', ${id}, 'grant_reviewer', 'admin-script', 'ops', 'ops', now())`;
       // Copy the role into app_metadata (server-only claims) so the web route guard sees it after the next token refresh.

@@ -58,7 +58,7 @@ export interface EligibilityEvent {
   reason: string | null;
 }
 
-/** What the business tells AuctionIT; reviewed by a person. Nothing here is independently verified. */
+/** What the business tells Bid ON; reviewed by a person. Nothing here is independently verified. */
 export interface Eligibility {
   entityType: EntityType | null;
   legalName: string;
@@ -222,7 +222,7 @@ export interface Bid {
 
 export type PaymentMethod = 'neft' | 'rtgs' | 'imps' | 'upi' | 'cheque' | 'demand_draft';
 
-/** A payment made outside AuctionIT, as reported by the payer. AuctionIT never collects or verifies money. */
+/** A payment made outside Bid ON, as reported by the payer. Bid ON never collects or verifies money. */
 export interface PaymentSubmission {
   amount: Rupees;
   method: PaymentMethod;
@@ -242,7 +242,7 @@ export interface PaymentDecision {
   decidedAt: Iso;
 }
 
-/** A refund arranged outside AuctionIT and recorded by the party who made it. */
+/** A refund arranged outside Bid ON and recorded by the party who made it. */
 export interface RefundRecord {
   amount: Rupees;
   refundedOn: string;

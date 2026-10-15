@@ -38,7 +38,7 @@ export async function proxy(req: NextRequest) {
   if (auth && session.role !== 'guest' && (path === '/' || path === '/sign-in' || path === '/sign-up' || path === '/staff/sign-in')) {
     return redirect(req, res, HOME[session.role]);
   }
-  // Signed in but no AuctionIT account yet: finish onboarding before anything that needs an account.
+  // Signed in but no Bid ON account yet: finish onboarding before anything that needs an account.
   if (auth?.signedIn && session.role === 'guest' && requiredRole(path)) {
     return redirect(req, res, auth.intendedRole === 'seller' ? '/onboarding/seller' : '/onboarding/buyer');
   }

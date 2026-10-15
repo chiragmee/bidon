@@ -2,7 +2,7 @@ import type { CategoryId, RemedyKind, Rupees } from './types';
 
 /**
  * Demo policy. Every number here is an illustrative assumption for the prototype — NOT an
- * approved AuctionIT rule. The UI must caption these values "Demo policy" (SPEC §8.2, §10.1, §13).
+ * approved Bid ON rule. The UI must caption these values "Demo policy" (SPEC §8.2, §10.1, §13).
  */
 export interface CategoryPolicy {
   demo: true;

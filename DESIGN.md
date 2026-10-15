@@ -1,7 +1,7 @@
 ---
 version: alpha
-name: AuctionIT
-description: Design system for AuctionIT, a B2B marketplace for industrial scrap and surplus auctions in India, with Lot Assurance as its trust layer.
+name: Bid ON
+description: Design system for Bid ON, a B2B marketplace for industrial scrap and surplus auctions in India, with Lot Assurance as its trust layer.
 colors:
   primary: "#0F4C5C"
   primary-hover: "#0B3B48"
@@ -285,7 +285,7 @@ components:
 
 ## Overview
 
-AuctionIT is where procurement teams and scrap traders buy and sell industrial surplus — HMS steel, copper, aluminium, e-waste, used machinery — through online auctions. The people using it are practical and busy, often on a phone in a yard, and they are about to commit lakhs of rupees to material they have not touched.
+Bid ON is where procurement teams and scrap traders buy and sell industrial surplus — HMS steel, copper, aluminium, e-waste, used machinery — through online auctions. The people using it are practical and busy, often on a phone in a yard, and they are about to commit lakhs of rupees to material they have not touched.
 
 The feel is **calm industrial confidence**: a well-run procurement desk, not a trading floor. Quiet surfaces, dense but readable information, precise numbers, and exactly one obvious next step on every screen. Trust is shown, not claimed — the interface always makes clear whether a fact was declared by the seller, backed by attached evidence, or confirmed at the weighbridge.
 

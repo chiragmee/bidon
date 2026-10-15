@@ -13,6 +13,7 @@ import { signUpHref } from '@/lib/links';
 import { HOME } from '@/lib/session';
 import { useSession } from '@/lib/SessionProvider';
 import { AppHeader, isActive } from './AppHeader';
+import { Logo } from './Logo';
 
 function DataBanners() {
   const { fallbackReason, apiDown, retryLive } = useData();
@@ -25,7 +26,7 @@ function DataBanners() {
       {(fallbackReason || apiDown) && (
         <Banner
           tone="warning"
-          title={apiDown ? 'Can’t reach AuctionIT right now' : 'Showing sample data from this browser'}
+          title={apiDown ? 'Can’t reach Bid ON right now' : 'Showing sample data from this browser'}
           action={
             retryLive && (
               <Button
@@ -64,8 +65,8 @@ function FooterAccount({ col, link }: { col: string; link: string }) {
         <>
           <Link href="/sign-in" className={link}>Sign in</Link>
           <Link href={signUpHref('buyer')} className={link}>Create a buyer account</Link>
-          <Link href={signUpHref('seller')} className={link}>Sell on AuctionIT</Link>
-          <Link href="/staff/sign-in" className="text-caption text-text-secondary hover:text-primary hover:underline">AuctionIT staff sign-in</Link>
+          <Link href={signUpHref('seller')} className={link}>Sell on Bid ON</Link>
+          <Link href="/staff/sign-in" className="text-caption text-text-secondary hover:text-primary hover:underline">Bid ON staff sign-in</Link>
         </>
       ) : (
         <>
@@ -86,9 +87,7 @@ export function Footer() {
     <footer className="border-t border-border bg-surface">
       <div className="mx-auto grid max-w-[1280px] gap-lg px-4 py-xl text-body-md md:grid-cols-[1.4fr_1fr_1fr] md:px-lg">
         <div className={col}>
-          <p className="text-h3 font-semibold text-text-strong">
-            Auction<span className="text-primary">IT</span>
-          </p>
+          <Logo />
           <p className="max-w-[360px] text-text-secondary">Online auctions for industrial scrap and surplus between approved businesses.</p>
         </div>
         <nav aria-label="Marketplace" className={col}>
@@ -101,7 +100,7 @@ export function Footer() {
       </div>
       <div className="border-t border-border">
         <p className="mx-auto max-w-[1280px] px-4 py-sm text-caption text-text-secondary md:px-lg">
-          AuctionIT doesn’t collect or move money: buyers pay sellers directly, and the seller confirms each payment here.
+          Bid ON doesn’t collect or move money: buyers pay sellers directly, and the seller confirms each payment here.
           {DEMO_CONTROLS && ' Records marked “Sample data” are fictional examples.'}
         </p>
       </div>

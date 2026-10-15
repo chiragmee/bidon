@@ -28,7 +28,7 @@ function query(filters: LotFilters): string {
 }
 
 /**
- * DataSource over the AuctionIT API (apps/api). The API answers with the same read models and
+ * DataSource over the Bid ON API (apps/api). The API answers with the same read models and
  * rejection codes as LocalDataSource, which the contract tests check.
  */
 export class HttpDataSource implements DataSource {

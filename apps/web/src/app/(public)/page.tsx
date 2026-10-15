@@ -17,7 +17,7 @@ import { GuestOnly, WorkspaceButton } from '@/components/auth/GuestOnly';
 import { DEMO_CONTROLS } from '@/lib/flags';
 import { signUpHref } from '@/lib/links';
 
-/** Home: what AuctionIT is, what's on sale, how to start, why to trust it — once each (docs/HOMEPAGE.md). */
+/** Home: what Bid ON is, what's on sale, how to start, why to trust it — once each (docs/HOMEPAGE.md). */
 
 const TRUST = [
   {
@@ -25,7 +25,7 @@ const TRUST = [
     title: 'Approved businesses only',
     body: 'Every buyer and seller is reviewed before they trade.',
   },
-  { Icon: Wallet, title: 'Pay the seller directly', body: 'AuctionIT never holds your money.' },
+  { Icon: Wallet, title: 'Pay the seller directly', body: 'Bid ON never holds your money.' },
   { Icon: Gavel, title: 'Fair close', body: 'The highest bid that meets the reserve wins.' },
   {
     Icon: Scale,
@@ -230,7 +230,7 @@ export default function Landing() {
         </section>
       </GuestOnly>
 
-      {/* 6. Why AuctionIT */}
+      {/* 6. Why Bid ON */}
       <section aria-labelledby="why-h" className="border-y border-border bg-surface">
         <div className="mx-auto grid max-w-[1280px] gap-xl px-4 py-xxl md:px-lg lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
@@ -243,7 +243,7 @@ export default function Landing() {
             />
           </div>
           <div>
-            <Overline>Why AuctionIT</Overline>
+            <Overline>Why Bid ON</Overline>
             <h2 id="why-h" className="text-h2 text-text-strong">
               Built for trading material you can’t see in person
             </h2>

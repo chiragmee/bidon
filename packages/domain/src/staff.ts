@@ -51,7 +51,7 @@ function rejected<T>(state: DemoState, code: string, what: string, next: string)
 }
 
 const adminOnly = <T>(state: DemoState, actor: Actor): OpResult<T> | null =>
-  staffAccess(state, actor.id)?.level === 'admin' ? null : rejected(state, 'forbidden', 'Only the AuctionIT admin can manage reviewers.', 'Ask the admin.');
+  staffAccess(state, actor.id)?.level === 'admin' ? null : rejected(state, 'forbidden', 'Only the Bid ON admin can manage reviewers.', 'Ask the admin.');
 
 function cleanRegions(regions: readonly unknown[]): Region[] {
   return REGIONS.filter((r) => regions.includes(r));
@@ -125,7 +125,7 @@ export function removeReviewer(state: DemoState, userId: string, actor: Actor, n
   if (denied) return denied;
   const target = state.users.find((u) => u.id === userId);
   if (!target || target.role !== 'ops' || target.staffLevel === 'removed') return rejected(state, 'not_found', 'That reviewer doesn’t exist.', 'Refresh the team list.');
-  if (target.staffLevel === 'admin') return rejected(state, 'forbidden', 'The admin can’t be removed here.', 'Contact the AuctionIT owner.');
+  if (target.staffLevel === 'admin') return rejected(state, 'forbidden', 'The admin can’t be removed here.', 'Contact the Bid ON owner.');
   const next = clone(state);
   const ctx = stateCtx(next, now, actor);
   const u = next.users.find((x) => x.id === userId) as User;

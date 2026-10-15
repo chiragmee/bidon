@@ -1,4 +1,4 @@
-# AuctionIT — Build plan
+# Bid ON — Build plan
 
 > Status: **APPROVED (Gate 3) 2026-10-15.** Phases are defined by `docs/PHASES.md` (authority); this file tracks progress against them.
 > Sources: `docs/SPEC.md` (§N), `DESIGN.md`, `design/stitch/`, `CLAUDE.md`, `docs/PHASES.md`. Assumptions → `docs/DECISIONS.md`.

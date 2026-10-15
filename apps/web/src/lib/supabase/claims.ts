@@ -2,13 +2,13 @@ import type { Role } from '@auctionit/domain';
 import { GUEST, type Session } from '@/lib/session';
 
 /**
- * The AuctionIT session from verified Supabase JWT claims. Role and profile id live in app_metadata, which only the
+ * The Bid ON session from verified Supabase JWT claims. Role and profile id live in app_metadata, which only the
  * API (service role) writes when the account is created — users can't edit it. The API re-checks every request
  * against the profile row; this only decides which pages to show.
  */
 export interface AuthState {
   session: Session;
-  /** Signed in to Supabase (verified token), whether or not the AuctionIT account exists yet. */
+  /** Signed in to Supabase (verified token), whether or not the Bid ON account exists yet. */
   signedIn: boolean;
   email: string | null;
   emailVerified: boolean;

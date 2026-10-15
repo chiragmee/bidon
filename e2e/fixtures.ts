@@ -82,7 +82,7 @@ export async function upload(page: Page, group: string, files: { name: string; m
 
 // ── Offline payments (docs/PHASE1_MVP.md): the buyer reports, the seller confirms ──
 
-/** As the buyer on a lot page: open the EMD dialog and report a payment made outside AuctionIT. */
+/** As the buyer on a lot page: open the EMD dialog and report a payment made outside Bid ON. */
 export async function reportEmd(page: Page, reference = 'UTR000123456') {
   await action(page, 'Pay EMD to bid').click();
   const dialog = page.getByRole('dialog', { name: /Pay the EMD, then report it|Correct your EMD payment details/ });

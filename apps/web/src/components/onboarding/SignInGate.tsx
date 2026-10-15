@@ -30,7 +30,7 @@ export function useSignInGate(role: 'buyer' | 'seller') {
     return (
       <Container>
         <EmptyState icon={UserRoundPlus} headingLevel={1} title="You already have an account" action={<ButtonLink href={HOME[session.role]} variant="primary">Go to your dashboard</ButtonLink>}>
-          Each sign-in holds one AuctionIT account, as a buyer or a seller.
+          Each sign-in holds one Bid ON account, as a buyer or a seller.
         </EmptyState>
       </Container>
     );

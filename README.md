@@ -1,12 +1,12 @@
-# AuctionIT
+# Bid ON
 
 A B2B marketplace for industrial scrap and surplus auctions, built around one idea:
 
-> **The auction does not change. Lot Assurance makes the material, the measurement rule and the outcome if it differs clear — and AuctionIT handles exceptions without inspecting every lot.**
+> **The auction does not change. Lot Assurance makes the material, the measurement rule and the outcome if it differs clear — and Bid ON handles exceptions without inspecting every lot.**
 
-**Live site:** https://auctionit-sand.vercel.app (API: https://auctionit-api-vmo3.onrender.com/health). The free API instance sleeps when idle, so open the health link first; it takes up to a minute to wake.
+**Live site:** https://bidonindia.vercel.app (API: https://auctionit-api-vmo3.onrender.com/health). The free API instance sleeps when idle, so open the health link first; it takes up to a minute to wake.
 
-**How it works for real users** ([docs/PHASE1_MVP.md](docs/PHASE1_MVP.md)): sign up as a buyer or seller with email and password (verified email), apply with business details and documents, and an AuctionIT reviewer approves before you can bid or publish. EMDs and balances are paid directly to the seller and reported in AuctionIT; the seller confirms receipt; refunds are recorded the same way — AuctionIT never holds money. **Not yet:** payment gateway, KYC provider, phone OTP (Phase 2); Lot Assurance tolerances and remedies are provisional. Live-site configuration still needed (Supabase Auth settings, SMTP, two Vercel variables): PHASE1_MVP.md → "Configuration".
+**How it works for real users** ([docs/PHASE1_MVP.md](docs/PHASE1_MVP.md)): sign up as a buyer or seller with email and password (verified email), apply with business details and documents, and a Bid ON reviewer approves before you can bid or publish. EMDs and balances are paid directly to the seller and reported in Bid ON; the seller confirms receipt; refunds are recorded the same way — Bid ON never holds money. **Not yet:** payment gateway, KYC provider, phone OTP (Phase 2); Lot Assurance tolerances and remedies are provisional. Live-site configuration still needed (Supabase Auth settings, SMTP, two Vercel variables): PHASE1_MVP.md → "Configuration".
 
 ---
 
@@ -43,7 +43,7 @@ Switch roles at any time from **"Viewing as …"** in the header. In browser dem
 | Evidence files | photos kept as small previews in the browser | Supabase Storage bucket `lot-media` |
 | Reset | header → Reset demo data | only with presenter controls on, or `pnpm demo:reset` (replaces all data) |
 
-The two modes cannot disagree: they call the same domain functions, and the contract suite runs one set of tests against both (see [Testing](#testing)). If real mode can't reach the API, the live site says **"Can't reach AuctionIT right now"** with a retry; it never shows browser sample data instead (D-081).
+The two modes cannot disagree: they call the same domain functions, and the contract suite runs one set of tests against both (see [Testing](#testing)). If real mode can't reach the API, the live site says **"Can't reach Bid ON right now"** with a retry; it never shows browser sample data instead (D-081).
 
 ### Run real mode locally
 

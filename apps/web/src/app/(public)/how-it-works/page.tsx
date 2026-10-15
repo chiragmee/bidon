@@ -42,7 +42,7 @@ const SELLER_STEPS = [
 ] as const;
 
 const FAQ = [
-  ['Does AuctionIT hold my money?', 'No. Buyers pay sellers directly by bank transfer, UPI, cheque or demand draft. AuctionIT records who reported each payment, who confirmed it and when — both sides see the same record.'],
+  ['Does Bid ON hold my money?', 'No. Buyers pay sellers directly by bank transfer, UPI, cheque or demand draft. Bid ON records who reported each payment, who confirmed it and when — both sides see the same record.'],
   ['What if the seller says they didn’t receive my payment?', 'They must give a reason when rejecting it. You’ll see the reason, can correct the details (for example the UTR) and report it again; the earlier report stays in the history.'],
   ['When is my EMD returned?', 'If you don’t win, or the lot doesn’t sell, the seller owes your EMD back and records the refund with its bank reference. If you win, it counts towards the price.'],
   ['Can I be both a buyer and a seller?', 'No. Each person and business holds one account, as a buyer or a seller. The same PAN or GSTIN can’t open a second account.'],
@@ -87,7 +87,7 @@ function DocList({ account }: { account: "buyer" | "seller" }) {
 export default function HowItWorksPage() {
   return (
     <Container className="flex flex-col gap-xl">
-      <PageHeader title="How AuctionIT works" overline="Guide">
+      <PageHeader title="How Bid ON works" overline="Guide">
         Everything a buyer or seller needs to know, from creating an account to the weighbridge.
       </PageHeader>
 
@@ -150,7 +150,7 @@ export default function HowItWorksPage() {
           Documents for approval
         </h2>
         <p className="mt-xs max-w-[760px] text-body-md text-text-secondary">
-          PDF or a clear photo, up to 10 MB each. Documents are private: only you and AuctionIT’s reviewers can open them. A sole proprietor doesn’t need an
+          PDF or a clear photo, up to 10 MB each. Documents are private: only you and Bid ON’s reviewers can open them. A sole proprietor doesn’t need an
           authorisation letter.
         </p>
         <div className="mt-md grid gap-md md:grid-cols-2">
@@ -170,7 +170,7 @@ export default function HowItWorksPage() {
           Deposits and payments
         </h2>
         <p className="mt-xs max-w-[760px] text-body-md text-text-secondary">
-          AuctionIT doesn’t collect or move money. Buyers pay the seller directly ({PAYMENT_METHODS.map((m) => m.label).join(', ')}), report the payment with its
+          Bid ON doesn’t collect or move money. Buyers pay the seller directly ({PAYMENT_METHODS.map((m) => m.label).join(', ')}), report the payment with its
           reference, and the seller confirms it once it reaches their account.
         </p>
         <div className="mt-md grid gap-md md:grid-cols-3">
@@ -185,7 +185,7 @@ export default function HowItWorksPage() {
             </Card>
           ))}
         </div>
-        <p className="mt-sm text-caption text-text-secondary">Deadlines, forfeiture and refund rules are provisional and will be confirmed in AuctionIT’s terms.</p>
+        <p className="mt-sm text-caption text-text-secondary">Deadlines, forfeiture and refund rules are provisional and will be confirmed in Bid ON’s terms.</p>
       </section>
 
       <section id="closing" aria-labelledby="close-h" className="grid scroll-mt-24 gap-lg lg:grid-cols-[1fr_1fr] lg:items-center">

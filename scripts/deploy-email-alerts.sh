@@ -8,7 +8,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 REF=qainjxytjilrgajndogv
-SITE=https://auctionit-sand.vercel.app
+SITE=https://bidonindia.vercel.app
 FN_URL="https://$REF.supabase.co/functions/v1/email-alerts"
 ENV_FILE=supabase/.env.smtp
 [ -t 0 ] || { echo "Run this in your own Terminal window — it asks before each step." >&2; exit 1; }

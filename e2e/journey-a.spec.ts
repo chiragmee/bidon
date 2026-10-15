@@ -32,11 +32,11 @@ test('journey A 1–7: browse, review assurance, pay EMD, bid, see status', asyn
   await page.getByRole('button', { name: 'Continue as buyer' }).click();
   await expect(page).toHaveURL(/\/auctions\/LOT-2025-0891$/);
 
-  // 5. EMD paid outside AuctionIT: where to pay, then report it. A report alone doesn't allow bidding.
+  // 5. EMD paid outside Bid ON: where to pay, then report it. A report alone doesn't allow bidding.
   await action(page, 'Pay EMD to bid').click();
   const emd = page.getByRole('dialog', { name: 'Pay the EMD, then report it' });
   await expect(emd.getByText('Shree Balaji Steels').first()).toBeVisible(); // payee from the seller's account
-  await expect(emd.getByText(/AuctionIT doesn’t collect or check payments/)).toBeVisible();
+  await expect(emd.getByText(/Bid ON doesn’t collect or check payments/)).toBeVisible();
   await emd.getByRole('button', { name: 'Report EMD payment' }).click();
   await expect(emd.getByText(/Enter the UTR number/)).toBeVisible(); // nothing reported without a reference
   await emd.getByLabel(/UTR number/).fill('UTR000123456');

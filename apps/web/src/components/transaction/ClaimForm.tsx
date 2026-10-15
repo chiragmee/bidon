@@ -208,7 +208,7 @@ function Form({ d }: { d: TxDetailView }) {
         onClose={() => setConfirm(false)}
         busy={busy}
         title="Submit this claim?"
-        consequence={`The seller is asked to accept or dispute it. If they dispute it, AuctionIT Operations decides on the evidence. Remedy requested: ${remedy === 'price_adjustment' ? `price adjustment of ${formatINR(adjustment)}` : `exit with ${formatINR(exit)} refunded by the seller`}.`}
+        consequence={`The seller is asked to accept or dispute it. If they dispute it, Bid ON Operations decides on the evidence. Remedy requested: ${remedy === 'price_adjustment' ? `price adjustment of ${formatINR(adjustment)}` : `exit with ${formatINR(exit)} refunded by the seller`}.`}
         confirmLabel="Submit claim"
         onConfirm={submit}
       />

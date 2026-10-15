@@ -30,7 +30,7 @@ function SignIn() {
         </Card>
       )}
       {as === 'seller' && (
-        <Banner tone="info" title="Selling surplus on AuctionIT">
+        <Banner tone="info" title="Selling surplus on Bid ON">
           Sellers list a lot with a structured declaration and evidence, set a reserve and auction dates, and track bids to completion. Create a seller
           profile below, or continue with the sample seller account.
         </Banner>

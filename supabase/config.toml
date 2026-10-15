@@ -429,8 +429,8 @@ enabled = true
 project_id = "qainjxytjilrgajndogv"
 
 [remotes.production.auth]
-site_url = "https://auctionit-sand.vercel.app"
-additional_redirect_urls = ["https://auctionit-sand.vercel.app/**"]
+site_url = "https://bidonindia.vercel.app"
+additional_redirect_urls = ["https://bidonindia.vercel.app/**", "https://auctionit-sand.vercel.app/**"]
 
 [remotes.production.auth.rate_limit]
 # Emails Auth may send per hour through the custom sender below (Gmail allows about 500 a day).
@@ -450,7 +450,7 @@ port = 587
 user = "env(SUPABASE_AUTH_SMTP_USER)"
 pass = "env(SUPABASE_AUTH_SMTP_PASS)"
 admin_email = "env(SUPABASE_AUTH_SMTP_USER)"
-sender_name = "AuctionIT"
+sender_name = "Bid ON"
 
 [remotes.production.auth.mfa.totp]
 enroll_enabled = true

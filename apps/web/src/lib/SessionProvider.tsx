@@ -14,7 +14,7 @@ interface SessionCtx {
   viewer: Viewer;
   user: User | null;
   company: Company | null;
-  /** Live site: the Supabase sign-in (also before the AuctionIT account exists). Null with presenter controls. */
+  /** Live site: the Supabase sign-in (also before the Bid ON account exists). Null with presenter controls. */
   auth: AuthState | null;
   /** Presenter controls only: switch sample account, staying on the current page when the new role may view it. */
   switchRole: (role: Role) => void;

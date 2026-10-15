@@ -21,7 +21,7 @@ export function EmdPanel({ emds, onChanged, title = 'EMD payments' }: { emds: Em
       <div>
         <h2 className="text-h3 text-text-strong">{title}</h2>
         <p className="text-body-md text-text-secondary">
-          Buyers pay EMDs into your account and report them here. Check your statement before confirming — a buyer can bid only once you confirm. AuctionIT doesn’t see or
+          Buyers pay EMDs into your account and report them here. Check your statement before confirming — a buyer can bid only once you confirm. Bid ON doesn’t see or
           move the money.
         </p>
       </div>

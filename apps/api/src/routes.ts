@@ -106,7 +106,7 @@ export function createRouter(service: ApiService, media: MediaStore, env: Env, i
 
   const checkMedia = (list: S.MediaInput[]) => {
     const bad = list.find((m) => !media.isOurUrl(m.url));
-    if (bad) throw new ApiError(422, 'invalid_media', `${bad.caption} wasn’t uploaded through AuctionIT.`, 'Upload the file again, then retry.');
+    if (bad) throw new ApiError(422, 'invalid_media', `${bad.caption} wasn’t uploaded through Bid ON.`, 'Upload the file again, then retry.');
     return list;
   };
   const id = (req: Request) => String(req.params.id);
@@ -114,7 +114,7 @@ export function createRouter(service: ApiService, media: MediaStore, env: Env, i
   // ── Lots and bidding ──
   r.get('/lots', wrap(async (req, res) => send(res, await service.listLots(filtersFrom(req.query)))));
   r.get('/lots/:id', wrap(async (req, res) => send(res, await service.getLot(id(req), viewerOf(res)))));
-  // EMD paid outside AuctionIT: the buyer reports it, the lot's seller confirms or rejects it, and records refunds.
+  // EMD paid outside Bid ON: the buyer reports it, the lot's seller confirms or rejects it, and records refunds.
   r.post('/lots/:id/emd', requireRole('buyer'), wrap(async (req, res) => send(res, await service.submitEmd(id(req), S.PaymentBody.parse(req.body), viewerOf(res)))));
   r.post('/emds/:id/decision', requireRole('seller'), wrap(async (req, res) => send(res, await service.decideEmd(id(req), S.PaymentDecisionBody.parse(req.body), viewerOf(res)))));
   r.post('/emds/:id/refund', requireRole('seller'), wrap(async (req, res) => send(res, await service.recordEmdRefund(id(req), S.RefundBody.parse(req.body), viewerOf(res)))));
@@ -188,7 +188,7 @@ export function createRouter(service: ApiService, media: MediaStore, env: Env, i
       const user = authUserOf(res);
       if (!user && !env.DEMO_CONTROLS_ENABLED) throw new ApiError(401, 'unauthenticated', 'Create your sign-in and verify your email first.', 'Sign up, open the link we email you, then sign in.');
       if (user && !user.emailVerified) throw new ApiError(403, 'email_not_verified', 'Your email address isn’t verified yet.', 'Open the link in the email we sent you, then sign in again.');
-      if (user && (await service.profileForAuthUser(user.id))) throw new ApiError(409, 'already_registered', 'This sign-in already has an AuctionIT account.', 'Each sign-in holds one account. Go to your dashboard.');
+      if (user && (await service.profileForAuthUser(user.id))) throw new ApiError(409, 'already_registered', 'This sign-in already has a Bid ON account.', 'Each sign-in holds one account. Go to your dashboard.');
       if (!user && viewerOf(res).role !== 'guest') throw new ApiError(409, 'already_registered', 'You’re signed in to an existing account.', 'Sign out first to create a new account.');
       const fromToken = user ? { email: user.email, authUserId: user.id } : {};
       const r =

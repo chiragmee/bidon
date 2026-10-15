@@ -59,11 +59,11 @@ export interface DataSource {
 
   listLots(filters: LotFilters): Promise<DsResult<LotListResult>>;
   getLot(id: string, viewer: Viewer): Promise<DsResult<LotDetailView | null>>;
-  /** Buyer reports an EMD paid outside AuctionIT; it allows bidding only once the lot's seller confirms it. */
+  /** Buyer reports an EMD paid outside Bid ON; it allows bidding only once the lot's seller confirms it. */
   submitEmd(lotId: string, input: PaymentInput, viewer: Viewer): Promise<DsResult<EmdRecord>>;
   /** The lot's seller confirms receiving a reported EMD, or rejects it with a reason. */
   decideEmd(emdId: string, decision: { decision: 'confirmed' | 'rejected'; reason: string }, viewer: Viewer): Promise<DsResult<EmdRecord>>;
-  /** The seller records an EMD refund made outside AuctionIT. */
+  /** The seller records an EMD refund made outside Bid ON. */
   recordEmdRefund(emdId: string, refund: RefundInput, viewer: Viewer): Promise<DsResult<EmdRecord>>;
   placeBid(input: PlaceBidInput, viewer: Viewer): Promise<DsResult<{ amountPerMt: number; minNext: number }>>;
   closeDemoAuction(lotId: string, viewer: Viewer): Promise<DsResult<{ status: string; transactionId: string | null }>>;
