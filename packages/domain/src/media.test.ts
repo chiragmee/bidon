@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { kindOf, validateUpload } from './uploads';
+import { kindOf, validateUpload } from './media';
 
 describe('evidence uploads', () => {
   it('accepts photos, video and PDF within limits', () => {

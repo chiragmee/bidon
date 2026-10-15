@@ -40,6 +40,40 @@ function pushNotification(state: DemoState, ctx: Ctx, n: Omit<Notification, 'id'
 
 const SYSTEM: Actor = { id: 'system', role: 'ops' };
 
+export type NotificationDraft = Omit<Notification, 'id' | 'read' | 'at'>;
+
+/** Who hears what when a bid is accepted — shared by demo mode and the API. */
+export function bidNotifications(lotId: string, bidderId: string, amountPerMt: Rupees, previousLeaderId: string | null): NotificationDraft[] {
+  const href = `/auctions/${lotId}`;
+  const out: NotificationDraft[] = [
+    { userId: bidderId, kind: 'bid_accepted', title: `Bid placed on ${lotId}`, body: `You are leading at ${formatINR(amountPerMt, { perMt: true })}.`, href },
+  ];
+  if (previousLeaderId && previousLeaderId !== bidderId) {
+    out.push({ userId: previousLeaderId, kind: 'outbid', title: `You were outbid on ${lotId}`, body: `Current highest bid is ${formatINR(amountPerMt, { perMt: true })}.`, href });
+  }
+  return out;
+}
+
+/** Who hears what when an auction closes — shared by demo mode and the API. */
+export function closeNotifications(
+  lot: { id: string; title: string; sellerId: string },
+  win: { bidderId: string; amountPerMt: Rupees; transactionId: string } | null,
+  bidders: readonly string[],
+): NotificationDraft[] {
+  if (!win) {
+    return [...bidders, lot.sellerId].map((userId) => ({ userId, kind: 'auction_closed', title: `${lot.id} closed unsold`, body: 'No bid met the reserve price.', href: `/auctions/${lot.id}` }));
+  }
+  const price = formatINR(win.amountPerMt, { perMt: true });
+  const txHref = `/transactions/${win.transactionId}`;
+  return [
+    { userId: win.bidderId, kind: 'auction_won', title: `You won ${lot.id}`, body: `${lot.title} at ${price}. Pay the balance to continue.`, href: txHref },
+    ...bidders
+      .filter((b) => b !== win.bidderId)
+      .map((userId): NotificationDraft => ({ userId, kind: 'auction_lost', title: `${lot.id} closed`, body: `Another bidder won at ${price}. Your EMD is refunded (simulated).`, href: `/auctions/${lot.id}` })),
+    { userId: lot.sellerId, kind: 'auction_closed', title: `${lot.id} sold`, body: `Winning bid ${price}. Transaction ${win.transactionId} started.`, href: txHref },
+  ];
+}
+
 // ── Auction closing ──────────────────────────────────────────────────────────
 
 function closeLot(state: DemoState, lotId: string, ctx: Ctx, early: boolean) {
@@ -55,9 +89,7 @@ function closeLot(state: DemoState, lotId: string, ctx: Ctx, early: boolean) {
   if (result.status === 'closed_unsold' || !result.winningBid) {
     lot.status = 'closed_unsold';
     state.audit.push(audit(ctx, { entity: 'lot', entityId: lot.id, action: early ? 'close_demo_auction' : 'close_auction', from, to: 'closed_unsold', reason: 'No bid met the reserve.' }));
-    for (const uid of [...bidders, lot.sellerId]) {
-      pushNotification(state, ctx, { userId: uid, kind: 'auction_closed', title: `${lot.id} closed unsold`, body: 'No bid met the reserve price.', href: `/auctions/${lot.id}` });
-    }
+    for (const n of closeNotifications(lot, null, bidders)) pushNotification(state, ctx, n);
     return;
   }
 
@@ -68,13 +100,11 @@ function closeLot(state: DemoState, lotId: string, ctx: Ctx, early: boolean) {
   state.transactions.push(tx);
   state.audit.push(audit(ctx, { entity: 'lot', entityId: lot.id, action: early ? 'close_demo_auction' : 'close_auction', from, to: 'awarded', reason: `Highest bid ${formatINR(win.amountPerMt, { perMt: true })} met the reserve.` }));
   state.audit.push(audit(ctx, { entity: 'transaction', entityId: tx.id, action: 'create', to: tx.status }));
-  pushNotification(state, ctx, { userId: win.bidderId, kind: 'auction_won', title: `You won ${lot.id}`, body: `${lot.title} at ${formatINR(win.amountPerMt, { perMt: true })}. Pay the balance to continue.`, href: `/transactions/${tx.id}` });
   for (const uid of bidders.filter((b) => b !== win.bidderId)) {
-    pushNotification(state, ctx, { userId: uid, kind: 'auction_lost', title: `${lot.id} closed`, body: `Another bidder won at ${formatINR(win.amountPerMt, { perMt: true })}. Your EMD is refunded (simulated).`, href: `/auctions/${lot.id}` });
     const emd = state.emds.find((e) => e.lotId === lot.id && e.buyerId === uid && e.status === 'succeeded');
     if (emd) emd.status = 'refunded';
   }
-  pushNotification(state, ctx, { userId: lot.sellerId, kind: 'auction_closed', title: `${lot.id} sold`, body: `Winning bid ${formatINR(win.amountPerMt, { perMt: true })}. Transaction ${tx.id} started.`, href: `/transactions/${tx.id}` });
+  for (const n of closeNotifications(lot, { bidderId: win.bidderId, amountPerMt: win.amountPerMt, transactionId: tx.id }, bidders)) pushNotification(state, ctx, n);
 }
 
 /** Close every auction past its end time (close on first access — D-020). Returns closed lot ids. */
@@ -162,10 +192,7 @@ export function placeBid(
   const bid: Bid = { id: ctx.newId('BID'), lotId: lot.id, bidderId: actor.id, amountPerMt: v.value.amountPerMt, placedAt: now, clientRequestId: input.clientRequestId };
   next.bids.push(bid);
   next.audit.push(audit(ctx, { entity: 'bid', entityId: bid.id, action: 'place_bid', to: formatINR(bid.amountPerMt, { perMt: true }) }));
-  pushNotification(next, ctx, { userId: actor.id, kind: 'bid_accepted', title: `Bid placed on ${lot.id}`, body: `You are leading at ${formatINR(bid.amountPerMt, { perMt: true })}.`, href: `/auctions/${lot.id}` });
-  if (previousLeader && previousLeader.bidderId !== actor.id) {
-    pushNotification(next, ctx, { userId: previousLeader.bidderId, kind: 'outbid', title: `You were outbid on ${lot.id}`, body: `Current highest bid is ${formatINR(bid.amountPerMt, { perMt: true })}.`, href: `/auctions/${lot.id}` });
-  }
+  for (const n of bidNotifications(lot.id, actor.id, bid.amountPerMt, previousLeader?.bidderId ?? null)) pushNotification(next, ctx, n);
   return { ok: true, state: next, value: { bid, minNext: bid.amountPerMt + lot.bidIncrement, leading: true } };
 }
 

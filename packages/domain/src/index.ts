@@ -14,3 +14,4 @@ export * from './workflow';
 export * from './workflowViews';
 export * from './listings';
 export * from './sellerViews';
+export * from './media';

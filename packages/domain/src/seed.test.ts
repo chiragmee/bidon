@@ -22,6 +22,11 @@ describe('seed shape', () => {
     for (const t of s.transactions) expect(Number(t.id.slice(3))).toBeLessThan(NEW_ID_START);
   });
 
+  it('media ids are unique across lots and transactions (they share one table in Postgres)', () => {
+    const ids = [...s.lots.flatMap((l) => l.media), ...s.transactions.flatMap((t) => t.media)].map((m) => m.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
   it('every company is labelled sample data', () => {
     expect(s.companies.every((c) => c.sample)).toBe(true);
   });

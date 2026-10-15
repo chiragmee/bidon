@@ -1,36 +1,6 @@
-import {
-  buyerDashboard,
-  claimReview,
-  deleteDraft,
-  publishLot,
-  registerSeller,
-  saveDraft,
-  sellerDashboard,
-  sellerLot,
-  type ListingDraft,
-  opsDecide,
-  opsOverview,
-  runTxAction,
-  sellerRespond,
-  submitClaim,
-  transactionDetail,
-  type LotMedia,
-  closeDemoAuction,
-  listLots,
-  lotDetail,
-  markNotificationsRead,
-  payEmd,
-  placeBid,
-  processDueClosures,
-  registerBuyer,
-  transactionSummary,
-  type DemoState,
-  type OpResult,
-  type Viewer,
-} from '@auctionit/domain';
-import type { DataSource, DsResult } from './DataSource';
+import { LocalDataSource, type StateStore } from '@auctionit/client';
+import { previewUrl } from '@/lib/uploads';
 import { loadState, resetState, saveState, subscribe } from './demoStore';
-import { kindOf, previewUrl, validateUpload } from '@/lib/uploads';
 
 /**
  * sessionStorage key: operation name (or "*") that fails with a simulated network error until the
@@ -38,137 +8,20 @@ import { kindOf, previewUrl, validateUpload } from '@/lib/uploads';
  */
 export const FAIL_KEY = 'auctionit:fail-next';
 
-const actor = (v: Viewer) => ({ id: v.id ?? 'guest', role: v.role });
-const delay = () => new Promise((r) => setTimeout(r, 150 + Math.random() * 250));
-const now = () => new Date().toISOString();
+const browserStore: StateStore = { load: loadState, save: saveState, reset: resetState, subscribe };
 
-function injectedFailure(op: string): DsResult<never> | null {
+function shouldFail(op: string): boolean {
   try {
     const want = window.sessionStorage.getItem(FAIL_KEY);
-    if (want && (want === op || want === '*')) {
-      return {
-        ok: false,
-        error: { kind: 'network', code: 'network', what: 'We couldn’t reach the server.', next: 'Check your connection and try again. Nothing was changed.' },
-      };
-    }
+    return !!want && (want === op || want === '*');
   } catch {
-    /* sessionStorage blocked */
+    return false;
   }
-  return null;
 }
 
-/** Read the current state, closing any auctions whose end time has passed (close on read). */
-function current(): DemoState {
-  const state = loadState();
-  const r = processDueClosures(state, now());
-  if (r.closed.length) saveState(r.state);
-  return r.state;
-}
-
-function read<T>(op: string, fn: (s: DemoState) => T): Promise<DsResult<T>> {
-  return delay().then(() => injectedFailure(op) ?? { ok: true, data: fn(current()) });
-}
-
-function write<T>(op: string, fn: (s: DemoState) => OpResult<T>): Promise<DsResult<T>> {
-  return delay().then(() => {
-    const failed = injectedFailure(op);
-    if (failed) return failed;
-    const before = current();
-    const r = fn(before);
-    // Some rejections still record something (a failed simulated EMD payment), so persist any change.
-    if (r.state !== before) saveState(r.state);
-    return r.ok ? { ok: true, data: r.value } : { ok: false, error: { ...r.error, kind: 'rule' } };
-  });
-}
-
-export class DemoDataSource implements DataSource {
-  readonly kind = 'demo' as const;
-
-  listLots = (filters: Parameters<typeof listLots>[1]) => read('listLots', (s) => listLots(s, filters, now()));
-  getLot = (id: string, viewer: Viewer) => read('getLot', (s) => lotDetail(s, id, viewer, now()));
-
-  payEmd = (lotId: string, outcome: 'success' | 'failure', viewer: Viewer) =>
-    write('payEmd', (s) => payEmd(s, { lotId, outcome }, { id: viewer.id ?? 'guest', role: viewer.role }, now()));
-
-  placeBid = (input: Parameters<DataSource['placeBid']>[0], viewer: Viewer) =>
-    write('placeBid', (s) => {
-      const r = placeBid(s, input, { id: viewer.id ?? 'guest', role: viewer.role }, now());
-      return r.ok ? { ...r, value: { amountPerMt: r.value.bid.amountPerMt, minNext: r.value.minNext } } : r;
-    });
-
-  closeDemoAuction = (lotId: string, viewer: Viewer) =>
-    write('closeDemoAuction', (s) => closeDemoAuction(s, lotId, { id: viewer.id ?? 'guest', role: viewer.role }, now()));
-
-  buyerDashboard = (viewer: Viewer) => read('buyerDashboard', (s) => (viewer.id ? buyerDashboard(s, viewer.id, now()) : null));
-  transactionSummary = (id: string, viewer: Viewer) => read('transactionSummary', (s) => transactionSummary(s, id, viewer));
-
-  transactionDetail = (id: string, viewer: Viewer) => read('transactionDetail', (s) => transactionDetail(s, id, viewer, now()));
-
-  txAction = (id: string, action: Parameters<typeof runTxAction>[2], viewer: Viewer, media: LotMedia[] = []) =>
-    write('txAction', (s) => runTxAction(s, id, action, actor(viewer), now(), media));
-
-  submitClaim = (txId: string, input: Parameters<typeof submitClaim>[2], viewer: Viewer, media: LotMedia[]) =>
-    write('submitClaim', (s) => submitClaim(s, txId, input, actor(viewer), now(), media));
-
-  respondClaim = (claimId: string, response: Parameters<typeof sellerRespond>[2], viewer: Viewer, media: LotMedia[]) =>
-    write('respondClaim', (s) => sellerRespond(s, claimId, response, actor(viewer), now(), media));
-
-  decideClaim = (claimId: string, decision: Parameters<typeof opsDecide>[2], viewer: Viewer) =>
-    write('decideClaim', (s) => opsDecide(s, claimId, decision, actor(viewer), now()));
-
-  claimReview = (claimId: string, viewer: Viewer) => read('claimReview', (s) => claimReview(s, claimId, viewer, now()));
-  opsOverview = (viewer: Viewer) => read('opsOverview', (s) => (viewer.role === 'ops' ? opsOverview(s, now()) : null));
-
-  uploadMedia = async (file: File, stage: LotMedia['stage']): Promise<DsResult<LotMedia>> => {
-    await delay();
-    const failed = injectedFailure('uploadMedia');
-    if (failed && !failed.ok) return { ok: false, error: { ...failed.error, what: `The upload of ${file.name} was interrupted.`, next: 'Retry the upload. Nothing else was changed.' } };
-    const problem = validateUpload(file);
-    if (problem) return { ok: false, error: { kind: 'rule', code: 'invalid_file', what: problem, next: 'Choose a different file.' } };
-    return {
-      ok: true,
-      data: {
-        id: `M-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
-        kind: kindOf(file.type) ?? 'document',
-        url: await previewUrl(file),
-        caption: file.name,
-        stage,
-        uploadedAt: now(),
-      },
-    };
-  };
-
-  sellerDashboard = (viewer: Viewer) => read('sellerDashboard', (s) => (viewer.id && viewer.role === 'seller' ? sellerDashboard(s, viewer.id, now()) : null));
-  sellerLot = (lotId: string, viewer: Viewer) => read('sellerLot', (s) => (viewer.id ? sellerLot(s, lotId, viewer.id, now()) : null));
-  saveDraft = (lotId: string | null, draft: ListingDraft, viewer: Viewer) => write('saveDraft', (s) => saveDraft(s, { lotId, draft }, actor(viewer), now()));
-  publishLot = (lotId: string, viewer: Viewer) => write('publishLot', (s) => publishLot(s, lotId, actor(viewer), now()));
-  deleteDraft = (lotId: string, viewer: Viewer) => write('deleteDraft', (s) => deleteDraft(s, lotId, actor(viewer), now()));
-  registerSeller = (input: Parameters<typeof registerSeller>[1]) => write('registerSeller', (s) => registerSeller(s, input, now()));
-
-  registerBuyer = (input: Parameters<typeof registerBuyer>[1]) => write('registerBuyer', (s) => registerBuyer(s, input, now()));
-
-  getUser = (id: string) =>
-    read('getUser', (s) => {
-      const user = s.users.find((u) => u.id === id);
-      return user ? { user, company: s.companies.find((c) => c.id === user.companyId) ?? null } : null;
-    });
-
-  emailExists = (email: string) => read('emailExists', (s) => s.users.some((u) => u.email.toLowerCase() === email.trim().toLowerCase()));
-
-  notifications = (viewer: Viewer) =>
-    read('notifications', (s) => s.notifications.filter((n) => n.userId === viewer.id).sort((a, b) => Date.parse(b.at) - Date.parse(a.at)));
-
-  markNotificationsRead = (viewer: Viewer) =>
-    delay().then(() => {
-      if (viewer.id) saveState(markNotificationsRead(current(), viewer.id));
-      return { ok: true as const, data: null };
-    });
-
-  reset = () =>
-    delay().then(() => {
-      resetState();
-      return { ok: true as const, data: null };
-    });
-
-  subscribe = subscribe;
+/** Demo mode: packages/domain running in the browser over localStorage (shared across tabs). */
+export class DemoDataSource extends LocalDataSource {
+  constructor() {
+    super(browserStore, { latencyMs: [150, 400], shouldFail, preview: previewUrl });
+  }
 }

@@ -87,17 +87,19 @@ export function createSeed(nowIso: Iso = new Date().toISOString()): DemoState {
   const notifications: Notification[] = [];
 
   // ── helpers ────────────────────────────────────────────────────────────────
-  const photoSet = (slug: string, n: number, stage: LotMedia['stage'], at: Iso, captions: string[] = []): LotMedia[] =>
+  // Ids include the owner (lot or transaction) so they're unique across the whole dataset; the
+  // image URL uses the slug so lots of the same material share photos.
+  const photoSet = (slug: string, n: number, stage: LotMedia['stage'], at: Iso, captions: string[] = [], owner = slug): LotMedia[] =>
     Array.from({ length: n }, (_, i) => ({
-      id: `M-${slug}-${stage}-p${i + 1}`,
+      id: `M-${owner}-${stage}-p${i + 1}`,
       kind: 'photo' as const,
       url: `/demo-images/${slug}-${i + 1}.jpg`,
       caption: captions[i] ?? `Yard photo ${i + 1}`,
       stage,
       uploadedAt: at,
     }));
-  const video = (slug: string, at: Iso): LotMedia => ({
-    id: `M-${slug}-listing-v1`,
+  const video = (slug: string, at: Iso, owner = slug): LotMedia => ({
+    id: `M-${owner}-listing-v1`,
     kind: 'video',
     url: `/demo-images/${slug}-walkthrough.mp4`,
     caption: 'Yard walkthrough video (0:45)',
@@ -122,7 +124,7 @@ export function createSeed(nowIso: Iso = new Date().toISOString()): DemoState {
   function addLot(s: LotSpec): Lot {
     const created = h(s.startH - 48);
     const assured = s.assured ?? false;
-    const media = [...photoSet(s.slug, s.photos ?? (assured ? 6 : 3), 'listing', created, LISTING_CAPTIONS), ...(s.withVideo ?? assured ? [video(s.slug, created)] : [])];
+    const media = [...photoSet(s.slug, s.photos ?? (assured ? 6 : 3), 'listing', created, LISTING_CAPTIONS, s.id), ...(s.withVideo ?? assured ? [video(s.slug, created, s.id)] : [])];
     const lot: Lot = {
       id: s.id,
       sellerId: s.sellerId,

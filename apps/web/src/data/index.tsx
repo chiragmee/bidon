@@ -1,7 +1,8 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
-import type { DataSource, DsError, DsResult } from './DataSource';
+import { HttpDataSource, type DataSource, type DsError, type DsResult } from '@auctionit/client';
+import { SESSION_COOKIE } from '@/lib/session';
 import { DemoDataSource } from './DemoDataSource';
 import { subscribe as subscribeStore, wasRecovered } from './demoStore';
 
@@ -15,20 +16,37 @@ interface DataCtx {
 
 const DataContext = createContext<DataCtx | null>(null);
 
-function choose(): DataCtx {
-  const want = process.env.NEXT_PUBLIC_DATA_SOURCE ?? 'demo';
-  if (want === 'http') {
-    // HttpDataSource arrives in Phase 2 (fast-track order, D-015). Never fall back silently.
-    return {
-      ds: new DemoDataSource(),
-      fallbackReason: 'The live backend isn’t connected in this build, so you’re seeing demo data stored in this browser.',
-    };
-  }
-  return { ds: new DemoDataSource(), fallbackReason: null };
+function sessionFromCookie(): string | null {
+  const m = typeof document === 'undefined' ? null : document.cookie.match(new RegExp(`(?:^|; )${SESSION_COOKIE}=([^;]*)`));
+  return m?.[1] ? decodeURIComponent(m[1]) : null;
 }
 
+const WANT_HTTP = process.env.NEXT_PUBLIC_DATA_SOURCE === 'http';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+
+/**
+ * NEXT_PUBLIC_DATA_SOURCE=http uses the API; demo (default) runs in the browser. If the API is
+ * unreachable we fall back to demo data with a visible banner — never silently (CLAUDE.md).
+ */
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [value] = useState(choose);
+  const [value, setValue] = useState<DataCtx>(() =>
+    WANT_HTTP ? { ds: new HttpDataSource({ baseUrl: API_URL, session: sessionFromCookie }), fallbackReason: null } : { ds: new DemoDataSource(), fallbackReason: null },
+  );
+  useEffect(() => {
+    if (!(value.ds instanceof HttpDataSource)) return;
+    let cancelled = false;
+    void value.ds.health().then((up) => {
+      if (!up && !cancelled) {
+        setValue({
+          ds: new DemoDataSource(),
+          fallbackReason: 'The live backend isn’t reachable right now, so you’re seeing demo data stored in this browser. Changes here won’t reach the server.',
+        });
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [value.ds]);
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }
 

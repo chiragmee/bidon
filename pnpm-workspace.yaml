@@ -5,3 +5,8 @@ packages:
 allowBuilds:
   esbuild: true
   unrs-resolver: true
+# Next declares Playwright as an optional peer; pin it so auto-installed peers respect the release-age policy.
+overrides:
+  '@playwright/test': 1.64.0
+  playwright: 1.64.0
+  playwright-core: 1.64.0

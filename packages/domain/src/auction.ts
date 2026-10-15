@@ -2,7 +2,7 @@ import type { Actor } from './context';
 import { ms } from './context';
 import { formatINR } from './format';
 import type { AuctionStatus, Bid, EmdRecord, Iso, Lot, Rejection, Result, Rupees } from './types';
-import { fail, ok } from './types';
+import { ok } from './types';
 
 /**
  * Derived status, or `ended`: the end time has passed but the close has not been processed yet.
@@ -67,73 +67,62 @@ export interface BidAttempt {
   now: Iso;
 }
 
+/**
+ * The words for each bid rejection — shared by validateBid (demo mode) and the API, which maps the
+ * codes returned by the place_bid Postgres function, so both say exactly the same thing.
+ */
+export function bidRejection(
+  code: BidRejectionCode,
+  ctx: { lot: Pick<Lot, 'startAt' | 'emdAmount'>; minNext?: Rupees; highest?: Rupees | null },
+): Rejection<BidRejectionCode> {
+  const min = formatINR(ctx.minNext ?? 0, { perMt: true });
+  const r = (what: string, next: string) => ({ code, what, next });
+  switch (code) {
+    case 'not_buyer':
+      return r('Only buyer accounts can place bids.', 'Switch to a buyer account to bid.');
+    case 'duplicate':
+      return r('This bid was already submitted.', 'Nothing more to do — check the bid history for its status.');
+    case 'invalid_amount':
+      return r('The bid amount is missing or not a whole number of rupees.', 'Enter your bid per MT in rupees, for example 35000.');
+    case 'not_published':
+      return r('This lot is not published yet.', 'Browse live auctions instead.');
+    case 'auction_not_started':
+      return r('Bidding has not opened for this lot yet.', `Come back when the auction opens at ${new Date(ctx.lot.startAt).toLocaleString('en-IN')}.`);
+    case 'auction_closed':
+      return r('This auction has closed, so it no longer accepts bids.', 'See the result on the lot page or browse other live auctions.');
+    case 'own_lot':
+      return r('Sellers cannot bid on their own lots.', 'Use a buyer account for other lots.');
+    case 'emd_required':
+      return r(`An EMD of ${formatINR(ctx.lot.emdAmount)} is needed before you can bid on this lot.`, 'Pay the EMD (simulated in this demo), then place your bid.');
+    case 'outbid':
+      return r(`Another bidder placed ${formatINR(ctx.highest ?? 0, { perMt: true })} while you were bidding.`, `Your bid was not placed. The new minimum is ${min}.`);
+    case 'below_minimum':
+      return r(`Your bid is below the minimum of ${min}.`, `Bid ${min} or more.`);
+  }
+}
+
 export function validateBid(a: BidAttempt): Result<{ amountPerMt: Rupees; minNext: Rupees }, BidRejectionCode> {
   const { lot, bids, actor, now } = a;
+  const no = (code: BidRejectionCode, extra: { minNext?: Rupees; highest?: Rupees | null } = {}) =>
+    ({ ok: false, error: bidRejection(code, { lot, ...extra }) }) as const;
 
-  if (actor.role !== 'buyer') {
-    return fail('not_buyer', 'Only buyer accounts can place bids.', 'Switch to a buyer account to bid.');
-  }
-  if (bids.some((b) => b.clientRequestId === a.clientRequestId)) {
-    return fail(
-      'duplicate',
-      'This bid was already submitted.',
-      'Nothing more to do — check the bid history for its status.',
-    );
-  }
+  if (actor.role !== 'buyer') return no('not_buyer');
+  if (bids.some((b) => b.clientRequestId === a.clientRequestId)) return no('duplicate');
   const amount = a.amountPerMt;
-  if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0 || !Number.isInteger(amount)) {
-    return fail(
-      'invalid_amount',
-      'The bid amount is missing or not a whole number of rupees.',
-      'Enter your bid per MT in rupees, for example 35000.',
-    );
-  }
+  if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0 || !Number.isInteger(amount)) return no('invalid_amount');
 
   const status = deriveAuctionStatus(lot, now);
-  if (status === 'draft') {
-    return fail('not_published', 'This lot is not published yet.', 'Browse live auctions instead.');
-  }
-  if (status === 'scheduled') {
-    return fail(
-      'auction_not_started',
-      'Bidding has not opened for this lot yet.',
-      `Come back when the auction opens at ${new Date(lot.startAt).toLocaleString('en-IN')}.`,
-    );
-  }
-  if (status !== 'live') {
-    return fail(
-      'auction_closed',
-      'This auction has closed, so it no longer accepts bids.',
-      'See the result on the lot page or browse other live auctions.',
-    );
-  }
-  if (lot.sellerId === actor.id) {
-    return fail('own_lot', 'Sellers cannot bid on their own lots.', 'Use a buyer account for other lots.');
-  }
-  if (!hasEmd(a.emds, lot.id, actor.id)) {
-    return fail(
-      'emd_required',
-      `An EMD of ${formatINR(lot.emdAmount)} is needed before you can bid on this lot.`,
-      'Pay the EMD (simulated in this demo), then place your bid.',
-    );
-  }
+  if (status === 'draft') return no('not_published');
+  if (status === 'scheduled') return no('auction_not_started');
+  if (status !== 'live') return no('auction_closed');
+  if (lot.sellerId === actor.id) return no('own_lot');
+  if (!hasEmd(a.emds, lot.id, actor.id)) return no('emd_required');
 
   const minNext = minNextBid(lot, bids);
   if (amount < minNext) {
     const current = highestBid(bids)?.amountPerMt ?? null;
     const stale = current !== null && (a.seenHighestPerMt === null || current > a.seenHighestPerMt);
-    if (stale) {
-      return fail(
-        'outbid',
-        `Another bidder placed ${formatINR(current, { perMt: true })} while you were bidding.`,
-        `Your bid was not placed. The new minimum is ${formatINR(minNext, { perMt: true })}.`,
-      );
-    }
-    return fail(
-      'below_minimum',
-      `Your bid is below the minimum of ${formatINR(minNext, { perMt: true })}.`,
-      `Bid ${formatINR(minNext, { perMt: true })} or more.`,
-    );
+    return no(stale ? 'outbid' : 'below_minimum', { minNext, highest: current });
   }
   return ok({ amountPerMt: amount, minNext });
 }

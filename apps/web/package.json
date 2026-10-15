@@ -16,7 +16,8 @@
     "lucide-react": "^1",
     "next": "^16",
     "react": "^19",
-    "react-dom": "^19"
+    "react-dom": "^19",
+    "@auctionit/client": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.3",
