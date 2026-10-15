@@ -38,7 +38,7 @@ export async function writeDiff(tx: Tx, before: DemoState, after: DemoState): Pr
         continue;
       }
       const cols = Object.keys(row).filter((c) => c !== pk);
-      await tx`insert into ${tx(table)} ${tx(row)} on conflict (${tx(pk)}) do update set ${tx(row, cols)}`;
+      await tx`insert into ${tx(table)} ${tx(row)} on conflict (${tx(pk)}) do update set ${tx(row, ...cols)}`;
     }
   }
   for (const [table, pk] of [...TABLES].reverse()) {
