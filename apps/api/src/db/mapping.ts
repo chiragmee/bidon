@@ -238,7 +238,7 @@ export function stateFromRows(r: Rows): DemoState {
         state: String(c.state),
         businessType: String(c.business_type),
         ...(c.yard !== null ? { yard: String(c.yard) } : {}),
-        sample: true,
+        sample: Boolean(c.sample),
         verification: c.verification as Company['verification'],
       }),
     ),

@@ -26,7 +26,7 @@ export interface TimelineEntry {
 
 const ACTION_LABEL: Record<string, string> = {
   close_auction: 'Auction closed',
-  close_demo_auction: 'Demo auction closed by Operations',
+  close_demo_auction: 'Auction closed early by Operations',
   create: 'Transaction started',
   pay_balance: 'Balance paid (simulated)',
   propose_lifting: 'Lifting date proposed',
@@ -98,6 +98,8 @@ export interface TxDetailView {
   assured: boolean;
   buyer: string;
   seller: string;
+  /** Either party is a seeded (fictional) company. */
+  sample: boolean;
   /** How the viewer relates to this transaction. */
   as: 'buyer' | 'seller' | 'ops';
   statusLabel: string;
@@ -156,6 +158,10 @@ export function transactionDetail(state: DemoState, txId: string, viewer: Viewer
     assured: lot.assurance.enabled,
     buyer: companyName(state, tx.buyerId),
     seller: companyName(state, tx.sellerId),
+    sample: [tx.buyerId, tx.sellerId].some((uid) => {
+      const companyId = state.users.find((u) => u.id === uid)?.companyId;
+      return state.companies.find((c) => c.id === companyId)?.sample ?? false;
+    }),
     as,
     statusLabel: STATUS_LABEL[tx.status],
     stepper: stepperState(tx),
@@ -289,6 +295,8 @@ export interface Metric {
 
 export interface OpsOverviewView {
   stats: { live: number; closed: number; awaitingAction: number; openClaims: number; completed: number };
+  /** Seeded (fictional) records are present, so totals mix sample and real data. */
+  includesSample: boolean;
   metrics: Metric[];
   baseline: Metric;
   queue: OpsQueueRow[];
@@ -337,8 +345,10 @@ export function opsOverview(state: DemoState, now: Iso): OpsOverviewView {
     ? sold.reduce((n, l) => n + (state.bids.find((b) => b.id === l.winningBidId)?.amountPerMt ?? l.reservePerMt) / l.reservePerMt - 1, 0) / sold.length
     : 0;
 
-  const caption = 'Sample data · simulated';
+  const includesSample = state.companies.some((c) => c.sample);
+  const caption = includesSample ? 'Includes sample data' : 'From platform records';
   return {
+    includesSample,
     stats: {
       live: published.filter((l) => statusOf(l) === 'live').length,
       closed: closedLots.length,
@@ -347,10 +357,10 @@ export function opsOverview(state: DemoState, now: Iso): OpsOverviewView {
       completed: completedTx.length,
     },
     metrics: [
-      { label: 'North Star: completed ÷ lots listed', value: pct(published.length ? completedTx.length / published.length : 0), caption: `${completedTx.length} of ${published.length} demo lots · ${caption}` },
+      { label: 'North Star: completed ÷ lots listed', value: pct(published.length ? completedTx.length / published.length : 0), caption: `${completedTx.length} of ${published.length} lots listed · ${caption}` },
       { label: 'Auction clear rate', value: pct(closedLots.length ? sold.length / closedLots.length : 0), caption: `${sold.length} of ${closedLots.length} closed lots met the reserve · ${caption}` },
       { label: 'Unique bidders per assured lot', value: biddersPerAssured.toFixed(1), caption },
-      { label: 'Defaults', value: String(state.transactions.filter((t) => t.status === 'defaulted').length), caption: `Mismatch-related defaults aren’t separated in demo data · ${caption}` },
+      { label: 'Defaults', value: String(state.transactions.filter((t) => t.status === 'defaulted').length), caption: `Mismatch-related defaults aren’t tracked separately · ${caption}` },
       { label: 'Ops reviews per 100 completions', value: (completedTx.length ? (opsReviewed.length / completedTx.length) * 100 : 0).toFixed(1), caption },
       { label: 'Hammer price vs reserve', value: `+${pct(hammer)}`, caption },
     ],

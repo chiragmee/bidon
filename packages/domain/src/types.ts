@@ -18,9 +18,9 @@ export interface Company {
   businessType: string;
   /** Sellers: main yard or operating location (prefills new lots). */
   yard?: string;
-  /** Seeded companies are fictional. UI must label them "Sample data". */
-  sample: true;
-  /** Demo onboarding status. Never a real KYC result. */
+  /** true for seeded (fictional) companies — the UI labels them "Sample data"; false for real registrations. */
+  sample: boolean;
+  /** Onboarding status. `demo_approved` = active without any document check (no KYC provider yet); never a KYC result. */
   verification: 'demo_approved' | 'pending';
 }
 

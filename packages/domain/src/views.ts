@@ -256,7 +256,7 @@ export function lotDetail(state: DemoState, lotId: string, viewer: Viewer, now: 
       city: company?.city ?? '',
       state: company?.state ?? '',
       verification: company?.verification ?? 'pending',
-      sample: company?.sample ?? true,
+      sample: company?.sample ?? false,
     },
     trackRecord: record,
     trackRecordText: describeTrackRecord(record),
@@ -382,7 +382,7 @@ export function buyerDashboard(state: DemoState, buyerId: string, now: Iso): Buy
   const completed = txs.filter(done).sort((a, b) => ms(b.updatedAt) - ms(a.updatedAt));
 
   return {
-    buyer: { name: user.name, company: company?.name ?? '', sample: company?.sample ?? true, verification: company?.verification ?? 'pending' },
+    buyer: { name: user.name, company: company?.name ?? '', sample: company?.sample ?? false, verification: company?.verification ?? 'pending' },
     stats: {
       activeBids: activeBids.length,
       leading: activeBids.filter((r) => r.bidStatus === 'leading').length,

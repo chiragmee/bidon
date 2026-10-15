@@ -57,7 +57,7 @@ async function dbAvailable(): Promise<boolean> {
   }
 }
 
-const env = loadEnv({ ALLOWED_ORIGINS: 'http://localhost:3000', DEMO_RESET_ENABLED: 'true' });
+const env = loadEnv({ ALLOWED_ORIGINS: 'http://localhost:3000', DEMO_CONTROLS_ENABLED: 'true' });
 const servers: Server[] = [];
 let pgSql: Sql | null = null;
 const hasDb = await dbAvailable();
@@ -371,7 +371,7 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
   it('a session whose user no longer exists is refused the same way', async () => {
     const ghost: Viewer = { id: 'U-GHOST', role: 'buyer' };
     for (const r of [await t.ds.buyerDashboard(ghost), await t.ds.payEmd('LOT-2025-0891', 'success', ghost), await t.ds.notifications(ghost)]) {
-      expect(r.ok ? null : r.error).toMatchObject({ code: 'invalid_session', what: 'Your demo session isn’t valid any more.' });
+      expect(r.ok ? null : r.error).toMatchObject({ code: 'invalid_session', what: 'Your session isn’t valid any more.' });
     }
     // A real user with the wrong role is refused too.
     expect(code(await t.ds.buyerDashboard({ id: 'U-SURESH', role: 'buyer' }))).toBe('invalid_session');

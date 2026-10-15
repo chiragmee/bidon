@@ -93,7 +93,7 @@ export function bidRejection(
     case 'own_lot':
       return r('Sellers cannot bid on their own lots.', 'Use a buyer account for other lots.');
     case 'emd_required':
-      return r(`An EMD of ${formatINR(ctx.lot.emdAmount)} is needed before you can bid on this lot.`, 'Pay the EMD (simulated in this demo), then place your bid.');
+      return r(`An EMD of ${formatINR(ctx.lot.emdAmount)} is needed before you can bid on this lot.`, 'Pay the EMD (simulated — no payment provider is connected yet), then place your bid.');
     case 'outbid':
       return r(`Another bidder placed ${formatINR(ctx.highest ?? 0, { perMt: true })} while you were bidding.`, `Your bid was not placed. The new minimum is ${min}.`);
     case 'below_minimum':
@@ -144,7 +144,7 @@ export function canCloseEarly(lot: Lot, actor: Actor, now: Iso): Rejection | nul
   if (actor.role !== 'ops') {
     return {
       code: 'forbidden',
-      what: 'Only Operations can close a demo auction early.',
+      what: 'Only Operations can close an auction early.',
       next: 'Auctions close automatically at their end time.',
     };
   }

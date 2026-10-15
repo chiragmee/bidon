@@ -4,6 +4,7 @@
  */
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { DEMO_ACCOUNTS } from '@auctionit/domain';
 import { createApp } from './app';
 import { loadEnv } from './env';
 import { MemoryService } from './services/MemoryService';
@@ -112,11 +113,37 @@ describe('sessions and the rules behind the guards', () => {
     expect(res.body.error.what).toMatch(/Only Operations/);
   });
 
-  it('demo reset can be switched off', async () => {
-    const locked = createApp(loadEnv({ ALLOWED_ORIGINS: 'http://localhost:3000', DEMO_RESET_ENABLED: 'false' }), new MemoryService());
-    const res = await request(locked).post('/demo/reset');
-    expect(res.status).toBe(403);
-    expect(res.body.error.code).toBe('reset_disabled');
+  describe('presenter controls are off against a real database', () => {
+    // DATA_MODE=supabase without DEMO_CONTROLS_ENABLED is the live deployment's configuration.
+    const live = loadEnv({ ALLOWED_ORIGINS: 'http://localhost:3000', DATA_MODE: 'supabase', DATABASE_URL: 'postgres://unused' });
+    const locked = createApp(live, new MemoryService());
+    const as = (role: string, userId: string) => ({ 'x-demo-session': `${role}:${userId}` });
+
+    it('defaults to off for supabase and on for the in-memory demo', () => {
+      expect(live.DEMO_CONTROLS_ENABLED).toBe(false);
+      expect(loadEnv({}).DEMO_CONTROLS_ENABLED).toBe(true);
+      expect(loadEnv({ DATA_MODE: 'supabase', DATABASE_URL: 'x', DEMO_CONTROLS_ENABLED: 'true' }).DEMO_CONTROLS_ENABLED).toBe(true);
+    });
+
+    it('refuses a data reset', async () => {
+      const res = await request(locked).post('/demo/reset');
+      expect(res.status).toBe(403);
+      expect(res.body.error.code).toBe('reset_disabled');
+    });
+
+    it('refuses closing an auction early, even for Operations', async () => {
+      const res = await request(locked).post('/lots/LOT-2025-0891/close').set(as('ops', DEMO_ACCOUNTS.ops));
+      expect(res.status).toBe(403);
+      expect(res.body.error).toMatchObject({ code: 'not_available', next: 'Auctions close automatically at their end time.' });
+    });
+
+    it('refuses a simulated failed payment but still records the EMD', async () => {
+      const fail = await request(locked).post('/lots/LOT-2025-0891/emd').set(as('buyer', DEMO_ACCOUNTS.buyer)).send({ outcome: 'failure' });
+      expect(fail.status).toBe(403);
+      expect(fail.body.error.code).toBe('not_available');
+      const ok = await request(locked).post('/lots/LOT-2025-0891/emd').set(as('buyer', DEMO_ACCOUNTS.buyer)).send({ outcome: 'success' });
+      expect(ok.status).toBe(200);
+    });
   });
 
   it('rejects bodies with the wrong shape before any rule runs', async () => {

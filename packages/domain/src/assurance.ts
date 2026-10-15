@@ -129,7 +129,7 @@ export function claimEligibility(lot: Lot, tx: Transaction | null, draft: ClaimD
     rule: 'before_loading_complete',
     label: 'Raised before loading is complete',
     passed: beforeLoadingDone,
-    what: 'Loading is already complete, so the claim window has closed (demo policy).',
+    what: 'Loading is already complete, so the claim window has closed (provisional policy).',
     next: 'Claims must be raised at the yard before loading finishes.',
   });
 

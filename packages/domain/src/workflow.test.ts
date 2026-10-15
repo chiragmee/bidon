@@ -120,7 +120,7 @@ describe('journey A 13 claim branch → seller response → Ops (journey C)', ()
     expect(new Set(views.map((v) => `${v.tx.status}|${v.tx.resolution}|${v.claim?.status}`)).size).toBe(1);
     expect(views.map((v) => v.as)).toEqual(['buyer', 'seller', 'ops']);
     expect(views[0]?.timeline.map((e) => e.label)).toEqual(
-      expect.arrayContaining(['Demo auction closed by Operations', 'Balance paid (simulated)', 'Seller disputed the claim', 'Operations approved exit and refund']),
+      expect.arrayContaining(['Auction closed early by Operations', 'Balance paid (simulated)', 'Seller disputed the claim', 'Operations approved exit and refund']),
     );
     expect(buyerDashboard(decided.state, 'U-RAHUL', t(4))?.completed.some((x) => x.id === txId)).toBe(true);
   });
@@ -181,7 +181,13 @@ describe('views', () => {
   it('ops overview: stats, simulated metrics, baseline and queue for the seed', () => {
     const o = opsOverview(s, NOW);
     expect(o.stats).toEqual({ live: 3, closed: expect.any(Number), awaitingAction: 4, openClaims: 1, completed: 9 });
-    expect(o.metrics.every((m) => m.caption.includes('simulated') || m.caption.includes('Sample'))).toBe(true);
+    // The seed is fictional, so every metric says it includes sample data.
+    expect(o.includesSample).toBe(true);
+    expect(o.metrics.every((m) => m.caption.includes('Includes sample data'))).toBe(true);
+    // Without seeded companies the same metrics read as platform records.
+    const real = opsOverview({ ...s, companies: s.companies.map((c) => ({ ...c, sample: false })) }, NOW);
+    expect(real.includesSample).toBe(false);
+    expect(real.metrics.every((m) => m.caption.includes('From platform records'))).toBe(true);
     expect(o.baseline.caption).toMatch(/case study, not platform data/);
     expect(o.queue[0]).toMatchObject({ claimId: 'CLM-1042-01', sellerResponse: 'Disputed', evidenceCount: 3, requestedRemedy: 'Price adjustment' });
     expect(o.transactions[0]).toMatchObject({ id: 'TX-1035', overdue: true });

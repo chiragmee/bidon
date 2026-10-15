@@ -139,9 +139,9 @@ describe('registerSeller (§12.1)', () => {
     email: 'kavita@raometal.example',
     phone: '98765 43210',
   };
-  it('creates a demo-approved sample seller who can then list', () => {
+  it('creates a real (non-sample) seller, active without document checks, who can then list', () => {
     const r = ok(registerSeller(createSeed(NOW), good, NOW));
-    expect(r.value.company).toMatchObject({ kind: 'seller', verification: 'demo_approved', sample: true, yard: 'Plot 12, MIDC' });
+    expect(r.value.company).toMatchObject({ kind: 'seller', verification: 'demo_approved', sample: false, yard: 'Plot 12, MIDC' });
     const d = sellerDashboard(r.state, r.value.user.id, NOW)!;
     expect(d.trackRecord.hasHistory).toBe(false);
     expect(d.lots).toEqual([]);

@@ -54,7 +54,7 @@ function applyDraft(base: Lot, d: ListingDraft, now: Iso): Lot {
 
 /** Create or update a draft (wizard autosave). Scheduled lots may be edited before they open. */
 export function saveDraft(state: DemoState, input: { lotId?: string | null; draft: ListingDraft }, actor: Actor, now: Iso): OpResult<Lot> {
-  if (actor.role !== 'seller') return rejected(state, 'forbidden', 'Only seller accounts can create lots.', 'Switch to the demo seller.');
+  if (actor.role !== 'seller') return rejected(state, 'forbidden', 'Only seller accounts can create lots.', 'Sign in with a seller account.');
   const user = state.users.find((u) => u.id === actor.id);
   if (!user?.companyId) return rejected(state, 'no_company', 'Your seller profile is incomplete.', 'Finish seller onboarding first.');
 
@@ -177,7 +177,7 @@ export function registerSeller(state: DemoState, input: SellerRegistration, now:
   }
   const email = input.email.trim().toLowerCase();
   if (state.users.some((u) => u.email.toLowerCase() === email)) {
-    return rejected(state, 'duplicate_email', 'An account with this email already exists.', 'Sign in with the demo seller, or use a different email.');
+    return rejected(state, 'duplicate_email', 'An account with this email already exists.', 'Sign in to that account, or use a different email.');
   }
   const next = clone(state);
   const ctx = stateCtx(next, now, { id: 'guest', role: 'guest' });
@@ -189,7 +189,7 @@ export function registerSeller(state: DemoState, input: SellerRegistration, now:
     state: input.state.trim(),
     businessType: input.businessType,
     yard: input.yard.trim(),
-    sample: true,
+    sample: false,
     verification: 'demo_approved',
   };
   const user: User = { id: ctx.newId('U'), name: input.name.trim(), email, role: 'seller', companyId: company.id, title: 'Owner' };

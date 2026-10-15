@@ -22,5 +22,4 @@ services:
         sync: false
       - key: ALLOWED_ORIGINS
         sync: false
-      - key: DEMO_RESET_ENABLED
-        value: "true"
+      # Presenter controls (DEMO_CONTROLS_ENABLED) stay off: DATA_MODE=supabase defaults them to false.

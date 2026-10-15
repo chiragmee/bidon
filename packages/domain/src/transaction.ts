@@ -156,7 +156,7 @@ export function canTransition(tx: Transaction, action: TxActionType, ctx: Ctx): 
     return {
       code: 'deadline_not_passed',
       what: 'The payment deadline has not passed yet.',
-      next: `The buyer has until ${new Date(tx.paymentDeadline).toLocaleString('en-IN')} to pay (demo policy).`,
+      next: `The buyer has until ${new Date(tx.paymentDeadline).toLocaleString('en-IN')} to pay (provisional policy).`,
     };
   }
   return null;

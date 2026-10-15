@@ -159,10 +159,10 @@ describe('registerBuyer (§9)', () => {
     materials: ['Ferrous / HMS'],
   };
 
-  it('creates a demo-approved sample buyer', () => {
+  it('creates a real (non-sample) buyer, active without document checks', () => {
     const r = must(registerBuyer(seed(), good, NOW));
     expect(r.value.user).toMatchObject({ id: 'U-2000', role: 'buyer', email: 'asha@newco.example' });
-    expect(r.value.company).toMatchObject({ verification: 'demo_approved', sample: true, kind: 'buyer' });
+    expect(r.value.company).toMatchObject({ verification: 'demo_approved', sample: false, kind: 'buyer' });
     expect(buyerDashboard(r.state, 'U-2000', NOW)?.stats.activeBids).toBe(0);
   });
 

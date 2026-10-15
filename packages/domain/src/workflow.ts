@@ -74,7 +74,7 @@ export function runTxAction(
       const emd = next.emds.find((e) => e.lotId === tx.lotId && e.buyerId === tx.buyerId && e.status === 'succeeded');
       if (emd) emd.status = policyFor(lot.category).emdOutcome.defaulted;
       for (const u of [tx.buyerId, tx.sellerId]) {
-        to(u, 'transaction_defaulted', `${tx.id} marked defaulted`, `The balance wasn’t paid by the deadline. EMD ${formatINR(tx.emdAmount)} forfeited (simulated, demo policy).`);
+        to(u, 'transaction_defaulted', `${tx.id} marked defaulted`, `The balance wasn’t paid by the deadline. EMD ${formatINR(tx.emdAmount)} forfeited (simulated, provisional policy).`);
       }
       break;
     }

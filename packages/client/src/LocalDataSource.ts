@@ -53,7 +53,7 @@ const actor = (v: Viewer) => ({ id: v.id ?? 'guest', role: v.role });
 /** Same answer the API gives when the session's user no longer exists (e.g. after a data reset). */
 export const INVALID_SESSION: DsResult<never> = {
   ok: false,
-  error: { kind: 'rule', code: 'invalid_session', what: 'Your demo session isn’t valid any more.', next: 'Choose a demo account again — the data may have been reset.' },
+  error: { kind: 'rule', code: 'invalid_session', what: 'Your session isn’t valid any more.', next: 'Sign in again — the account may no longer exist.' },
 };
 
 /**

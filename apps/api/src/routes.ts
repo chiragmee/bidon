@@ -20,7 +20,10 @@ function send<T>(res: Response, r: DsResult<T>) {
 
 const viewerOf = (res: Response): Viewer => res.locals.viewer as Viewer;
 
-/** Demo session ("role:userId") from the x-demo-session header; the user must exist with that role. */
+/**
+ * Session ("role:userId") from the x-demo-session header; the user must exist with that role.
+ * Not authentication — see docs/PRODUCTION_GAPS.md #13 (D-066).
+ */
 function session(service: ApiService) {
   return async (req: Request, res: Response, next: NextFunction) => {
     const raw = req.header('x-demo-session');
@@ -28,11 +31,16 @@ function session(service: ApiService) {
     if (!raw) return next();
     const [role, userId] = decodeURIComponent(raw).split(':');
     if (!role || !userId || !(await service.verifySession(role, userId))) {
-      return next(new ApiError(401, 'invalid_session', 'Your demo session isn’t valid any more.', 'Choose a demo account again — the data may have been reset.'));
+      return next(new ApiError(401, 'invalid_session', 'Your session isn’t valid any more.', 'Sign in again — the account may no longer exist.'));
     }
     res.locals.viewer = { id: userId, role: role as Role } satisfies Viewer;
     next();
   };
+}
+
+/** Presenter-only controls refuse unless DEMO_CONTROLS_ENABLED. */
+function presenterOnly(env: Env, what: string, next = 'Nothing was changed.') {
+  if (!env.DEMO_CONTROLS_ENABLED) throw new ApiError(403, 'not_available', what, next);
 }
 
 const ROLE_NAME: Record<string, string> = { buyer: 'a buyer', seller: 'a seller', ops: 'Operations' };
@@ -41,10 +49,10 @@ const ROLE_NAME: Record<string, string> = { buyer: 'a buyer', seller: 'a seller'
 function requireRole(...roles: (Role | 'signed_in')[]) {
   return (_req: Request, res: Response, next: NextFunction) => {
     const v = viewerOf(res);
-    if (v.role === 'guest') return next(new ApiError(401, 'unauthenticated', 'You need to sign in for this.', 'Choose a demo account and try again.'));
+    if (v.role === 'guest') return next(new ApiError(401, 'unauthenticated', 'You need to sign in for this.', 'Sign in and try again.'));
     if (roles.includes('signed_in') || roles.includes(v.role)) return next();
     const need = roles.map((r) => ROLE_NAME[r] ?? r).join(' or ');
-    next(new ApiError(403, 'forbidden', `This needs ${need}.`, 'Switch to the right demo account.'));
+    next(new ApiError(403, 'forbidden', `This needs ${need}.`, 'Sign in with an account that has this role.'));
   };
 }
 
@@ -80,7 +88,15 @@ export function createRouter(service: ApiService, media: MediaStore, env: Env): 
   // ── Lots and bidding ──
   r.get('/lots', wrap(async (req, res) => send(res, await service.listLots(filtersFrom(req.query)))));
   r.get('/lots/:id', wrap(async (req, res) => send(res, await service.getLot(id(req), viewerOf(res)))));
-  r.post('/lots/:id/emd', requireRole('buyer'), wrap(async (req, res) => send(res, await service.payEmd(id(req), S.EmdBody.parse(req.body).outcome, viewerOf(res)))));
+  r.post(
+    '/lots/:id/emd',
+    requireRole('buyer'),
+    wrap(async (req, res) => {
+      const { outcome } = S.EmdBody.parse(req.body);
+      if (outcome === 'failure') presenterOnly(env, 'Simulating a failed payment isn’t available here.');
+      send(res, await service.payEmd(id(req), outcome, viewerOf(res)));
+    }),
+  );
   r.post(
     '/lots/:id/bids',
     requireRole('buyer'),
@@ -89,7 +105,14 @@ export function createRouter(service: ApiService, media: MediaStore, env: Env): 
       send(res, await service.placeBid({ lotId: id(req), amountPerMt: b.amountPerMt as number | null, clientRequestId: b.clientRequestId, seenHighestPerMt: b.seenHighestPerMt }, viewerOf(res)));
     }),
   );
-  r.post('/lots/:id/close', requireRole('ops'), wrap(async (req, res) => send(res, await service.closeDemoAuction(id(req), viewerOf(res)))));
+  r.post(
+    '/lots/:id/close',
+    requireRole('ops'),
+    wrap(async (req, res) => {
+      presenterOnly(env, 'Closing an auction early isn’t available here.', 'Auctions close automatically at their end time.');
+      send(res, await service.closeDemoAuction(id(req), viewerOf(res)));
+    }),
+  );
 
   // ── Buyer / transactions / claims ──
   r.get('/buyer/dashboard', requireRole('buyer'), wrap(async (_req, res) => send(res, await service.buyerDashboard(viewerOf(res)))));
@@ -160,11 +183,11 @@ export function createRouter(service: ApiService, media: MediaStore, env: Env): 
     }),
   );
 
-  // ── Demo controls ──
+  // ── Presenter controls (DEMO_CONTROLS_ENABLED; off against a real database) ──
   r.post(
     '/demo/reset',
     wrap(async (_req, res) => {
-      if (!env.DEMO_RESET_ENABLED) throw new ApiError(403, 'reset_disabled', 'Resetting demo data is turned off here.', 'Ask an administrator to enable DEMO_RESET_ENABLED.');
+      if (!env.DEMO_CONTROLS_ENABLED) throw new ApiError(403, 'reset_disabled', 'Resetting data isn’t available here.', 'Nothing was changed.');
       send(res, await service.reset());
     }),
   );

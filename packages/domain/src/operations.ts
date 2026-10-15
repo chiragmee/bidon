@@ -121,7 +121,7 @@ export function processDueClosures(state: DemoState, now: Iso): { state: DemoSta
 export function closeDemoAuction(state: DemoState, lotId: string, actor: Actor, now: Iso): OpResult<{ status: string; transactionId: string | null }> {
   const lot = state.lots.find((l) => l.id === lotId);
   if (!lot) return rejected(state, 'not_found', 'That lot does not exist.', 'Go back to the auctions list.');
-  if (actor.role !== 'ops') return rejected(state, 'forbidden', 'Only Operations can close a demo auction early.', 'Auctions close automatically at their end time.');
+  if (actor.role !== 'ops') return rejected(state, 'forbidden', 'Only Operations can close an auction early.', 'Auctions close automatically at their end time.');
   const status = deriveAuctionStatus(lot, now);
   if (status !== 'live' && status !== 'ended') {
     return rejected(state, 'not_live', `This auction is ${status.replace(/_/g, ' ')}, so it cannot be closed.`, 'Only live auctions can be closed.');
@@ -238,7 +238,7 @@ export function registerBuyer(state: DemoState, input: BuyerRegistration, now: I
   if (emailError) return rejected(state, 'invalid_email', emailError, 'Correct the email and try again.');
   const email = input.email.trim().toLowerCase();
   if (state.users.some((u) => u.email.toLowerCase() === email)) {
-    return rejected(state, 'duplicate_email', 'An account with this email already exists.', 'Sign in with the demo buyer, or use a different email.');
+    return rejected(state, 'duplicate_email', 'An account with this email already exists.', 'Sign in to that account, or use a different email.');
   }
   const next = clone(state);
   const ctx = stateCtx(next, now, { id: 'guest', role: 'guest' });
@@ -249,7 +249,7 @@ export function registerBuyer(state: DemoState, input: BuyerRegistration, now: I
     city: input.city.trim(),
     state: input.state.trim(),
     businessType: input.businessType,
-    sample: true,
+    sample: false,
     verification: 'demo_approved',
   };
   const user: User = { id: ctx.newId('U'), name: input.name.trim(), email, role: 'buyer', companyId: company.id, title: input.industry.trim() };
