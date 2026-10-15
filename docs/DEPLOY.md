@@ -97,6 +97,7 @@ Reseeding a database is a deliberate operator action that **replaces all data**:
 - Private documents (eligibility files, payment receipts) live in the private `account-documents` bucket; the API issues 60-second signed links only to the owner, reviewers, or the receiving seller.
 - Supabase Auth configuration for the live site (Site URL, redirect URLs, confirm email, custom SMTP) and the first reviewer: docs/PHASE1_MVP.md → "Configuration".
 - Live Auth settings and the email sender (D-099, D-100): `scripts/set-smtp-password.sh` once (stores the Gmail app password in the gitignored `supabase/.env.smtp`), then `scripts/push-auth-config.sh` — it shows the diff with passwords hidden and asks before pushing.
+- Reviewer email alerts (D-101): `scripts/deploy-email-alerts.sh` — applies migrations, sets the function's Gmail secrets (`SMTP_USER`, `SMTP_PASS`, `SITE_URL`), deploys `supabase/functions/email-alerts`, sets `app_settings.email_alerts_url`, then checks the Gmail login. Logs: Supabase dashboard → Edge Functions → email-alerts.
 
 ## Troubleshooting
 

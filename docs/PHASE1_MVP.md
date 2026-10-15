@@ -112,7 +112,7 @@ Order matters: 1 → 2 → 3 → push code → 5.
 - Unit/API: domain 256/256 · API 243/243 (contract 23 tests × 3 targets including local Postgres; security matrix with the new routes and the sign-in/role tests; `live.test.ts` against Postgres) · web 5/5 · scripts 18/18.
 - Playwright, browser demo mode, 1440 + 390: 193 passed, 21 skipped by design.
 - Playwright `e2e:http` (API + local Postgres, presenter controls on): 91 passed, 16 skipped by design.
-- Playwright against **local Supabase Auth + mail catcher**, live configuration (`e2e/auth.spec.ts`, `e2e/live-config.spec.ts`), 1440 + 390: 20/20 — sign-up and email verification, onboarding with the verified email, session kept across reloads, role guards, private document upload and a signed link that serves the file, reviewer granted by the script and approving, sign-out, wrong password, forgotten password → reset → sign-in.
+- Playwright against **local Supabase Auth + mail catcher**, live configuration (`e2e/auth.spec.ts`, `e2e/live-config.spec.ts`), 1440 + 390: 22/22 — sign-up and email verification, onboarding with the verified email, session kept across reloads, role guards, private document upload and a signed link that serves the file, reviewer invited by the script, emailed about the new application (D-101) and approving, sign-out, wrong password, forgotten password → reset → sign-in.
 - Not checked against the live Supabase project, Vercel or Render (nothing deployed; production reads were not available).
 
 ## Still blocked or deferred

@@ -39,4 +39,4 @@ Every test fails on any console error and on horizontal page scroll.
 
 ## Phase 1 MVP (2026-10-15)
 
-Real sign-in, eligibility review, offline payments and production safeguards: results and checks in [PHASE1_MVP.md](PHASE1_MVP.md). Test counts now: domain 256 · API 243 · web 5 · scripts 18 · e2e demo mode 193 (+21 skipped by design) · `e2e:http` 91 (+16) · `e2e:live` (local Supabase Auth) 20.
+Real sign-in, eligibility review, offline payments and production safeguards: results and checks in [PHASE1_MVP.md](PHASE1_MVP.md). Test counts now: domain 256 · API 243 · web 5 · scripts 18 · e2e demo mode 193 (+21 skipped by design) · `e2e:http` 91 (+16) · `e2e:live` (local Supabase Auth) 22.

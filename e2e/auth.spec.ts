@@ -35,6 +35,17 @@ async function linkFromEmail(to: string, subject: RegExp): Promise<string> {
   throw new Error(`No "${subject}" email for ${to}`);
 }
 
+/** The newest email to `to` whose subject matches. */
+async function emailTo(to: string, subject: RegExp): Promise<{ Subject: string; Text: string }> {
+  for (let i = 0; i < 40; i++) {
+    const list = (await (await fetch(`${MAIL}/api/v1/search?query=${encodeURIComponent(`to:${to}`)}`)).json()) as { messages: { ID: string; Subject: string }[] };
+    const msg = list.messages.find((m) => subject.test(m.Subject));
+    if (msg) return (await (await fetch(`${MAIL}/api/v1/message/${msg.ID}`)).json()) as { Subject: string; Text: string };
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  throw new Error(`No "${subject}" email for ${to}`);
+}
+
 async function signUp(page: Page, email: string, as: 'buyer' | 'seller') {
   await page.goto(`/sign-up?as=${as}`);
   await page.getByLabel(/Work email/).fill(email);
@@ -57,6 +68,16 @@ test.describe('real sign-in (Supabase Auth)', () => {
   test.describe.configure({ mode: 'serial' });
   const buyer = `buyer-${run}@example.com`;
   const reviewer = `reviewer-${run}@example.com`;
+  test.beforeAll(async () => {
+    if (!ON) return;
+    // Local: the database calls the email-alerts function through the API gateway inside Docker (D-101).
+    const res = await fetch('http://127.0.0.1:54321/rest/v1/app_settings', {
+      method: 'POST',
+      headers: { apikey: process.env.E2E_SERVICE_ROLE_KEY ?? '', authorization: `Bearer ${process.env.E2E_SERVICE_ROLE_KEY ?? ''}`, 'content-type': 'application/json', prefer: 'resolution=merge-duplicates' },
+      body: JSON.stringify({ key: 'email_alerts_url', value: 'http://kong:8000/functions/v1/email-alerts' }),
+    });
+    expect(res.ok, await res.text()).toBe(true);
+  });
 
   test('no sample accounts or role switching are offered; protected pages need a sign-in', async ({ page }) => {
     await page.goto('/sign-in');
@@ -98,6 +119,22 @@ test.describe('real sign-in (Supabase Auth)', () => {
     await expect(page).toHaveURL(/\/access-denied/);
   });
 
+  test('a reviewer is invited by the admin script (never at sign-up), sets a password and lands in Operations', async ({ page }) => {
+    // An administrator invites the reviewer; the email link lets them choose a password and lands in Operations.
+    execFileSync('pnpm', ['--filter', '@auctionit/api', 'invite:reviewer', reviewer, 'Riya Reviewer'], {
+      env: { ...process.env, DATABASE_URL: DB, SUPABASE_URL: 'http://127.0.0.1:54321', SUPABASE_SERVICE_ROLE_KEY: process.env.E2E_SERVICE_ROLE_KEY ?? '', SITE_URL: 'http://localhost:3000' },
+      stdio: 'pipe',
+    });
+    await page.context().clearCookies();
+    await page.goto(await linkFromEmail(reviewer, /invite/i));
+    await expect(page.getByRole('heading', { name: 'Choose your password' })).toBeVisible();
+    expect(page.url()).not.toContain('access_token'); // tokens removed from the address bar
+    await page.getByLabel(/^Password/).fill(PASSWORD);
+    await page.getByLabel(/Confirm password/).fill(PASSWORD);
+    await page.getByRole('button', { name: 'Set password and continue' }).click();
+    await expect(page).toHaveURL(/\/ops\/eligibility$/);
+  });
+
   test('the application uploads documents to private storage; only the owner can open them', async ({ page, request }) => {
     await signIn(page, buyer);
     await expect(page).toHaveURL(/\/buyer\/dashboard/);
@@ -114,26 +151,15 @@ test.describe('real sign-in (Supabase Auth)', () => {
     }
     await page.getByRole('button', { name: 'Submit for review' }).click();
     await expect(page.getByText('Under review').first()).toBeVisible();
+    // Every reviewer is emailed about the new application (D-101), with a link straight to it.
+    const alert = await emailTo(reviewer, new RegExp(`New application: NewCo ${run} applied as a buyer`));
+    expect(alert.Text).toMatch(/http:\/\/localhost:3000\/ops\/eligibility\/C-/);
     // Bucket objects aren't public: the storage URL without a signature is refused.
     const res = await request.get('http://127.0.0.1:54321/storage/v1/object/public/account-documents/anything.pdf');
     expect(res.status()).toBeGreaterThanOrEqual(400);
   });
 
-  test('a reviewer is invited by the admin script (never at sign-up), sets a password and approves the application', async ({ page }) => {
-    // An administrator invites the reviewer; the email link lets them choose a password and lands in Operations.
-    execFileSync('pnpm', ['--filter', '@auctionit/api', 'invite:reviewer', reviewer, 'Riya Reviewer'], {
-      env: { ...process.env, DATABASE_URL: DB, SUPABASE_URL: 'http://127.0.0.1:54321', SUPABASE_SERVICE_ROLE_KEY: process.env.E2E_SERVICE_ROLE_KEY ?? '', SITE_URL: 'http://localhost:3000' },
-      stdio: 'pipe',
-    });
-    await page.context().clearCookies();
-    await page.goto(await linkFromEmail(reviewer, /invite/i));
-    await expect(page.getByRole('heading', { name: 'Choose your password' })).toBeVisible();
-    expect(page.url()).not.toContain('access_token'); // tokens removed from the address bar
-    await page.getByLabel(/^Password/).fill(PASSWORD);
-    await page.getByLabel(/Confirm password/).fill(PASSWORD);
-    await page.getByRole('button', { name: 'Set password and continue' }).click();
-    await expect(page).toHaveURL(/\/ops\/eligibility$/);
-    // Signs in like anyone else afterwards, and lands on the Operations dashboard with the waiting count.
+  test('the reviewer signs in, sees the waiting count and approves the application', async ({ page }) => {
     await page.context().clearCookies();
     await signIn(page, reviewer);
     await expect(page).toHaveURL(/\/ops$/);

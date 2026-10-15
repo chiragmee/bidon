@@ -381,8 +381,18 @@ inspector_port = 8083
 # The Deno major version to use.
 deno_version = 2
 
-# [edge_runtime.secrets]
-# secret_key = "env(SECRET_VALUE)"
+# Local email alerts go to the mail catcher (Mailpit) inside the Docker network (D-101).
+[edge_runtime.secrets]
+SMTP_HOST = "inbucket"
+ALERTS_DB_URL = "postgresql://postgres:postgres@db:5432/postgres"
+SMTP_PORT = "1025"
+SMTP_SECURE = "false"
+SMTP_FROM = "alerts@auctionit.local"
+SITE_URL = "http://localhost:3000"
+
+# Called by the database (trigger and pg_cron), not by signed-in users; it only sends what is queued.
+[functions.email-alerts]
+verify_jwt = false
 
 [analytics]
 enabled = true
