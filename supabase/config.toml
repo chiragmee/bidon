@@ -424,13 +424,24 @@ site_url = "https://auctionit-sand.vercel.app"
 additional_redirect_urls = ["https://auctionit-sand.vercel.app/**"]
 
 [remotes.production.auth.rate_limit]
-# Supabase's built-in mailer allows only a few emails an hour; raise this once a custom SMTP sender is configured.
-email_sent = 2
+# Emails Auth may send per hour through the custom sender below (Gmail allows about 500 a day).
+email_sent = 30
 
 # Keep the hosted project's current values for everything this repo doesn't intend to change.
 [remotes.production.auth.email]
 max_frequency = "1m0s"
 otp_length = 8
+
+# Custom sender: a Gmail account with an app password (D-100). The password is never committed: it is read from
+# SUPABASE_AUTH_SMTP_PASS in the gitignored supabase/.env.smtp when pushing (see docs/DEPLOY.md).
+[remotes.production.auth.email.smtp]
+enabled = true
+host = "smtp.gmail.com"
+port = 587
+user = "env(SUPABASE_AUTH_SMTP_USER)"
+pass = "env(SUPABASE_AUTH_SMTP_PASS)"
+admin_email = "env(SUPABASE_AUTH_SMTP_USER)"
+sender_name = "AuctionIT"
 
 [remotes.production.auth.mfa.totp]
 enroll_enabled = true

@@ -96,6 +96,7 @@ Reseeding a database is a deliberate operator action that **replaces all data**:
 - Presenter controls (reset, early close, sample accounts) are refused against any non-local database even if `DEMO_CONTROLS_ENABLED=true`.
 - Private documents (eligibility files, payment receipts) live in the private `account-documents` bucket; the API issues 60-second signed links only to the owner, reviewers, or the receiving seller.
 - Supabase Auth configuration for the live site (Site URL, redirect URLs, confirm email, custom SMTP) and the first reviewer: docs/PHASE1_MVP.md → "Configuration".
+- Live Auth settings and the email sender (D-099, D-100): `scripts/set-smtp-password.sh` once (stores the Gmail app password in the gitignored `supabase/.env.smtp`), then `scripts/push-auth-config.sh` — it shows the diff with passwords hidden and asks before pushing.
 
 ## Troubleshooting
 
