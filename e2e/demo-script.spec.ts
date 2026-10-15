@@ -32,12 +32,22 @@ test('demo script, acts 1–7', async ({ page }) => {
     await expect(la.getByText(t).first()).toBeVisible();
   }
 
-  // 3. Bidding.
+  // 3. EMD paid offline: the buyer reports it, the seller confirms receipt, then bidding.
   await action(page, 'Pay EMD to bid').click();
-  await page.getByRole('button', { name: /Simulate a failed payment/ }).click();
-  await page.getByRole('button', { name: 'Try again' }).click();
-  await page.getByRole('button', { name: 'Pay ₹1,00,000 (simulated)' }).click();
-  await page.getByRole('button', { name: 'Continue to bid' }).click();
+  const emd = page.getByRole('dialog', { name: 'Pay the EMD, then report it' });
+  await emd.getByLabel(/UTR number/).fill('UTR000123456');
+  await emd.getByLabel(/Paid from/).fill('Vardhan Infra Projects Pvt Ltd');
+  await emd.getByRole('button', { name: 'Report EMD payment' }).click();
+  await page.getByRole('dialog', { name: 'EMD payment reported' }).getByRole('button', { name: 'Done' }).click();
+  await switchRole(page, 'Seller');
+  await page.getByRole('link', { name: 'Dashboard', exact: true }).filter({ visible: true }).first().click();
+  const row = page.getByRole('listitem', { name: 'EMD from Vardhan Infra Projects Pvt Ltd' });
+  await row.getByRole('button', { name: 'Confirm receipt' }).click();
+  await expect(page.getByText('EMD from Vardhan Infra Projects Pvt Ltd confirmed.')).toBeVisible();
+  await expect(row).toHaveCount(0); // checked off the dashboard list
+  await switchRole(page, 'Buyer');
+  await page.goto('/auctions/LOT-2025-0891');
+  await action(page, 'Place bid').click();
   await page.getByRole('button', { name: 'Review bid' }).click();
   await page.getByRole('button', { name: 'Confirm bid' }).click();
   await expect(page.getByText('Bid placed: ₹35,000/MT')).toBeVisible();
@@ -49,8 +59,15 @@ test('demo script, acts 1–7', async ({ page }) => {
   await page.getByRole('button', { name: /Close auction/ }).click();
   await switchRole(page, 'Buyer');
   await action(page, 'Go to your transaction').click();
-  await page.getByRole('button', { name: 'Pay ₹13,00,000 balance (simulated)' }).click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Pay balance (simulated)' }).click();
+  const balance = page.getByRole('region', { name: 'Balance payment' });
+  await balance.getByLabel(/UTR number/).fill('UTR-BALANCE-0001');
+  await balance.getByLabel(/Paid from/).fill('Vardhan Infra Projects Pvt Ltd');
+  await balance.getByRole('button', { name: 'Report balance payment' }).click();
+  await expect(balance.getByText('Reported. Waiting for the seller to confirm receiving it')).toBeVisible();
+  await switchRole(page, 'Seller');
+  await page.getByRole('button', { name: 'Confirm receipt of ₹13,00,000' }).click();
+  await expect(page.getByRole('region', { name: 'Balance payment' }).getByText('Receipt confirmed by seller')).toBeVisible();
+  await switchRole(page, 'Buyer');
   await page.getByLabel(/Vehicle number/).fill('MH 04 GP 8812');
   await page.getByRole('button', { name: 'Propose lifting date' }).click();
   await expect(page.getByText('Waiting for the seller to confirm.')).toBeVisible();
@@ -66,7 +83,7 @@ test('demo script, acts 1–7', async ({ page }) => {
   await page.getByRole('group', { name: 'Weighbridge ticket' }).getByLabel('Choose files').setInputFiles({ ...PNG, name: 'ticket.png' });
   await expect(page.getByText('1 file attached')).toBeVisible();
   await wb.getByRole('button', { name: 'Record measurement' }).click();
-  await expect(page.getByText('Refund due to the buyer: ₹49,000 (simulated).')).toBeVisible();
+  await expect(page.getByText('Refund due to the buyer: ₹49,000.')).toBeVisible();
 
   // 5. Material is off → claim.
   const cond = page.getByRole('region', { name: 'Condition — visual check' });
@@ -91,7 +108,7 @@ test('demo script, acts 1–7', async ({ page }) => {
   await page.getByRole('link', { name: 'Review CLM-1042-01' }).click();
   for (const col of ['Seller declaration', 'Lifting and buyer evidence', 'Seller’s position']) await expect(page.getByRole('region', { name: col })).toBeVisible();
   await page.getByText('Approve price adjustment').click();
-  await expect(page.getByText('Deduct ₹83,376 from the price (simulated)')).toBeVisible();
+  await expect(page.getByText('Deduct ₹83,376 from the price')).toBeVisible();
   await page.getByLabel(/Reason for the decision/).fill('Lifting photos show slag below the top layer; 14% exceeds the 8% limit.');
   await page.getByRole('button', { name: 'Record decision' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Record decision' }).click();

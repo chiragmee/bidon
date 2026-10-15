@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { hasEmd } from './auction';
-import { closeDemoAuction, markNotificationsRead, payEmd, placeBid, processDueClosures, registerBuyer, validateEmail, type BuyerRegistration } from './operations';
+import { closeDemoAuction, markNotificationsRead, placeBid, processDueClosures, registerBuyer, validateEmail, type BuyerRegistration } from './operations';
+import { confirmedEmd, payment } from './fixtures';
+import { decideEmd, recordEmdRefund, submitEmd } from './payments';
 import { createSeed } from './seed';
 import { buyerDashboard, listLots, lotDetail, transactionSummary } from './views';
 
@@ -21,9 +23,10 @@ describe('journey A in operations: EMD → bid → close → transaction', () =>
     let s = seed();
     expect(lotDetail(s, 'LOT-2025-0891', RAHUL, NOW)?.viewer.emdPaid).toBe(false);
 
-    const emd = must(payEmd(s, { lotId: 'LOT-2025-0891', outcome: 'success' }, RAHUL, NOW));
-    s = emd.state;
-    expect(emd.value).toMatchObject({ id: 'EMD-2000', status: 'succeeded', mode: 'simulated', amount: 100_000 });
+    const emd = must(submitEmd(s, 'LOT-2025-0891', payment(100_000, NOW), RAHUL, NOW));
+    expect(emd.value).toMatchObject({ id: 'EMD-2000', status: 'submitted', mode: 'manual', amount: 100_000 });
+    expect(hasEmd(emd.state.emds, 'LOT-2025-0891', 'U-RAHUL')).toBe(false);
+    s = must(decideEmd(emd.state, 'EMD-2000', { decision: 'confirmed', reason: '' }, SURESH, NOW)).state;
     expect(hasEmd(s.emds, 'LOT-2025-0891', 'U-RAHUL')).toBe(true);
 
     const bid = must(placeBid(s, { lotId: 'LOT-2025-0891', amountPerMt: 35_000, clientRequestId: 'r1', seenHighestPerMt: 34_500 }, RAHUL, NOW));
@@ -41,8 +44,9 @@ describe('journey A in operations: EMD → bid → close → transaction', () =>
     const tx = s.transactions.find((t) => t.id === txId)!;
     expect(tx).toMatchObject({ buyerId: 'U-RAHUL', pricePerMt: 35_000, status: 'won_awaiting_balance', sellerId: 'U-SURESH' });
 
-    // Losing bidders' EMDs refunded (simulated); everyone notified.
-    expect(s.emds.filter((e) => e.lotId === 'LOT-2025-0891' && e.buyerId !== 'U-RAHUL').every((e) => e.status === 'refunded')).toBe(true);
+    // Losing bidders' EMDs are owed back until the seller records each refund; the winner's counts toward the price.
+    expect(s.emds.filter((e) => e.lotId === 'LOT-2025-0891' && e.buyerId !== 'U-RAHUL').every((e) => e.status === 'refund_due')).toBe(true);
+    expect(s.emds.find((e) => e.lotId === 'LOT-2025-0891' && e.buyerId === 'U-RAHUL')?.status).toBe('confirmed');
     expect(s.notifications.findLast((n) => n.userId === 'U-RAHUL' && n.kind === 'auction_won')?.href).toBe(`/transactions/${txId}`);
 
     // Same state across roles.
@@ -57,17 +61,53 @@ describe('journey A in operations: EMD → bid → close → transaction', () =>
   });
 });
 
-describe('payEmd', () => {
-  it('failure records a failed simulated payment and does not enable bidding', () => {
-    const r = payEmd(seed(), { lotId: 'LOT-2025-0891', outcome: 'failure' }, RAHUL, NOW);
-    expect(r.ok).toBe(false);
-    if (r.ok) return;
-    expect(r.error.code).toBe('payment_failed');
-    expect(r.state.emds.at(-1)).toMatchObject({ status: 'failed', buyerId: 'U-RAHUL' });
-    expect(hasEmd(r.state.emds, 'LOT-2025-0891', 'U-RAHUL')).toBe(false);
-    expect(lotDetail(r.state, 'LOT-2025-0891', RAHUL, NOW)?.viewer.emdFailed).toBe(true);
-    // Retry succeeds.
-    expect(payEmd(r.state, { lotId: 'LOT-2025-0891', outcome: 'success' }, RAHUL, NOW).ok).toBe(true);
+describe('EMD: buyer reports, seller confirms (offline payment)', () => {
+  const ANITA = { id: 'U-ANITA', role: 'buyer' as const };
+
+  it('a reported payment does not allow bidding until the seller confirms it', () => {
+    const r = must(submitEmd(seed(), 'LOT-2025-0891', payment(100_000, NOW), RAHUL, NOW));
+    expect(r.state.notifications.at(-1)).toMatchObject({ userId: 'U-SURESH', kind: 'emd_submitted' });
+    expect(lotDetail(r.state, 'LOT-2025-0891', RAHUL, NOW)?.viewer).toMatchObject({ emdPaid: false, emd: { status: 'submitted', payment: { reference: 'UTR000123456' } } });
+    const bid = placeBid(r.state, { lotId: 'LOT-2025-0891', amountPerMt: 35_000, clientRequestId: 'x', seenHighestPerMt: 34_500 }, RAHUL, NOW);
+    expect(bid.ok ? 'ok' : bid.error.code).toBe('emd_required');
+    const again = submitEmd(r.state, 'LOT-2025-0891', payment(100_000, NOW), RAHUL, NOW);
+    expect(again.ok ? 'ok' : again.error.code).toBe('already_submitted');
+  });
+
+  it('rejection needs a reason; the buyer corrects and resubmits, keeping the history', () => {
+    let s = must(submitEmd(seed(), 'LOT-2025-0891', payment(100_000, NOW, 'UTR-WRONG'), RAHUL, NOW)).state;
+    const noReason = decideEmd(s, 'EMD-2000', { decision: 'rejected', reason: '' }, SURESH, NOW);
+    expect(noReason.ok ? 'ok' : noReason.error.code).toBe('reason_required');
+    s = must(decideEmd(s, 'EMD-2000', { decision: 'rejected', reason: 'No credit with this UTR' }, SURESH, NOW)).state;
+    expect(lotDetail(s, 'LOT-2025-0891', RAHUL, NOW)?.viewer.emd).toMatchObject({ status: 'rejected', decision: { reason: 'No credit with this UTR', decidedBy: 'U-SURESH' } });
+    s = must(submitEmd(s, 'LOT-2025-0891', payment(100_000, NOW, 'UTR-RIGHT'), RAHUL, NOW)).state;
+    const e = s.emds.find((x) => x.id === 'EMD-2000')!;
+    expect(e).toMatchObject({ status: 'submitted', reference: 'UTR-RIGHT' });
+    expect(e.history?.map((h) => h.type)).toEqual(['submitted', 'decided', 'submitted']);
+    expect(s.audit.filter((a) => a.entityId === 'EMD-2000').map((a) => a.action)).toEqual(['submit_emd', 'reject_emd', 'resubmit_emd']);
+  });
+
+  it('only the lot’s seller confirms, and only a waiting payment', () => {
+    const s = must(submitEmd(seed(), 'LOT-2025-0891', payment(100_000, NOW), RAHUL, NOW)).state;
+    for (const actor of [RAHUL, OPS, { id: 'U-IMRAN', role: 'seller' as const }]) {
+      const r = decideEmd(s, 'EMD-2000', { decision: 'confirmed', reason: '' }, actor, NOW);
+      expect(r.ok ? 'ok' : r.error.code).toBe('forbidden');
+    }
+    const confirmed = must(decideEmd(s, 'EMD-2000', { decision: 'confirmed', reason: '' }, SURESH, NOW)).state;
+    const twice = decideEmd(confirmed, 'EMD-2000', { decision: 'rejected', reason: 'changed my mind' }, SURESH, NOW);
+    expect(twice.ok ? 'ok' : twice.error.code).toBe('not_pending');
+  });
+
+  it.each([
+    [{ amount: 90_000 }, 'amount_mismatch'],
+    [{ reference: '' }, 'invalid_payment'],
+    [{ payerName: '' }, 'invalid_payment'],
+    [{ paidOn: '2099-01-01' }, 'invalid_payment'],
+    [{ method: 'cash' }, 'invalid_payment'],
+    [{ receiptDocumentId: 'DOC-NOT-MINE' }, 'invalid_receipt'],
+  ] as const)('reported payment %o → %s', (patch, code) => {
+    const r = submitEmd(seed(), 'LOT-2025-0891', { ...payment(100_000, NOW), ...patch } as never, RAHUL, NOW);
+    expect(r.ok ? 'ok' : r.error.code).toBe(code);
   });
 
   it.each([
@@ -76,19 +116,42 @@ describe('payEmd', () => {
     ['LOT-2025-0866', RAHUL, 'auction_closed'],
     ['LOT-2025-0899', RAHUL, 'already_paid'],
   ] as const)('%s by %o → %s', (lotId, actor, code) => {
-    const r = payEmd(seed(), { lotId, outcome: 'success' }, actor, NOW);
+    const r = submitEmd(seed(), lotId, payment(seed().lots.find((l) => l.id === lotId)?.emdAmount ?? 1, NOW), actor, NOW);
     expect(r.ok ? 'ok' : r.error.code).toBe(code);
   });
 
   it('a buyer account cannot pay EMD on a lot it sells', () => {
     const s = seed();
     s.lots.find((l) => l.id === 'LOT-2025-0891')!.sellerId = 'U-RAHUL';
-    const r = payEmd(s, { lotId: 'LOT-2025-0891', outcome: 'success' }, RAHUL, NOW);
+    const r = submitEmd(s, 'LOT-2025-0891', payment(100_000, NOW), RAHUL, NOW);
     expect(r.ok ? 'ok' : r.error.code).toBe('own_lot');
   });
 
-  it('can be paid before an auction opens', () => {
-    expect(payEmd(seed(), { lotId: 'LOT-2025-0910', outcome: 'success' }, RAHUL, NOW).ok).toBe(true);
+  it('only approved buyers report an EMD; the reason depends on their status', () => {
+    const s = seed();
+    s.companies.find((c) => c.id === 'C-VARDHAN')!.verification = 'pending_review';
+    const r = submitEmd(s, 'LOT-2025-0891', payment(100_000, NOW), RAHUL, NOW);
+    expect(r.ok ? 'ok' : r.error).toMatchObject({ code: 'not_eligible', next: expect.stringMatching(/under review/) });
+    expect(lotDetail(s, 'LOT-2025-0891', RAHUL, NOW)?.viewer).toMatchObject({ eligible: false, paymentInstructions: null });
+  });
+
+  it('can be reported before an auction opens', () => {
+    expect(submitEmd(seed(), 'LOT-2025-0910', payment(seed().lots.find((l) => l.id === 'LOT-2025-0910')!.emdAmount, NOW), RAHUL, NOW).ok).toBe(true);
+  });
+
+  it('losing and unsold EMDs are owed back; the seller records each refund in full', () => {
+    let s = confirmedEmd(seed(), 'LOT-2025-0891', RAHUL, NOW);
+    s = must(closeDemoAuction(s, 'LOT-2025-0891', OPS, later(0.1))).state;
+    const due = s.emds.filter((e) => e.lotId === 'LOT-2025-0891' && e.status === 'refund_due');
+    expect(due.length).toBeGreaterThan(0);
+    const id = due[0]!.id;
+    const partial = recordEmdRefund(s, id, { amount: 1, refundedOn: NOW.slice(0, 10), reference: 'UTR-REF-1', note: '' }, SURESH, later(0.2));
+    expect(partial.ok ? 'ok' : partial.error.code).toBe('invalid_refund');
+    const byBuyer = recordEmdRefund(s, id, { amount: due[0]!.amount, refundedOn: NOW.slice(0, 10), reference: 'UTR-REF-1', note: '' }, ANITA, later(0.2));
+    expect(byBuyer.ok ? 'ok' : byBuyer.error.code).toBe('forbidden');
+    const r = must(recordEmdRefund(s, id, { amount: due[0]!.amount, refundedOn: NOW.slice(0, 10), reference: 'UTR-REF-1', note: 'Refunded to source account' }, SURESH, later(0.2)));
+    expect(r.value).toMatchObject({ status: 'refunded', refund: { reference: 'UTR-REF-1', recordedBy: 'U-SURESH' } });
+    expect(r.state.notifications.at(-1)).toMatchObject({ userId: due[0]!.buyerId, kind: 'refund_recorded' });
   });
 });
 
@@ -99,7 +162,7 @@ describe('placeBid', () => {
     expect(r.ok ? 'ok' : r.error.code).toBe('emd_required');
     expect(r.state).toBe(s);
 
-    let st = must(payEmd(s, { lotId: 'LOT-2025-0891', outcome: 'success' }, RAHUL, NOW)).state;
+    let st = confirmedEmd(s, 'LOT-2025-0891', RAHUL, NOW);
     st = must(placeBid(st, { lotId: 'LOT-2025-0891', amountPerMt: 35_000, clientRequestId: 'same', seenHighestPerMt: 34_500 }, RAHUL, NOW)).state;
     const dup = placeBid(st, { lotId: 'LOT-2025-0891', amountPerMt: 35_000, clientRequestId: 'same', seenHighestPerMt: 34_500 }, RAHUL, NOW);
     expect(dup.ok ? 'ok' : dup.error.code).toBe('duplicate');
@@ -107,7 +170,7 @@ describe('placeBid', () => {
   });
 
   it('stale bid after someone else outbids → outbid with the new minimum', () => {
-    let s = must(payEmd(seed(), { lotId: 'LOT-2025-0894', outcome: 'success' }, { id: 'U-ANITA', role: 'buyer' }, NOW)).state;
+    let s = confirmedEmd(seed(), 'LOT-2025-0894', { id: 'U-ANITA', role: 'buyer' }, NOW);
     s = must(placeBid(s, { lotId: 'LOT-2025-0894', amountPerMt: 1_92_000, clientRequestId: 'a', seenHighestPerMt: 1_90_000 }, { id: 'U-ANITA', role: 'buyer' }, NOW)).state;
     const r = placeBid(s, { lotId: 'LOT-2025-0894', amountPerMt: 1_92_000, clientRequestId: 'b', seenHighestPerMt: 1_90_000 }, RAHUL, NOW);
     expect(r.ok ? 'ok' : r.error).toMatchObject({ code: 'outbid', next: expect.stringContaining('₹1,94,000/MT') });
@@ -151,6 +214,7 @@ describe('registerBuyer (§9)', () => {
   const good: BuyerRegistration = {
     name: 'Asha Menon',
     email: 'asha@newco.example',
+    phone: '98765 43210',
     companyName: 'NewCo Metals',
     businessType: 'Scrap trader / stockist',
     city: 'Nagpur',
@@ -159,10 +223,12 @@ describe('registerBuyer (§9)', () => {
     materials: ['Ferrous / HMS'],
   };
 
-  it('creates a real (non-sample) buyer, active without document checks', () => {
-    const r = must(registerBuyer(seed(), good, NOW));
-    expect(r.value.user).toMatchObject({ id: 'U-2000', role: 'buyer', email: 'asha@newco.example' });
-    expect(r.value.company).toMatchObject({ verification: 'demo_approved', sample: false, kind: 'buyer' });
+  it('creates a real (non-sample) buyer that must apply for approval before bidding', () => {
+    const r = must(registerBuyer(seed(), { ...good, authUserId: 'auth-asha' }, NOW));
+    expect(r.value.user).toMatchObject({ id: 'U-2000', role: 'buyer', email: 'asha@newco.example', phone: '+919876543210', authUserId: 'auth-asha' });
+    expect(r.value.company).toMatchObject({ verification: 'incomplete', sample: false, kind: 'buyer' });
+    const emd = submitEmd(r.state, 'LOT-2025-0891', payment(100_000, NOW), { id: 'U-2000', role: 'buyer' }, NOW);
+    expect(emd.ok ? 'ok' : emd.error.code).toBe('not_eligible');
     expect(buyerDashboard(r.state, 'U-2000', NOW)?.stats.activeBids).toBe(0);
   });
 
@@ -170,7 +236,8 @@ describe('registerBuyer (§9)', () => {
     [{ name: '', materials: [] }, 'incomplete_profile', /your name.*materials of interest/],
     [{ email: 'rahul@tata..com' }, 'invalid_email', /two dots/],
     [{ email: 'not-an-email' }, 'invalid_email', /isn't a valid email/],
-    [{ email: 'Rahul.Sharma@vardhan.example' }, 'duplicate_email', /already exists/],
+    [{ email: 'Rahul.Sharma@vardhan.example' }, 'duplicate_account', /already uses this email, mobile number or sign-in/],
+    [{ phone: '12345' }, 'invalid_phone', /10-digit/],
   ] as const)('%o → %s', (patch, code, msg) => {
     const r = registerBuyer(seed(), { ...good, ...patch } as BuyerRegistration, NOW);
     expect(r.ok ? 'ok' : r.error.code).toBe(code);
@@ -228,7 +295,7 @@ describe('views', () => {
     const d = buyerDashboard(s, 'U-RAHUL', NOW)!;
     expect(d.stats).toMatchObject({ activeBids: 2, leading: 1, outbid: 1, closingSoon: 1, wonNextStep: 1, inProgress: 2, completed: 1 });
     expect(d.transactions.map((t) => t.id)).toEqual(['TX-1038', 'TX-1045', 'TX-1042']);
-    expect(d.transactions[0]).toMatchObject({ yourTurn: true, next: { action: 'pay_balance' }, balanceDue: 8_45_000 });
+    expect(d.transactions[0]).toMatchObject({ yourTurn: true, next: { action: 'submit_balance_payment' }, balanceDue: 8_45_000 });
     expect(d.transactions.find((t) => t.id === 'TX-1045')).toMatchObject({ yourTurn: false, next: { role: 'seller' } });
     expect(buyerDashboard(s, 'U-SURESH', NOW)).toBeNull();
   });

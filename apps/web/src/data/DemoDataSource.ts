@@ -1,5 +1,5 @@
 import { LocalDataSource, type StateStore } from '@auctionit/client';
-import { previewUrl } from '@/lib/uploads';
+import { keepDocument, previewUrl } from '@/lib/uploads';
 import { loadState, resetState, saveState, subscribe } from './demoStore';
 
 /**
@@ -22,6 +22,6 @@ function shouldFail(op: string): boolean {
 /** Demo mode: packages/domain running in the browser over localStorage (shared across tabs). */
 export class DemoDataSource extends LocalDataSource {
   constructor() {
-    super(browserStore, { latencyMs: [150, 400], shouldFail, preview: previewUrl });
+    super(browserStore, { latencyMs: [150, 400], shouldFail, preview: previewUrl, keepDocument });
   }
 }

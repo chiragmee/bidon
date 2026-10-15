@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ArrowLeftRight, ClipboardList, Gavel, LayoutDashboard, PlusSquare, ShieldCheck } from 'lucide-react';
+import { ArrowLeftRight, BadgeCheck, ClipboardList, Gavel, LayoutDashboard, PlusSquare, ShieldCheck, UserCheck } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import type { Role } from '@auctionit/domain';
 import { Banner, Button } from '@/components/ui';
 import { useData, useDataRecovered } from '@/data';
 import { cn } from '@/lib/cn';
+import { AUTH_ENABLED } from '@/lib/flags';
 import { useSession } from '@/lib/SessionProvider';
 import { AppHeader, isActive } from './AppHeader';
 
@@ -65,12 +66,12 @@ export function Footer() {
         <nav aria-label="Footer" className="flex flex-col gap-xs">
           <Link href="/auctions" className="text-primary hover:underline">Explore auctions</Link>
           <Link href="/lot-assurance" className="text-primary hover:underline">How Lot Assurance works</Link>
-          <Link href="/sign-in?as=seller" className="text-primary hover:underline">Sell surplus</Link>
+          <Link href={AUTH_ENABLED ? '/sign-up?as=seller' : '/sign-in?as=seller'} className="text-primary hover:underline">Sell surplus</Link>
           <Link href="/sign-in" className="text-primary hover:underline">Sign in</Link>
         </nav>
         <div className="flex flex-col gap-xs text-text-secondary">
           <p className="text-caption">
-            EMD, balance payments and refunds are recorded without moving money — no payment provider is connected yet. Records marked
+            AuctionIT doesn’t collect or move money: buyers pay sellers directly, report the payment here, and the seller confirms receiving it. Records marked
             “Sample data” are fictional examples. Lot Assurance tolerances and remedies are provisional, not yet approved terms.
           </p>
         </div>
@@ -101,15 +102,18 @@ const WORKSPACE_NAV: Record<Exclude<Role, 'guest'>, { href: string; label: strin
     { href: '/buyer/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
     { href: '/auctions', label: 'Auctions', Icon: Gavel },
     { href: '/lot-assurance', label: 'Lot Assurance', Icon: ShieldCheck },
+    { href: '/account', label: 'Account', Icon: BadgeCheck },
   ],
   seller: [
     { href: '/seller/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
     { href: '/seller/lots', label: 'My lots', Icon: ClipboardList },
     { href: '/seller/lots/new', label: 'New lot', Icon: PlusSquare },
     { href: '/auctions', label: 'Auctions', Icon: Gavel },
+    { href: '/account', label: 'Account', Icon: BadgeCheck },
   ],
   ops: [
     { href: '/ops', label: 'Operations', Icon: LayoutDashboard },
+    { href: '/ops/eligibility', label: 'Eligibility', Icon: UserCheck },
     { href: '/ops/auctions', label: 'Auctions', Icon: Gavel },
     { href: '/auctions', label: 'Marketplace', Icon: ArrowLeftRight },
   ],

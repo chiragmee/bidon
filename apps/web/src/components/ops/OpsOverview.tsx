@@ -325,7 +325,7 @@ function Queue({ rows, empty }: { rows: OpsOverviewView['queue']; empty: string 
 
 export function OpsOverview() {
   const { viewer } = useSession();
-  const q = useQuery('ops-overview', (ds) => ds.opsOverview(viewer), { pollMs: 10_000 });
+  const q = useQuery('ops-overview', (ds) => ds.opsOverview(viewer), { pollMs: 10_000, enabled: viewer.role === 'ops' });
   if (q.error && !q.data) {
     return (
       <Container>
@@ -519,7 +519,7 @@ export function OpsOverview() {
 
 export function OpsAuctions() {
   const { viewer } = useSession();
-  const q = useQuery('ops-auctions', (ds) => ds.opsOverview(viewer), { pollMs: 10_000 });
+  const q = useQuery('ops-auctions', (ds) => ds.opsOverview(viewer), { pollMs: 10_000, enabled: viewer.role === 'ops' });
   return (
     <Container className="flex flex-col gap-lg">
       <PageHeader overline="Operations" title="Auctions and results">

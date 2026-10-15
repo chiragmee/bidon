@@ -20,3 +20,18 @@ export async function previewUrl(file: File): Promise<string> {
     return '';
   }
 }
+
+/**
+ * Browser demo mode: private documents stay in this browser — photos as a small JPEG, PDFs up to 300 KB as-is;
+ * anything larger keeps only its name. The live site stores them in the private Supabase bucket instead.
+ */
+export async function keepDocument(file: File): Promise<string> {
+  if (kindOf(file.type) === 'photo') return previewUrl(file);
+  if (file.type !== 'application/pdf' || file.size > 300 * 1024) return '';
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
+    reader.onerror = () => resolve('');
+    reader.readAsDataURL(file);
+  });
+}

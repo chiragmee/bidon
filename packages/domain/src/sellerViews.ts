@@ -9,6 +9,9 @@ import { describeTrackRecord, sellerTrackRecord } from './trackRecord';
 import type { CategoryId, Company, Iso, Rejection } from './types';
 import type { TransactionCardView } from './views';
 import { transactionCard } from './views';
+import { isEligible } from './eligibilityPolicy';
+import type { EmdView } from './payments';
+import { emdView } from './payments';
 
 export type SellerTab = 'drafts' | 'scheduled' | 'live' | 'closed';
 
@@ -43,6 +46,12 @@ export interface SellerDashboardView {
   /** Transactions where the seller has a step to take, then the rest still open. */
   transactions: TransactionCardView[];
   claimsToAnswer: { claimId: string; txId: string; lotTitle: string; observed: string; buyer: string }[];
+  /** Approved to publish (eligibility review). */
+  eligible: boolean;
+  /** Buyers' reported EMD payments waiting for this seller to check and confirm. */
+  emdsToConfirm: EmdView[];
+  /** EMDs this seller owes back (losing bidders, unsold lots, exits) — record each refund once made. */
+  emdRefundsDue: EmdView[];
 }
 
 function tabOf(s: DerivedStatus): SellerTab {
@@ -99,6 +108,12 @@ export function sellerDashboard(state: DemoState, sellerId: string, now: Iso): S
       observed: c.observed,
       buyer: state.companies.find((co) => co.id === state.users.find((u) => u.id === c.buyerId)?.companyId)?.name ?? '',
     }));
+  const myLots = new Set(state.lots.filter((l) => l.sellerId === sellerId).map((l) => l.id));
+  const sellerEmds = (status: EmdView['status']) =>
+    state.emds
+      .filter((e) => myLots.has(e.lotId) && e.status === status)
+      .sort((a, b) => ms(a.payment?.submittedAt ?? a.createdAt) - ms(b.payment?.submittedAt ?? b.createdAt))
+      .map((e) => emdView(state, e));
   const record = sellerTrackRecord(sellerId, state.transactions, state.claims);
   const tabs: Record<SellerTab, number> = { drafts: 0, scheduled: 0, live: 0, closed: 0 };
   for (const l of lots) tabs[l.tab] += 1;
@@ -121,6 +136,9 @@ export function sellerDashboard(state: DemoState, sellerId: string, now: Iso): S
     tabs,
     transactions: open,
     claimsToAnswer,
+    eligible: isEligible(company),
+    emdsToConfirm: sellerEmds('submitted'),
+    emdRefundsDue: sellerEmds('refund_due'),
   };
 }
 
@@ -129,6 +147,10 @@ export interface SellerLotView {
   edit: { details: Rejection | null; reserve: Rejection | null; bids: Rejection | null };
   blockers: { step: WizardStep; field: string; message: string }[];
   transactionId: string | null;
+  /** Every buyer's EMD on this lot — reported, confirmed, rejected or refunded. */
+  emds: EmdView[];
+  /** Approved to publish (eligibility review). */
+  eligible: boolean;
 }
 
 /** Extras for the seller's own lot page; the shared lotDetail supplies the rest. */
@@ -144,5 +166,7 @@ export function sellerLot(state: DemoState, lotId: string, sellerId: string, now
     },
     blockers: lot.status === 'draft' ? publishBlockers(draftFromLot(lot), now) : [],
     transactionId: state.transactions.find((t) => t.lotId === lotId)?.id ?? null,
+    emds: state.emds.filter((e) => e.lotId === lotId).map((e) => emdView(state, e)),
+    eligible: isEligible(state.companies.find((c) => c.id === lot.sellerCompanyId)),
   };
 }

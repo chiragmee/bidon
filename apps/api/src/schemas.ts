@@ -13,7 +13,17 @@ const media = z.object({
 export const MediaList = z.array(media).max(40);
 export type MediaInput = z.infer<typeof media>;
 
-export const EmdBody = z.object({ outcome: z.enum(['success', 'failure']) });
+// Amounts and dates are checked by the domain (paymentProblem), so wording matches demo mode.
+export const PaymentBody = z.object({
+  amount: z.number(),
+  method: z.enum(['neft', 'rtgs', 'imps', 'upi', 'cheque', 'demand_draft']),
+  paidOn: z.string().max(10),
+  reference: z.string().max(80),
+  payerName: z.string().max(200),
+  receiptDocumentId: z.string().max(80).nullable(),
+});
+export const RefundBody = z.object({ amount: z.number(), refundedOn: z.string().max(10), reference: z.string().max(80), note: z.string().max(500) });
+export const PaymentDecisionBody = z.object({ decision: z.enum(['confirmed', 'rejected']), reason: z.string().max(500) });
 
 // Amount is left to the domain so a bad value gets the same "invalid_amount" answer as demo mode.
 export const BidBody = z.object({
@@ -24,7 +34,10 @@ export const BidBody = z.object({
 
 const num = z.number();
 export const TxAction = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('pay_balance') }),
+  z.object({ type: z.literal('submit_balance_payment'), payment: PaymentBody }),
+  z.object({ type: z.literal('confirm_balance_payment') }),
+  z.object({ type: z.literal('reject_balance_payment'), reason: z.string().max(500) }),
+  z.object({ type: z.literal('record_refund'), refund: RefundBody }),
   z.object({ type: z.literal('propose_lifting'), at: z.string(), vehicle: z.string().max(40) }),
   z.object({ type: z.literal('confirm_lifting') }),
   z.object({
@@ -89,6 +102,7 @@ export const DraftBody = z
 export const BuyerRegistration = z.object({
   name: z.string().max(120),
   email: z.string().max(200),
+  phone: z.string().max(30),
   companyName: z.string().max(200),
   businessType: z.string().max(120),
   city: z.string().max(100),
@@ -110,3 +124,18 @@ export const SellerRegistration = z.object({
 });
 
 export const STAGES = ['listing', 'lifting', 'claim', 'claim_response'] as const;
+
+const text = (max: number) => z.string().max(max);
+export const EligibilityBody = z.object({
+  entityType: z.enum(['proprietorship', 'partnership', 'llp', 'private_limited', 'public_limited']).nullable(),
+  legalName: text(200),
+  pan: text(20),
+  gstin: text(20),
+  registrationNumber: text(30),
+  registeredAddress: text(500),
+  representative: z.object({ name: text(120), designation: text(120) }),
+  sellerDeclaration: z.object({ authorisedToSell: z.boolean(), materialSource: text(1000) }).nullable(),
+  bankDetails: z.object({ accountName: text(200), bankName: text(200), accountNumber: text(30), ifsc: text(20), upiId: text(100) }).nullable(),
+});
+export const ReviewBody = z.object({ decision: z.enum(['approved', 'needs_info', 'rejected']), reason: z.string().max(2000) });
+export const DOCUMENT_KINDS = ['pan_card', 'gst_certificate', 'constitution', 'address_proof', 'representative_id', 'authorisation_letter', 'premises_proof', 'cancelled_cheque', 'payment_receipt'] as const;

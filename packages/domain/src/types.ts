@@ -20,8 +20,84 @@ export interface Company {
   yard?: string;
   /** true for seeded (fictional) companies — the UI labels them "Sample data"; false for real registrations. */
   sample: boolean;
-  /** Onboarding status. `demo_approved` = active without any document check (no KYC provider yet); never a KYC result. */
-  verification: 'demo_approved' | 'pending';
+  /**
+   * Eligibility (docs/PHASE1_MVP.md). `incomplete → pending_review → approved | needs_info | rejected`, decided by a
+   * reviewer from the submitted application. `demo_approved` is the seeded sample companies' status (treated as
+   * approved; sample records are hidden on the live site). `pending` is a legacy value, treated as incomplete.
+   */
+  verification: VerificationStatus;
+  /** The eligibility application; absent for seeded sample companies. */
+  eligibility?: Eligibility;
+}
+
+export type VerificationStatus = 'incomplete' | 'pending_review' | 'approved' | 'needs_info' | 'rejected' | 'demo_approved' | 'pending';
+
+export type EntityType = 'proprietorship' | 'partnership' | 'llp' | 'private_limited' | 'public_limited';
+
+export interface BankDetails {
+  accountName: string;
+  bankName: string;
+  accountNumber: string;
+  ifsc: string;
+  upiId: string;
+}
+
+export interface EligibilityReview {
+  decision: 'approved' | 'needs_info' | 'rejected';
+  reason: string;
+  reviewedBy: string;
+  reviewedAt: Iso;
+}
+
+export interface EligibilityEvent {
+  action: 'saved' | 'submitted' | 'approved' | 'needs_info' | 'rejected';
+  by: string;
+  at: Iso;
+  reason: string | null;
+}
+
+/** What the business tells AuctionIT; reviewed by a person. Nothing here is independently verified. */
+export interface Eligibility {
+  entityType: EntityType | null;
+  legalName: string;
+  pan: string;
+  gstin: string;
+  /** CIN (companies) or LLPIN (LLPs). */
+  registrationNumber: string;
+  registeredAddress: string;
+  representative: { name: string; designation: string };
+  /** Sellers: authority to sell the material, and bank details for receiving EMD and payments. */
+  sellerDeclaration: { authorisedToSell: boolean; materialSource: string } | null;
+  bankDetails: BankDetails | null;
+  documentIds: string[];
+  submittedAt: Iso | null;
+  review: EligibilityReview | null;
+  history: EligibilityEvent[];
+}
+
+export type DocumentKind =
+  | 'pan_card'
+  | 'gst_certificate'
+  | 'constitution'
+  | 'address_proof'
+  | 'representative_id'
+  | 'authorisation_letter'
+  | 'premises_proof'
+  | 'cancelled_cheque'
+  | 'payment_receipt';
+
+/** A private file (eligibility document or payment receipt). Only the owner, a reviewer or the counterparty sees it. */
+export interface AccountDocument {
+  id: string;
+  companyId: string;
+  kind: DocumentKind;
+  fileName: string;
+  contentType: string;
+  size: number;
+  /** Private storage path (API) or a data URL (browser demo mode). Never a public URL. */
+  path: string;
+  uploadedAt: Iso;
+  uploadedBy: string;
 }
 
 export interface User {
@@ -31,6 +107,10 @@ export interface User {
   role: Exclude<Role, 'guest'>;
   companyId: string | null;
   title: string;
+  /** Normalised +91XXXXXXXXXX; unique across accounts. Not verified by OTP (no SMS provider). */
+  phone?: string | null;
+  /** Supabase Auth user id; the API resolves the signed-in user through this, never through a client value. */
+  authUserId?: string | null;
 }
 
 // ── Lots and auctions ────────────────────────────────────────────────────────
@@ -116,15 +196,62 @@ export interface Bid {
   clientRequestId: string;
 }
 
+export type PaymentMethod = 'neft' | 'rtgs' | 'imps' | 'upi' | 'cheque' | 'demand_draft';
+
+/** A payment made outside AuctionIT, as reported by the payer. AuctionIT never collects or verifies money. */
+export interface PaymentSubmission {
+  amount: Rupees;
+  method: PaymentMethod;
+  paidOn: string;
+  reference: string;
+  payerName: string;
+  receiptDocumentId: string | null;
+  submittedAt: Iso;
+  submittedBy: string;
+}
+
+/** The receiving party's answer after checking their own account. */
+export interface PaymentDecision {
+  decision: 'confirmed' | 'rejected';
+  reason: string | null;
+  decidedBy: string;
+  decidedAt: Iso;
+}
+
+/** A refund arranged outside AuctionIT and recorded by the party who made it. */
+export interface RefundRecord {
+  amount: Rupees;
+  refundedOn: string;
+  reference: string;
+  note: string;
+  recordedBy: string;
+  recordedAt: Iso;
+}
+
+export type PaymentEvent =
+  | { type: 'submitted'; submission: PaymentSubmission }
+  | { type: 'decided'; decision: PaymentDecision }
+  | { type: 'refund_recorded'; refund: RefundRecord };
+
+/**
+ * EMD for one buyer and lot. `submitted` (buyer reported a payment) → `confirmed` by the lot's seller, or
+ * `rejected` with a reason (the buyer corrects and resubmits). Losing bidders' confirmed EMDs become `refund_due`
+ * at close; the seller records the refund (`refunded`). Seeded sample records use mode `simulated`.
+ */
 export interface EmdRecord {
   id: string;
   lotId: string;
   buyerId: string;
   amount: Rupees;
-  status: 'succeeded' | 'failed' | 'refunded' | 'forfeited';
+  status: 'submitted' | 'confirmed' | 'rejected' | 'refund_due' | 'refunded' | 'forfeited';
   reference: string;
-  mode: 'simulated';
+  mode: 'simulated' | 'manual';
   createdAt: Iso;
+  payment?: PaymentSubmission | null;
+  decision?: PaymentDecision | null;
+  refund?: RefundRecord | null;
+  /** Every submission, decision and refund in order; earlier submissions are kept when corrected. */
+  history?: PaymentEvent[];
 }
 
 // ── Transactions ─────────────────────────────────────────────────────────────
@@ -170,7 +297,7 @@ export interface Transaction {
   estimatedQtyMt: number;
   emdAmount: Rupees;
   status: TransactionStatus;
-  /** Simulated payments only. */
+  /** Balance the seller confirmed receiving (seeded sample records: simulated). */
   balancePaid: Rupees;
   balancePaidAt: Iso | null;
   paymentDeadline: Iso;
@@ -189,6 +316,11 @@ export interface Transaction {
   createdAt: Iso;
   completedAt: Iso | null;
   media: LotMedia[];
+  /** The buyer's latest reported balance payment and the seller's answer to it. */
+  balancePayment?: { submission: PaymentSubmission; decision: PaymentDecision | null } | null;
+  /** Every balance submission, decision and refund, in order. */
+  paymentHistory?: PaymentEvent[];
+  refunds?: RefundRecord[];
 }
 
 // ── Claims ───────────────────────────────────────────────────────────────────
@@ -238,7 +370,7 @@ export interface Claim {
 
 export interface AuditEntry {
   id: string;
-  entity: 'lot' | 'transaction' | 'claim' | 'emd' | 'bid' | 'user';
+  entity: 'lot' | 'transaction' | 'claim' | 'emd' | 'bid' | 'user' | 'company' | 'document';
   entityId: string;
   action: string;
   actorId: string;
@@ -264,7 +396,16 @@ export type NotificationKind =
   | 'seller_responded'
   | 'claim_resolved'
   | 'transaction_completed'
-  | 'transaction_defaulted';
+  | 'transaction_defaulted'
+  | 'emd_submitted'
+  | 'emd_confirmed'
+  | 'emd_rejected'
+  | 'payment_submitted'
+  | 'payment_confirmed'
+  | 'payment_rejected'
+  | 'refund_recorded'
+  | 'eligibility_submitted'
+  | 'eligibility_decided';
 
 export interface Notification {
   id: string;

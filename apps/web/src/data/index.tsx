@@ -2,7 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { HttpDataSource, type DataSource, type DsError, type DsResult } from '@auctionit/client';
-import { DEMO_CONTROLS } from '@/lib/flags';
+import { AUTH_ENABLED, DEMO_CONTROLS } from '@/lib/flags';
+import { accessToken } from '@/lib/supabase/browser';
 import { SESSION_COOKIE } from '@/lib/session';
 import { DemoDataSource } from './DemoDataSource';
 import { subscribe as subscribeStore, wasRecovered } from './demoStore';
@@ -60,7 +61,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
  */
 export function DataProvider({ children }: { children: ReactNode }) {
   const [mode, setMode] = useState<'live' | 'demo' | 'fallback' | 'down'>(WANT_HTTP ? 'live' : 'demo');
-  const [http] = useState(() => (WANT_HTTP ? new HttpDataSource({ baseUrl: API_URL, session: sessionFromCookie }) : null));
+  // Live site: the Supabase access token identifies the caller; presenter controls: the sample-account cookie.
+  const [http] = useState(() => (WANT_HTTP ? new HttpDataSource({ baseUrl: API_URL, session: sessionFromCookie, accessToken: AUTH_ENABLED ? accessToken : undefined }) : null));
   const [live] = useState(() => (http ? watchSessions(http) : null));
   // Browser data only exists where it can be used: demo mode, or the presenter fallback.
   const [demo] = useState(() => (!WANT_HTTP || DEMO_CONTROLS ? watchSessions(new DemoDataSource()) : null));

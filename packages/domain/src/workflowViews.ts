@@ -12,7 +12,9 @@ import type { CategoryPolicy } from './policy';
 import { policyFor } from './policy';
 import type { DemoState } from './seed';
 import type { NextStep, Reconciliation, TxActionType } from './transaction';
-import { balanceDue, canTransition, computePayable, nextStep, reconcile, STATUS_LABEL, stepperState, TX_RULES } from './transaction';
+import { balanceDue, canTransition, computePayable, nextStep, reconcile, refundDue, STATUS_LABEL, stepperState, TX_RULES } from './transaction';
+import type { EmdView } from './payments';
+import { emdView, paymentInstructions } from './payments';
 import type { AuditEntry, Claim, Iso, Lot, LotMedia, Rejection, Transaction } from './types';
 import type { Viewer } from './views';
 
@@ -28,7 +30,11 @@ const ACTION_LABEL: Record<string, string> = {
   close_auction: 'Auction closed',
   close_demo_auction: 'Auction closed early by Operations',
   create: 'Transaction started',
-  pay_balance: 'Balance paid (simulated)',
+  pay_balance: 'Balance paid (simulated, sample record)',
+  submit_balance_payment: 'Buyer reported the balance payment',
+  confirm_balance_payment: 'Seller confirmed receiving the balance',
+  reject_balance_payment: 'Seller rejected the reported balance payment',
+  record_refund: 'Seller recorded a refund',
   propose_lifting: 'Lifting date proposed',
   confirm_lifting: 'Lifting date confirmed',
   record_weighbridge: 'Weighbridge measurement recorded',
@@ -123,6 +129,17 @@ export interface TxDetailView {
   /** What each remedy would amount to now (contamination adjustment needs a condition check). */
   remedies: { priceAdjustment: number; exitRefund: number };
   emdStatus: string | null;
+  /** The winner's EMD record (counts toward the price; owed back after an exit). */
+  emd: EmdView | null;
+  /** Balance: the latest reported payment and its decision, every event, recorded refunds, and what is still owed back. */
+  balancePayment: Transaction['balancePayment'];
+  paymentHistory: NonNullable<Transaction['paymentHistory']>;
+  refunds: NonNullable<Transaction['refunds']>;
+  refundDue: number;
+  /** Where the buyer pays — shown to the buyer only. */
+  paymentInstructions: ReturnType<typeof paymentInstructions>;
+  /** Names for the people in the payment history. */
+  people: Record<string, string>;
   /** For each action: null when the viewer may take it now, else the reason not. */
   can: Record<TxActionType, Rejection | null>;
   timeline: TimelineEntry[];
@@ -156,7 +173,7 @@ export function transactionDetail(state: DemoState, txId: string, viewer: Viewer
   const can = Object.fromEntries(
     (Object.keys(TX_RULES) as TxActionType[]).map((a) => [a, canTransition(tx, a, ctx)]),
   ) as Record<TxActionType, Rejection | null>;
-  const emd = state.emds.find((e) => e.lotId === lot.id && e.buyerId === tx.buyerId && e.status !== 'failed');
+  const emd = state.emds.find((e) => e.lotId === lot.id && e.buyerId === tx.buyerId && e.status !== 'rejected');
   const next = nextStep(tx, lot.assurance.enabled);
 
   return {
@@ -193,6 +210,13 @@ export function transactionDetail(state: DemoState, txId: string, viewer: Viewer
       exitRefund: exitRefund(tx),
     },
     emdStatus: emd ? emd.status : null,
+    emd: emd ? emdView(state, emd) : null,
+    balancePayment: tx.balancePayment ?? null,
+    paymentHistory: tx.paymentHistory ?? [],
+    refunds: tx.refunds ?? [],
+    refundDue: refundDue(tx),
+    paymentInstructions: as === 'buyer' ? paymentInstructions(state, tx.sellerId) : null,
+    people: Object.fromEntries(state.users.filter((u) => u.id === tx.buyerId || u.id === tx.sellerId || u.role === 'ops').map((u) => [u.id, u.name])),
     can,
     timeline: timeline(state, [lot.id, tx.id, ...(claim ? [claim.id] : [])]),
   };
@@ -429,7 +453,7 @@ export function opsOverview(state: DemoState, now: Iso): OpsOverviewView {
 }
 
 export function formatRemedyOutcome(outcome: keyof ClaimReviewView['outcomes'], amount: number): string {
-  if (outcome === 'approve_adjustment') return `Deduct ${formatINR(amount)} from the price (simulated)`;
-  if (outcome === 'approve_exit') return `Return ${formatINR(amount)} EMD and balance to the buyer (simulated)`;
+  if (outcome === 'approve_adjustment') return `Deduct ${formatINR(amount)} from the price`;
+  if (outcome === 'approve_exit') return `The seller returns ${formatINR(amount)} EMD and balance to the buyer`;
   return `Original terms: payable ${formatINR(amount)} on the measured quantity`;
 }

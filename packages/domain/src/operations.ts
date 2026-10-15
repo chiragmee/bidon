@@ -2,13 +2,14 @@
  * Commands over a full state snapshot. Pure: each takes a state and returns the next state plus
  * a result, so the in-browser DemoDataSource and the API (Phase 2) apply identical rules.
  */
-import { closeAuction, deriveAuctionStatus, hasEmd, highestBid, validateBid } from './auction';
+import { closeAuction, deriveAuctionStatus, highestBid, validateBid } from './auction';
+import { isEligible, normalisePhone } from './eligibilityPolicy';
 import type { Actor, Ctx } from './context';
 import { audit } from './context';
 import { formatINR } from './format';
 import { NEW_ID_START, type DemoState } from './seed';
 import { createTransaction } from './transaction';
-import type { Bid, Company, EmdRecord, Iso, Notification, Rejection, Rupees, User } from './types';
+import type { Bid, Company, Iso, Notification, Rejection, Rupees, User } from './types';
 
 /** States are plain JSON (they persist to localStorage and Postgres), so a JSON copy is exact. */
 export function clone(state: DemoState): DemoState {
@@ -69,7 +70,7 @@ export function closeNotifications(
     { userId: win.bidderId, kind: 'auction_won', title: `You won ${lot.id}`, body: `${lot.title} at ${price}. Pay the balance to continue.`, href: txHref },
     ...bidders
       .filter((b) => b !== win.bidderId)
-      .map((userId): NotificationDraft => ({ userId, kind: 'auction_lost', title: `${lot.id} closed`, body: `Another bidder won at ${price}. Your EMD is refunded (simulated).`, href: `/auctions/${lot.id}` })),
+      .map((userId): NotificationDraft => ({ userId, kind: 'auction_lost', title: `${lot.id} closed`, body: `Another bidder won at ${price}. The seller owes your EMD back and records the refund here once made.`, href: `/auctions/${lot.id}` })),
     { userId: lot.sellerId, kind: 'auction_closed', title: `${lot.id} sold`, body: `Winning bid ${price}. Transaction ${win.transactionId} started.`, href: txHref },
   ];
 }
@@ -88,6 +89,8 @@ function closeLot(state: DemoState, lotId: string, ctx: Ctx, early: boolean) {
 
   if (result.status === 'closed_unsold' || !result.winningBid) {
     lot.status = 'closed_unsold';
+    // Nobody won, so every confirmed EMD is owed back (D-091: previously left as paid).
+    for (const emd of state.emds.filter((e) => e.lotId === lot.id && e.status === 'confirmed')) emd.status = 'refund_due';
     state.audit.push(audit(ctx, { entity: 'lot', entityId: lot.id, action: early ? 'close_demo_auction' : 'close_auction', from, to: 'closed_unsold', reason: 'No bid met the reserve.' }));
     for (const n of closeNotifications(lot, null, bidders)) pushNotification(state, ctx, n);
     return;
@@ -100,10 +103,8 @@ function closeLot(state: DemoState, lotId: string, ctx: Ctx, early: boolean) {
   state.transactions.push(tx);
   state.audit.push(audit(ctx, { entity: 'lot', entityId: lot.id, action: early ? 'close_demo_auction' : 'close_auction', from, to: 'awarded', reason: `Highest bid ${formatINR(win.amountPerMt, { perMt: true })} met the reserve.` }));
   state.audit.push(audit(ctx, { entity: 'transaction', entityId: tx.id, action: 'create', to: tx.status }));
-  for (const uid of bidders.filter((b) => b !== win.bidderId)) {
-    const emd = state.emds.find((e) => e.lotId === lot.id && e.buyerId === uid && e.status === 'succeeded');
-    if (emd) emd.status = 'refunded';
-  }
+  // Losing bidders' EMDs are owed back; the seller records each refund when made (payments.recordEmdRefund).
+  for (const emd of state.emds.filter((e) => e.lotId === lot.id && e.buyerId !== win.bidderId && e.status === 'confirmed')) emd.status = 'refund_due';
   for (const n of closeNotifications(lot, { bidderId: win.bidderId, amountPerMt: win.amountPerMt, transactionId: tx.id }, bidders)) pushNotification(state, ctx, n);
 }
 
@@ -133,44 +134,7 @@ export function closeDemoAuction(state: DemoState, lotId: string, actor: Actor, 
   return { ok: true, state: next, value: { status: closed?.status ?? 'closed_unsold', transactionId: tx?.id ?? null } };
 }
 
-// ── EMD ──────────────────────────────────────────────────────────────────────
-
-export function payEmd(
-  state: DemoState,
-  input: { lotId: string; outcome: 'success' | 'failure' },
-  actor: Actor,
-  now: Iso,
-): OpResult<EmdRecord> {
-  const lot = state.lots.find((l) => l.id === input.lotId);
-  if (!lot) return rejected(state, 'not_found', 'That lot does not exist.', 'Go back to the auctions list.');
-  if (actor.role !== 'buyer') return rejected(state, 'not_buyer', 'Only buyer accounts pay an EMD.', 'Switch to a buyer account.');
-  if (lot.sellerId === actor.id) return rejected(state, 'own_lot', 'Sellers cannot bid on their own lots.', 'Use a buyer account for other lots.');
-  const status = deriveAuctionStatus(lot, now);
-  if (status !== 'live' && status !== 'scheduled') {
-    return rejected(state, 'auction_closed', 'This auction has closed, so no EMD is needed.', 'Browse other live auctions.');
-  }
-  if (hasEmd(state.emds, lot.id, actor.id)) {
-    return rejected(state, 'already_paid', 'Your EMD for this lot is already recorded.', 'You can place a bid now.');
-  }
-  const next = clone(state);
-  const ctx = stateCtx(next, now, actor);
-  const emd: EmdRecord = {
-    id: ctx.newId('EMD'),
-    lotId: lot.id,
-    buyerId: actor.id,
-    amount: lot.emdAmount,
-    status: input.outcome === 'success' ? 'succeeded' : 'failed',
-    reference: `SIM-${Date.parse(now).toString(36).toUpperCase()}`,
-    mode: 'simulated',
-    createdAt: now,
-  };
-  next.emds.push(emd);
-  next.audit.push(audit(ctx, { entity: 'emd', entityId: emd.id, action: 'pay_emd_simulated', to: emd.status }));
-  if (input.outcome === 'failure') {
-    return { ok: false, state: next, error: { code: 'payment_failed', what: 'The simulated EMD payment failed. Nothing was charged.', next: 'Try the payment again.' } };
-  }
-  return { ok: true, state: next, value: emd };
-}
+// EMD: reported by the buyer and confirmed by the seller — see payments.ts.
 
 // ── Bidding ──────────────────────────────────────────────────────────────────
 
@@ -183,7 +147,8 @@ export function placeBid(
   const lot = state.lots.find((l) => l.id === input.lotId);
   if (!lot) return rejected(state, 'not_found', 'That lot does not exist.', 'Go back to the auctions list.');
   const bids = state.bids.filter((b) => b.lotId === lot.id);
-  const v = validateBid({ lot, bids, emds: state.emds, actor, now, ...input });
+  const company = state.companies.find((c) => c.id === state.users.find((u) => u.id === actor.id)?.companyId);
+  const v = validateBid({ lot, bids, emds: state.emds, actor, now, eligible: isEligible(company), ...input });
   if (!v.ok) return { ok: false, state, error: v.error };
 
   const next = clone(state);
@@ -196,11 +161,15 @@ export function placeBid(
   return { ok: true, state: next, value: { bid, minNext: bid.amountPerMt + lot.bidIncrement, leading: true } };
 }
 
-// ── Buyer registration (demo onboarding, SPEC §9) ────────────────────────────
+// ── Buyer registration (SPEC §9; eligibility is reviewed separately — eligibility.ts) ──
 
 export interface BuyerRegistration {
   name: string;
   email: string;
+  /** Mobile number; normalised and unique across accounts. */
+  phone: string;
+  /** Set by the API from the verified Supabase identity — never from the form. */
+  authUserId?: string | null;
   companyName: string;
   businessType: string;
   city: string;
@@ -236,10 +205,8 @@ export function registerBuyer(state: DemoState, input: BuyerRegistration, now: I
   if (missing.length) return rejected(state, 'incomplete_profile', `Your profile is missing: ${missing.join(', ')}.`, 'Go back and fill in the highlighted fields.');
   const emailError = validateEmail(input.email);
   if (emailError) return rejected(state, 'invalid_email', emailError, 'Correct the email and try again.');
-  const email = input.email.trim().toLowerCase();
-  if (state.users.some((u) => u.email.toLowerCase() === email)) {
-    return rejected(state, 'duplicate_email', 'An account with this email already exists.', 'Sign in to that account, or use a different email.');
-  }
+  const identity = accountIdentityProblem(state, input);
+  if (identity.error) return { ok: false, state, error: identity.error };
   const next = clone(state);
   const ctx = stateCtx(next, now, { id: 'guest', role: 'guest' });
   const company: Company = {
@@ -250,13 +217,42 @@ export function registerBuyer(state: DemoState, input: BuyerRegistration, now: I
     state: input.state.trim(),
     businessType: input.businessType,
     sample: false,
-    verification: 'demo_approved',
+    verification: 'incomplete',
   };
-  const user: User = { id: ctx.newId('U'), name: input.name.trim(), email, role: 'buyer', companyId: company.id, title: input.industry.trim() };
+  const user: User = { id: ctx.newId('U'), name: input.name.trim(), email: identity.email, role: 'buyer', companyId: company.id, title: input.industry.trim(), phone: identity.phone, authUserId: input.authUserId ?? null };
   next.companies.push(company);
   next.users.push(user);
-  next.audit.push(audit({ ...ctx, actor: { id: user.id, role: 'buyer' } }, { entity: 'user', entityId: user.id, action: 'register_buyer_demo', to: 'demo_approved' }));
+  next.audit.push(audit({ ...ctx, actor: { id: user.id, role: 'buyer' } }, { entity: 'user', entityId: user.id, action: 'register_buyer', to: 'incomplete' }));
   return { ok: true, state: next, value: { user, company } };
+}
+
+/**
+ * One account per person and business: email, mobile number and sign-in identity must be new, whatever the role
+ * (D-089). The refusal never says which account holds them.
+ */
+export function accountIdentityProblem(
+  state: DemoState,
+  input: { email: string; phone: string; authUserId?: string | null },
+): { error: Rejection } | { error?: undefined; email: string; phone: string } {
+  const emailError = validateEmail(input.email);
+  if (emailError) return { error: { code: 'invalid_email', what: emailError, next: 'Correct the email and try again.' } };
+  const phone = normalisePhone(input.phone);
+  if (!phone) return { error: { code: 'invalid_phone', what: 'Enter a 10-digit Indian mobile number, for example 98765 43210.', next: 'Correct the number and try again.' } };
+  const email = input.email.trim().toLowerCase();
+  const taken =
+    state.users.some((u) => u.email.toLowerCase() === email) ||
+    state.users.some((u) => u.phone === phone) ||
+    (!!input.authUserId && state.users.some((u) => u.authUserId === input.authUserId));
+  if (taken) {
+    return {
+      error: {
+        code: 'duplicate_account',
+        what: 'An AuctionIT account already uses this email, mobile number or sign-in.',
+        next: 'Each person and business holds one account, as a buyer or a seller. Sign in to your existing account, or contact AuctionIT support.',
+      },
+    };
+  }
+  return { email, phone };
 }
 
 /** Mark a user's notifications read. */

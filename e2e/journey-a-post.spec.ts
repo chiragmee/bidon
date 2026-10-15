@@ -1,13 +1,12 @@
-import { action, expect, PNG, signIn, switchTo, test, upload } from './fixtures';
+import { action, balanceConfirmed, emdConfirmed, expect, PNG, signIn, switchTo, test, upload } from './fixtures';
 import type { Page } from '@playwright/test';
 
 /** Journey A 1–8 compressed: buyer pays EMD and bids ₹35,000; Operations closes the demo auction. */
 async function winLot0891(page: Page) {
   await signIn(page.context(), 'buyer');
   await page.goto('/auctions/LOT-2025-0891');
-  await action(page, 'Pay EMD to bid').click();
-  await page.getByRole('button', { name: 'Pay ₹1,00,000 (simulated)' }).click();
-  await page.getByRole('button', { name: 'Continue to bid' }).click();
+  await emdConfirmed(page, 'LOT-2025-0891');
+  await action(page, 'Place bid').click();
   await page.getByRole('button', { name: 'Review bid' }).click();
   await page.getByRole('button', { name: 'Confirm bid' }).click();
   await expect(page.getByText('Bid placed: ₹35,000/MT')).toBeVisible();
@@ -26,9 +25,9 @@ async function winLot0891(page: Page) {
 
 /** Steps 10–12: pay, schedule (seller confirms), weighbridge + condition as separate records. */
 async function payLiftAndCheck(page: Page, contamination: string) {
-  await page.getByRole('button', { name: 'Pay ₹13,00,000 balance (simulated)' }).click();
-  await page.getByRole('dialog', { name: 'Pay the balance?' }).getByRole('button', { name: 'Pay balance (simulated)' }).click();
-  await expect(page.getByText(/Balance of ₹13,00,000 recorded \(simulated\)/).first()).toBeVisible();
+  // Paid outside AuctionIT: the buyer reports it, the seller confirms receipt.
+  await balanceConfirmed(page, '₹13,00,000');
+  await expect(page.getByText('Balance confirmed by seller').first()).toBeVisible();
 
   await page.getByLabel(/Vehicle number/).fill('MH 04 GP 8812');
   await page.getByRole('button', { name: 'Propose lifting date' }).click();
@@ -61,7 +60,7 @@ test('journey A 8–14, complete branch: same final state for buyer, seller and 
   await winLot0891(page);
   await payLiftAndCheck(page, '6');
   await expect(page.getByText('Within tolerance (≤ 8.0%)')).toBeVisible();
-  await expect(page.getByText('Refund due to the buyer: ₹49,000 (simulated).')).toBeVisible();
+  await expect(page.getByText('Refund due to the buyer: ₹49,000.')).toBeVisible();
 
   // 13. Complete.
   await page.getByRole('button', { name: 'Complete transaction' }).click();
@@ -75,6 +74,16 @@ test('journey A 8–14, complete branch: same final state for buyer, seller and 
     await expect(outcome.getByText('38.6 MT')).toBeVisible();
     await expect(outcome.getByText('₹13,51,000')).toBeVisible();
   }
+
+  // The seller refunds the ₹49,000 overpayment outside AuctionIT and records it; the buyer sees the record.
+  await switchTo(page, 'seller');
+  const refunds = page.getByRole('region', { name: 'Refunds' });
+  await expect(refunds.getByText('₹49,000 is owed back to the buyer')).toBeVisible();
+  await refunds.getByLabel(/Bank reference/).fill('UTR-REFUND-0049');
+  await refunds.getByRole('button', { name: 'Record refund' }).click();
+  await expect(refunds.getByText(/Refund recorded: ₹49,000 .* ref UTR-REFUND-0049/)).toBeVisible();
+  await switchTo(page, 'buyer');
+  await expect(page.getByRole('region', { name: 'Refunds' }).getByText(/ref UTR-REFUND-0049/)).toBeVisible();
 });
 
 test('journey A 13 claim branch → seller disputes → Operations decides (journey C on a live claim)', async ({ page }) => {

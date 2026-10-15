@@ -3,6 +3,7 @@
  * demo mode, and writes back only the rows that changed (see repo.ts).
  */
 import type {
+  AccountDocument,
   AuditEntry,
   Bid,
   Claim,
@@ -23,6 +24,7 @@ export type Rows = Record<TableName, Row[]>;
 export const TABLES = [
   ['companies', 'id'],
   ['profiles', 'id'],
+  ['account_documents', 'id'],
   ['lots', 'id'],
   ['bids', 'id'],
   ['emd_records', 'id'],
@@ -37,7 +39,16 @@ export const TABLES = [
   ['app_meta', 'key'],
 ] as const;
 export type TableName = (typeof TABLES)[number][0];
-export const JSON_COLUMNS: Partial<Record<TableName, string[]>> = { lots: ['attributes'], app_meta: ['value'] };
+export const JSON_COLUMNS: Partial<Record<TableName, string[]>> = {
+  lots: ['attributes'],
+  app_meta: ['value'],
+  companies: ['eligibility'],
+  emd_records: ['payment', 'decision', 'refund', 'history'],
+  transactions: ['balance_payment', 'payment_history', 'refunds'],
+};
+
+/** Seeded rows written before manual payments (D-090) used 'succeeded' / 'failed'. */
+const EMD_STATUS: Record<string, EmdRecord['status']> = { succeeded: 'confirmed', failed: 'rejected' };
 
 const ts = (v: unknown): string | null => (v === null || v === undefined || v === '' ? null : v instanceof Date ? v.toISOString() : new Date(String(v)).toISOString());
 const iso = (v: unknown): string => ts(v) ?? '';
@@ -70,8 +81,10 @@ export function rowsFromState(s: DemoState): Rows {
       yard: c.yard ?? null,
       sample: c.sample,
       verification: c.verification,
+      eligibility: c.eligibility ?? null,
     })),
-    profiles: s.users.map((u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, company_id: u.companyId, title: u.title })),
+    profiles: s.users.map((u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, company_id: u.companyId, title: u.title, phone: u.phone ?? null, auth_user_id: u.authUserId ?? null })),
+    account_documents: s.documents.map((d) => ({ id: d.id, company_id: d.companyId, kind: d.kind, file_name: d.fileName, content_type: d.contentType, size: d.size, path: d.path, uploaded_at: ts(d.uploadedAt), uploaded_by: d.uploadedBy })),
     lots: s.lots.map((l) => ({
       id: l.id,
       seller_id: l.sellerId,
@@ -105,7 +118,20 @@ export function rowsFromState(s: DemoState): Rows {
       winning_bid_id: l.winningBidId,
     })),
     bids: s.bids.map((b) => ({ id: b.id, lot_id: b.lotId, bidder_id: b.bidderId, amount_per_mt: b.amountPerMt, placed_at: ts(b.placedAt), client_request_id: b.clientRequestId })),
-    emd_records: s.emds.map((e) => ({ id: e.id, lot_id: e.lotId, buyer_id: e.buyerId, amount: e.amount, status: e.status, reference: e.reference, mode: e.mode, created_at: ts(e.createdAt) })),
+    emd_records: s.emds.map((e) => ({
+      id: e.id,
+      lot_id: e.lotId,
+      buyer_id: e.buyerId,
+      amount: e.amount,
+      status: e.status,
+      reference: e.reference,
+      mode: e.mode,
+      created_at: ts(e.createdAt),
+      payment: e.payment ?? null,
+      decision: e.decision ?? null,
+      refund: e.refund ?? null,
+      history: e.history ?? [],
+    })),
     transactions: s.transactions.map((t) => ({
       id: t.id,
       lot_id: t.lotId,
@@ -129,6 +155,9 @@ export function rowsFromState(s: DemoState): Rows {
       resolution: t.resolution,
       created_at: ts(t.createdAt),
       completed_at: ts(t.completedAt),
+      balance_payment: t.balancePayment ?? null,
+      payment_history: t.paymentHistory ?? [],
+      refunds: t.refunds ?? [],
     })),
     media: [...s.lots.flatMap((l) => mediaRows(l.media, { lot_id: l.id })), ...s.transactions.flatMap((t) => mediaRows(t.media, { transaction_id: t.id }))],
     weighbridge_measurements: s.transactions.flatMap((t) =>
@@ -240,9 +269,34 @@ export function stateFromRows(r: Rows): DemoState {
         ...(c.yard !== null ? { yard: String(c.yard) } : {}),
         sample: Boolean(c.sample),
         verification: c.verification as Company['verification'],
+        ...(c.eligibility ? { eligibility: c.eligibility as Company['eligibility'] } : {}),
       }),
     ),
-    users: r.profiles.map((u): User => ({ id: String(u.id), name: String(u.name), email: String(u.email), role: u.role as User['role'], companyId: (u.company_id as string | null) ?? null, title: String(u.title) })),
+    users: r.profiles.map(
+      (u): User => ({
+        id: String(u.id),
+        name: String(u.name),
+        email: String(u.email),
+        role: u.role as User['role'],
+        companyId: (u.company_id as string | null) ?? null,
+        title: String(u.title),
+        phone: (u.phone as string | null) ?? null,
+        authUserId: (u.auth_user_id as string | null) ?? null,
+      }),
+    ),
+    documents: r.account_documents.map(
+      (d): AccountDocument => ({
+        id: String(d.id),
+        companyId: String(d.company_id),
+        kind: d.kind as AccountDocument['kind'],
+        fileName: String(d.file_name),
+        contentType: String(d.content_type),
+        size: num(d.size),
+        path: String(d.path),
+        uploadedAt: iso(d.uploaded_at),
+        uploadedBy: String(d.uploaded_by),
+      }),
+    ),
     lots: r.lots.map(
       (l): Lot => ({
         id: String(l.id),
@@ -274,7 +328,20 @@ export function stateFromRows(r: Rows): DemoState {
     ),
     bids: r.bids.map((b): Bid => ({ id: String(b.id), lotId: String(b.lot_id), bidderId: String(b.bidder_id), amountPerMt: num(b.amount_per_mt), placedAt: iso(b.placed_at), clientRequestId: String(b.client_request_id) })),
     emds: r.emd_records.map(
-      (e): EmdRecord => ({ id: String(e.id), lotId: String(e.lot_id), buyerId: String(e.buyer_id), amount: num(e.amount), status: e.status as EmdRecord['status'], reference: String(e.reference), mode: 'simulated', createdAt: iso(e.created_at) }),
+      (e): EmdRecord => ({
+        id: String(e.id),
+        lotId: String(e.lot_id),
+        buyerId: String(e.buyer_id),
+        amount: num(e.amount),
+        status: EMD_STATUS[String(e.status)] ?? (e.status as EmdRecord['status']),
+        reference: String(e.reference),
+        mode: e.mode === 'manual' ? 'manual' : 'simulated',
+        createdAt: iso(e.created_at),
+        payment: (e.payment as EmdRecord['payment']) ?? null,
+        decision: (e.decision as EmdRecord['decision']) ?? null,
+        refund: (e.refund as EmdRecord['refund']) ?? null,
+        history: (e.history as EmdRecord['history']) ?? [],
+      }),
     ),
     transactions: r.transactions.map((t): Transaction => {
       const w = wb.get(String(t.id));
@@ -324,6 +391,9 @@ export function stateFromRows(r: Rows): DemoState {
         createdAt: iso(t.created_at),
         completedAt: ts(t.completed_at),
         media: mediaFor('transaction_id', String(t.id)),
+        balancePayment: (t.balance_payment as Transaction['balancePayment']) ?? null,
+        paymentHistory: (t.payment_history as Transaction['paymentHistory']) ?? [],
+        refunds: (t.refunds as Transaction['refunds']) ?? [],
       };
     }),
     claims: r.assurance_claims.map(

@@ -15,6 +15,8 @@ import type {
   TransactionStatus,
 } from './types';
 import { fail, ok } from './types';
+import type { PaymentInput, RefundInput } from './paymentRules';
+import { paymentProblem, refundProblem } from './paymentRules';
 
 // ── Money ────────────────────────────────────────────────────────────────────
 
@@ -28,11 +30,23 @@ export function balanceDue(tx: Pick<Transaction, 'estimatedQtyMt' | 'pricePerMt'
   return Math.max(0, computePayable(tx.estimatedQtyMt, tx.pricePerMt) - tx.emdAmount);
 }
 
+/**
+ * Money the seller owes back, recorded refunds deducted: everything the buyer paid in balance after an exit
+ * (the EMD is refunded on its own record), or what was paid above the final payable after measurement.
+ */
+export function refundDue(tx: Pick<Transaction, 'resolution' | 'balancePaid' | 'emdAmount' | 'finalPayable' | 'refunds' | 'status'>): Rupees {
+  const recorded = (tx.refunds ?? []).reduce((n, r) => n + r.amount, 0);
+  let owed = 0;
+  if (tx.resolution === 'exit_refund') owed = tx.balancePaid;
+  else if (tx.finalPayable !== null && (tx.status === 'completed' || tx.status === 'resolved')) owed = Math.max(0, tx.emdAmount + tx.balancePaid - tx.finalPayable);
+  return Math.max(0, owed - recorded);
+}
+
 export interface Reconciliation {
   payable: Rupees;
   adjustment: Rupees;
   paid: Rupees;
-  /** > 0: buyer owes more · < 0: refund due to buyer (all simulated). */
+  /** > 0: buyer owes more · < 0: refund due to buyer (paid outside AuctionIT and recorded here). */
   difference: Rupees;
 }
 
@@ -79,7 +93,12 @@ export function createTransaction(lot: Lot, winningBid: Bid, ctx: Ctx): Transact
 // ── Transitions ──────────────────────────────────────────────────────────────
 
 export type TxAction =
-  | { type: 'pay_balance' }
+  /** Buyer reports a balance payment made outside AuctionIT; the seller then confirms or rejects it. */
+  | { type: 'submit_balance_payment'; payment: PaymentInput }
+  | { type: 'confirm_balance_payment' }
+  | { type: 'reject_balance_payment'; reason: string }
+  /** Seller records a refund they made outside AuctionIT (measured quantity below what was paid, or an exit). */
+  | { type: 'record_refund'; refund: RefundInput }
   | { type: 'propose_lifting'; at: Iso; vehicle: string }
   | { type: 'confirm_lifting' }
   | {
@@ -105,7 +124,10 @@ interface Rule {
 
 /** Who may do what, from which states. Anything not listed is rejected with a reason. */
 export const TX_RULES: Record<TxActionType, Rule> = {
-  pay_balance: { role: 'buyer', from: ['won_awaiting_balance'], label: 'Pay balance' },
+  submit_balance_payment: { role: 'buyer', from: ['won_awaiting_balance'], label: 'Report the balance payment' },
+  confirm_balance_payment: { role: 'seller', from: ['won_awaiting_balance'], label: 'Confirm the balance payment' },
+  reject_balance_payment: { role: 'seller', from: ['won_awaiting_balance'], label: 'Reject the balance payment' },
+  record_refund: { role: 'seller', from: ['completed', 'resolved'], label: 'Record a refund' },
   propose_lifting: { role: 'buyer', from: ['balance_paid', 'lifting_proposed'], label: 'Propose lifting date' },
   confirm_lifting: { role: 'seller', from: ['lifting_proposed'], label: 'Confirm lifting date' },
   record_weighbridge: { role: 'buyer', from: ['lifting_scheduled'], label: 'Record weighbridge measurement' },
@@ -152,6 +174,19 @@ export function canTransition(tx: Transaction, action: TxActionType, ctx: Ctx): 
       next: nextStep(tx)?.label ? `Next step: ${nextStep(tx)?.label}.` : 'No further action is needed.',
     };
   }
+  const pending = !!tx.balancePayment && !tx.balancePayment.decision;
+  if (action === 'submit_balance_payment' && pending) {
+    return { code: 'already_submitted', what: 'Your balance payment is already waiting for the seller to confirm.', next: 'You’ll be notified when the seller confirms it.' };
+  }
+  if ((action === 'confirm_balance_payment' || action === 'reject_balance_payment') && !pending) {
+    return { code: 'no_payment_reported', what: 'The buyer hasn’t reported a balance payment yet.', next: 'You’ll be notified when they do.' };
+  }
+  if (action === 'mark_defaulted' && pending) {
+    return { code: 'payment_pending', what: 'The buyer has reported a balance payment that the seller hasn’t confirmed yet.', next: 'Wait for the seller to confirm or reject it.' };
+  }
+  if (action === 'record_refund' && refundDue(tx) <= 0) {
+    return { code: 'nothing_due', what: 'No refund is due on this transaction.', next: 'Nothing to record.' };
+  }
   if (action === 'mark_defaulted' && ms(ctx.now) <= ms(tx.paymentDeadline)) {
     return {
       code: 'deadline_not_passed',
@@ -173,8 +208,33 @@ export function applyTransition(tx: Transaction, lot: Lot, action: TxAction, ctx
 
   let next: Transaction = { ...tx };
   switch (action.type) {
-    case 'pay_balance': {
-      next = { ...next, balancePaid: balanceDue(tx), balancePaidAt: ctx.now, status: 'balance_paid' };
+    case 'submit_balance_payment': {
+      const problem = paymentProblem(action.payment, balanceDue(tx), ctx.now, () => true);
+      if (problem) return { ok: false, error: problem };
+      const submission = { ...action.payment, reference: action.payment.reference.trim(), payerName: action.payment.payerName.trim(), submittedAt: ctx.now, submittedBy: ctx.actor.id };
+      next = { ...next, balancePayment: { submission, decision: null }, paymentHistory: [...(tx.paymentHistory ?? []), { type: 'submitted', submission }] };
+      break;
+    }
+    case 'confirm_balance_payment':
+    case 'reject_balance_payment': {
+      const reason = action.type === 'reject_balance_payment' ? action.reason.trim() : '';
+      if (action.type === 'reject_balance_payment' && reason.length < 5) {
+        return fail('reason_required', 'Say why the payment is rejected (for example “no credit with this UTR”).', 'The buyer sees this reason and can correct it.');
+      }
+      const decision = { decision: action.type === 'confirm_balance_payment' ? ('confirmed' as const) : ('rejected' as const), reason: reason || null, decidedBy: ctx.actor.id, decidedAt: ctx.now };
+      const submission = tx.balancePayment?.submission;
+      /* v8 ignore next -- canTransition already requires a reported payment */
+      if (!submission) return fail('no_payment_reported', 'The buyer hasn’t reported a balance payment yet.', 'You’ll be notified when they do.');
+      next = { ...next, balancePayment: { submission, decision }, paymentHistory: [...(tx.paymentHistory ?? []), { type: 'decided', decision }] };
+      if (decision.decision === 'confirmed') next = { ...next, balancePaid: submission.amount, balancePaidAt: ctx.now, status: 'balance_paid' };
+      break;
+    }
+    case 'record_refund': {
+      const due = refundDue(tx);
+      const problem = refundProblem(action.refund, due, ctx.now);
+      if (problem) return { ok: false, error: problem };
+      const refund = { ...action.refund, reference: action.refund.reference.trim(), note: action.refund.note.trim(), recordedBy: ctx.actor.id, recordedAt: ctx.now };
+      next = { ...next, refunds: [...(tx.refunds ?? []), refund], paymentHistory: [...(tx.paymentHistory ?? []), { type: 'refund_recorded', refund }] };
       break;
     }
     case 'propose_lifting': {
@@ -296,7 +356,16 @@ export function applyTransition(tx: Transaction, lot: Lot, action: TxAction, ctx
       action: action.type,
       from: tx.status,
       to: next.status,
-      reason: action.type === 'mark_defaulted' ? action.reason : null,
+      reason:
+        action.type === 'mark_defaulted'
+          ? action.reason
+          : action.type === 'reject_balance_payment'
+            ? action.reason.trim()
+            : action.type === 'submit_balance_payment'
+              ? `${formatINR(action.payment.amount)} · ref ${action.payment.reference.trim()}`
+              : action.type === 'record_refund'
+                ? `${formatINR(action.refund.amount)} · ref ${action.refund.reference.trim()}`
+                : null,
     }),
   ];
   return ok({ tx: next, audit: entries });
@@ -314,7 +383,9 @@ export interface NextStep {
 export function nextStep(tx: Transaction, assured = true): NextStep | null {
   switch (tx.status) {
     case 'won_awaiting_balance':
-      return { role: 'buyer', label: `Pay balance of ${formatINR(balanceDue(tx))} (simulated)`, action: 'pay_balance' };
+      return tx.balancePayment && !tx.balancePayment.decision
+        ? { role: 'seller', label: `Confirm the balance payment of ${formatINR(tx.balancePayment.submission.amount)}`, action: 'confirm_balance_payment' }
+        : { role: 'buyer', label: `Pay the balance of ${formatINR(balanceDue(tx))} and report it`, action: 'submit_balance_payment' };
     case 'balance_paid':
       return { role: 'buyer', label: 'Propose a lifting date', action: 'propose_lifting' };
     case 'lifting_proposed':

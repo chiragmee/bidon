@@ -10,6 +10,7 @@ import { Banner, Button, ButtonLink, Countdown, EmptyState, ErrorState, RetryIco
 import { useQuery } from '@/data';
 import { useSession } from '@/lib/SessionProvider';
 import { TransactionCard } from './TransactionCard';
+import { PaymentStatusBadge } from '@/components/payments/PaymentRecord';
 
 const BID_BADGE = {
   leading: { kind: 'success', label: 'Leading' },
@@ -80,7 +81,7 @@ function BidsTable({ rows }: { rows: BuyerBidRow[] }) {
 export function BuyerDashboard() {
   const { viewer, session } = useSession();
   const welcome = useSearchParams().get('welcome') === '1';
-  const q = useQuery(`buyer-dash:${session.userId}`, (ds) => ds.buyerDashboard(viewer), { pollMs: 15_000 });
+  const q = useQuery(`buyer-dash:${session.userId}`, (ds) => ds.buyerDashboard(viewer), { pollMs: 15_000, enabled: viewer.role === 'buyer' });
 
   if (q.error && !q.data) {
     return (
@@ -129,8 +130,41 @@ export function BuyerDashboard() {
 
       {welcome && (
         <Banner tone="success" title="Your buyer profile is ready" action={<ButtonLink href="/auctions">Browse auctions</ButtonLink>}>
-          Find a lot → review the evidence → pay the EMD (simulated) → bid. If you win, pay the balance, schedule lifting and complete the purchase from here.
+          Verify your business → find a lot → pay the EMD to the seller and report it → bid once they confirm. If you win, pay the balance the same way, schedule lifting and
+          complete the purchase from here.
         </Banner>
+      )}
+      {!d.eligible && (
+        <Banner
+          tone={d.buyer.verification === 'rejected' ? 'danger' : 'warning'}
+          title={d.buyer.verification === 'pending_review' ? 'Your account is under review' : 'Verify your business to bid'}
+          action={<ButtonLink href="/account">Account and verification</ButtonLink>}
+        >
+          {d.buyer.verification === 'pending_review'
+            ? 'You can browse auctions meanwhile; paying EMDs and bidding open once a reviewer approves your account.'
+            : 'Add your business details and documents for review. You can browse auctions meanwhile.'}
+        </Banner>
+      )}
+      {d.emds.length > 0 && (
+        <section aria-labelledby="emds-h" className="flex flex-col gap-sm">
+          <h2 id="emds-h" className="text-h2 text-text-strong">
+            EMD payments
+          </h2>
+          <ul className="flex flex-col divide-y divide-border rounded-lg border border-border bg-surface">
+            {d.emds.map((e) => (
+              <li key={e.id} className="flex flex-wrap items-center justify-between gap-xs px-md py-sm">
+                <Link href={`/auctions/${e.lotId}`} className="text-label-md text-primary underline">
+                  {e.lotTitle} · {formatINR(e.amount)}
+                </Link>
+                <span className="flex flex-wrap items-center gap-xs text-caption text-text-secondary">
+                  {e.status === 'rejected' && e.decision?.reason && `“${e.decision.reason}”`}
+                  {e.status === 'refunded' && e.refund && `ref ${e.refund.reference}`}
+                  <PaymentStatusBadge status={e.status} />
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {urgent?.next && (
@@ -151,7 +185,7 @@ export function BuyerDashboard() {
         <h2 id="bids-h" className="text-h2 text-text-strong">Active bidding</h2>
         {d.activeBids.length === 0 ? (
           <EmptyState icon={Gavel} title="No active bids" action={<ButtonLink href="/auctions">Browse auctions</ButtonLink>}>
-            Find a live lot, pay the EMD (simulated) and place your first bid.
+            Find a live lot, pay the EMD to the seller and report it, then bid once they confirm.
           </EmptyState>
         ) : (
           <BidsTable rows={d.activeBids} />

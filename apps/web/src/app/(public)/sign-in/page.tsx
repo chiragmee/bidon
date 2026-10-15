@@ -8,6 +8,8 @@ import { Banner, ButtonLink, Card } from '@/components/ui';
 import { demoSessionFor } from '@/lib/session';
 import { useSession } from '@/lib/SessionProvider';
 import { Button } from '@/components/ui';
+import { SignInForm } from '@/components/auth/AuthForms';
+import { AUTH_ENABLED } from '@/lib/flags';
 
 function SignIn() {
   const params = useSearchParams();
@@ -53,9 +55,6 @@ function SignIn() {
 }
 
 export default function SignInPage() {
-  return (
-    <Suspense>
-      <SignIn />
-    </Suspense>
-  );
+  // Live site: email and password. Presenter controls only: one-click sample accounts.
+  return <Suspense>{AUTH_ENABLED ? <SignInForm /> : <SignIn />}</Suspense>;
 }

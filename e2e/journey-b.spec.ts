@@ -125,7 +125,7 @@ test('seller onboarding: validation and a profile active without document checks
   await expect(page).toHaveURL(/\/seller\/dashboard\?welcome=1$/);
   await expect(page.getByText('Your seller profile is ready')).toBeVisible();
   await expect(page.getByText('New seller')).toBeVisible();
-  await expect(page.getByText('Documents not checked')).toBeVisible();
+  await expect(page.getByText('Verify your business to publish auctions')).toBeVisible();
   // A real registration is not labelled as sample data.
   await expect(page.getByText('Sample data')).toHaveCount(0);
   await page.getByRole('link', { name: 'Create a new lot' }).first().click();

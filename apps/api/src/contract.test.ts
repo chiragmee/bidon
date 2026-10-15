@@ -31,7 +31,13 @@ interface Target {
   expire(lotId: string): Promise<void>;
   /** Test back door: make a user the seller of a lot (to reach the own-lot rule no real role can). */
   setSeller(lotId: string, userId: string): Promise<void>;
+  /** Test back door: mark a user's company approved (the review itself has its own test). */
+  approve(userId: string): Promise<void>;
 }
+
+const today = () => new Date().toISOString().slice(0, 10);
+const pay = (amount: number, reference = 'UTR000123456') => ({ amount, method: 'neft' as const, paidOn: today(), reference, payerName: 'Test payer', receiptDocumentId: null });
+const file = (name: string, type = 'application/pdf') => new File([PNG], name, { type });
 
 function must<T>(r: DsResult<T>): T {
   if (!r.ok) throw new Error(`${r.error.code}: ${r.error.what}`);
@@ -78,6 +84,11 @@ const targets: [string, () => Promise<Target>][] = [
           store.mutate((s) => {
             s.lots.find((l) => l.id === lotId)!.sellerId = userId;
           }),
+        approve: async (userId) =>
+          store.mutate((s) => {
+            const c = s.companies.find((x) => x.id === s.users.find((u) => u.id === userId)?.companyId);
+            if (c) c.verification = 'approved';
+          }),
       };
     },
   ],
@@ -98,6 +109,11 @@ const targets: [string, () => Promise<Target>][] = [
           mem.mutate((s) => {
             s.lots.find((l) => l.id === lotId)!.sellerId = userId;
           }),
+        approve: async (userId) =>
+          mem.mutate((s) => {
+            const c = s.companies.find((x) => x.id === s.users.find((u) => u.id === userId)?.companyId);
+            if (c) c.verification = 'approved';
+          }),
       };
     },
   ],
@@ -116,6 +132,9 @@ if (hasDb) {
         },
         setSeller: async (lotId, userId) => {
           await pgSql!`update lots set seller_id = ${userId} where id = ${lotId}`;
+        },
+        approve: async (userId) => {
+          await pgSql!`update companies set verification = 'approved' where id = (select company_id from profiles where id = ${userId})`;
         },
       };
     },
@@ -138,6 +157,13 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
     must(await t.ds.reset());
   });
 
+  /** The buyer reports the EMD and the lot's seller confirms it. */
+  async function confirmedEmd(lotId: string, v: Viewer) {
+    const lot = must(await t.ds.getLot(lotId, v))!;
+    const e = must(await t.ds.submitEmd(lotId, pay(lot.lot.emdAmount), v));
+    must(await t.ds.decideEmd(e.id, { decision: 'confirmed', reason: '' }, { id: lot.lot.sellerId, role: 'seller' }));
+  }
+
   it('catalogue and lot detail match the seed', async () => {
     const list = must(await t.ds.listLots({}));
     expect(list.items.map((i) => i.id)).toEqual(['LOT-2025-0894', 'LOT-2025-0891', 'LOT-2025-0899', 'LOT-2025-0910', 'LOT-2025-0905']);
@@ -153,12 +179,14 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
     const bid = (lotId: string, amount: unknown, seen: number | null, req = `r-${Math.random()}`, v = RAHUL) =>
       t.ds.placeBid({ lotId, amountPerMt: amount as number, clientRequestId: req, seenHighestPerMt: seen }, v);
     const noEmd = await bid('LOT-2025-0891', 35_000, 34_500);
-    expect(noEmd.ok ? null : noEmd.error).toMatchObject({ code: 'emd_required', what: 'An EMD of ₹1,00,000 is needed before you can bid on this lot.' });
+    expect(noEmd.ok ? null : noEmd.error).toMatchObject({ code: 'emd_required', what: 'An EMD of ₹1,00,000, confirmed by the seller, is needed before you can bid on this lot.' });
 
-    expect(code(await t.ds.payEmd('LOT-2025-0891', 'failure', RAHUL))).toBe('payment_failed');
+    // Reported but not yet confirmed by the seller: still no bidding (domain and place_bid agree).
+    const reported = must(await t.ds.submitEmd('LOT-2025-0891', pay(1_00_000), RAHUL));
     expect(code(await bid('LOT-2025-0891', 35_000, 34_500))).toBe('emd_required');
-    must(await t.ds.payEmd('LOT-2025-0891', 'success', RAHUL));
-    expect(code(await t.ds.payEmd('LOT-2025-0891', 'success', RAHUL))).toBe('already_paid');
+    expect(code(await t.ds.submitEmd('LOT-2025-0891', pay(1_00_000), RAHUL))).toBe('already_submitted');
+    must(await t.ds.decideEmd(reported.id, { decision: 'confirmed', reason: '' }, SURESH));
+    expect(code(await t.ds.submitEmd('LOT-2025-0891', pay(1_00_000), RAHUL))).toBe('already_paid');
 
     const low = await bid('LOT-2025-0891', 34_900, 34_500);
     expect(low.ok ? null : low.error).toMatchObject({ code: 'below_minimum', what: 'Your bid is below the minimum of ₹35,000/MT.' });
@@ -176,7 +204,7 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
   });
 
   it('a valid bid leads, and the previous leader is told they were outbid', async () => {
-    must(await t.ds.payEmd('LOT-2025-0891', 'success', RAHUL));
+    await confirmedEmd('LOT-2025-0891', RAHUL);
     expect(must(await t.ds.placeBid({ lotId: 'LOT-2025-0891', amountPerMt: 35_000, clientRequestId: 'a', seenHighestPerMt: 34_500 }, RAHUL))).toEqual({ amountPerMt: 35_000, minNext: 35_500 });
     expect(must(await t.ds.getLot('LOT-2025-0891', RAHUL))!.viewer).toMatchObject({ bidStatus: 'leading', emdPaid: true, myHighestPerMt: 35_000 });
     const notes = must(await t.ds.notifications(ANITA));
@@ -187,10 +215,11 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
     const buyers: Viewer[] = [];
     for (let i = 0; i < 20; i++) {
       const reg = must(
-        await t.ds.registerBuyer({ name: `Bidder ${i}`, email: `b${i}@race.example`, companyName: `Race ${i}`, businessType: 'Scrap trader / stockist', city: 'Raipur', state: 'Chhattisgarh', industry: 'Scrap', materials: ['Ferrous / HMS'] }),
+        await t.ds.registerBuyer({ name: `Bidder ${i}`, email: `b${i}@race.example`, phone: `90000 000${String(i).padStart(2, '0')}`, companyName: `Race ${i}`, businessType: 'Scrap trader / stockist', city: 'Raipur', state: 'Chhattisgarh', industry: 'Scrap', materials: ['Ferrous / HMS'] }),
       );
       const v: Viewer = { id: reg.user.id, role: 'buyer' };
-      must(await t.ds.payEmd('LOT-2025-0891', 'success', v));
+      await t.approve(v.id!);
+      await confirmedEmd('LOT-2025-0891', v);
       buyers.push(v);
     }
     // Everyone saw ₹34,500; amounts step up so several can legitimately succeed depending on order.
@@ -212,7 +241,7 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
   });
 
   it('the same request sent five times at once places one bid', async () => {
-    must(await t.ds.payEmd('LOT-2025-0891', 'success', RAHUL));
+    await confirmedEmd('LOT-2025-0891', RAHUL);
     const results = await Promise.all(
       Array.from({ length: 5 }, () => t.ds.placeBid({ lotId: 'LOT-2025-0891', amountPerMt: 35_000, clientRequestId: 'retry-storm', seenHighestPerMt: 34_500 }, RAHUL)),
     );
@@ -301,10 +330,10 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
     expect(must(await t.ds.opsOverview(OPS))!.stats).toMatchObject({ live: 3, awaitingAction: 4, openClaims: 1, completed: 9 });
     expect(must(await t.ds.claimReview('CLM-1042-01', OPS))!.outcomes).toEqual({ approve_adjustment: 83_376, approve_exit: 14_40_000, reject: 13_89_600 });
     expect(must(await t.ds.emailExists('Rahul.Sharma@vardhan.example'))).toBe(true);
-    expect(code(await t.ds.registerBuyer({ name: 'X', email: 'rahul.sharma@vardhan.example', companyName: 'X', businessType: 'X', city: 'X', state: 'X', industry: 'X', materials: ['X'] }))).toBe('duplicate_email');
+    expect(code(await t.ds.registerBuyer({ name: 'X', email: 'rahul.sharma@vardhan.example', phone: '90000 11111', companyName: 'X', businessType: 'X', city: 'X', state: 'X', industry: 'X', materials: ['X'] }))).toBe('duplicate_account');
   });
   it('a real registration is stored as real, not sample data; seeded companies stay sample', async () => {
-    const r = must(await t.ds.registerBuyer({ name: 'Asha Menon', email: 'asha@newco.example', companyName: 'NewCo Metals', businessType: 'Scrap trader / stockist', city: 'Nagpur', state: 'Maharashtra', industry: 'Steel', materials: ['Ferrous / HMS'] }));
+    const r = must(await t.ds.registerBuyer({ name: 'Asha Menon', email: 'asha@newco.example', phone: '98765 43210', companyName: 'NewCo Metals', businessType: 'Scrap trader / stockist', city: 'Nagpur', state: 'Maharashtra', industry: 'Steel', materials: ['Ferrous / HMS'] }));
     expect(r.company.sample).toBe(false);
     // Read back through the store (Postgres on the pg target) — not just the write's echo.
     expect(must(await t.ds.buyerDashboard({ id: r.user.id, role: 'buyer' }))!.buyer.sample).toBe(false);
@@ -312,7 +341,7 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
   });
   it('a seller can never bid on their own lot (domain and place_bid agree)', async () => {
     await t.setSeller('LOT-2025-0891', 'U-RAHUL');
-    expect(code(await t.ds.payEmd('LOT-2025-0891', 'success', RAHUL))).toBe('own_lot');
+    expect(code(await t.ds.submitEmd('LOT-2025-0891', pay(1_00_000), RAHUL))).toBe('own_lot');
     const r = await t.ds.placeBid({ lotId: 'LOT-2025-0891', amountPerMt: 35_000, clientRequestId: 'own', seenHighestPerMt: 34_500 }, RAHUL);
     expect(r.ok ? null : r.error).toMatchObject({ code: 'own_lot', what: 'Sellers cannot bid on their own lots.' });
   });
@@ -343,9 +372,12 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
   it('won is not completed: steps run in order, by the right party, with reasons', async () => {
     expect(code(await t.ds.txAction('TX-1038', { type: 'complete' }, RAHUL))).toBe('invalid_state');
     expect(code(await t.ds.txAction('TX-1038', { type: 'propose_lifting', at: new Date(Date.now() + 864e5).toISOString(), vehicle: 'X' }, RAHUL))).toBe('invalid_state');
-    expect(code(await t.ds.txAction('TX-1038', { type: 'pay_balance' }, SURESH))).toBe('forbidden');
+    const balance = must(await t.ds.transactionDetail('TX-1038', RAHUL))!.balanceDue;
+    expect(code(await t.ds.txAction('TX-1038', { type: 'submit_balance_payment', payment: pay(balance) }, SURESH))).toBe('forbidden');
     expect(code(await t.ds.txAction('TX-1038', { type: 'mark_defaulted', reason: 'Not yet due at all.' }, OPS))).toBe('deadline_not_passed');
-    must(await t.ds.txAction('TX-1038', { type: 'pay_balance' }, RAHUL));
+    must(await t.ds.txAction('TX-1038', { type: 'submit_balance_payment', payment: pay(balance) }, RAHUL));
+    expect(code(await t.ds.txAction('TX-1038', { type: 'propose_lifting', at: new Date(Date.now() + 864e5).toISOString(), vehicle: 'X' }, RAHUL))).toBe('invalid_state');
+    must(await t.ds.txAction('TX-1038', { type: 'confirm_balance_payment' }, SURESH));
     must(await t.ds.txAction('TX-1038', { type: 'propose_lifting', at: new Date(Date.now() + 864e5).toISOString(), vehicle: 'CG 04 AB 1234' }, RAHUL));
     expect(code(await t.ds.txAction('TX-1038', { type: 'confirm_lifting' }, RAHUL))).toBe('forbidden');
     must(await t.ds.txAction('TX-1038', { type: 'confirm_lifting' }, SURESH));
@@ -377,7 +409,7 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
 
   it('a session whose user no longer exists is refused the same way', async () => {
     const ghost: Viewer = { id: 'U-GHOST', role: 'buyer' };
-    for (const r of [await t.ds.buyerDashboard(ghost), await t.ds.payEmd('LOT-2025-0891', 'success', ghost), await t.ds.notifications(ghost)]) {
+    for (const r of [await t.ds.buyerDashboard(ghost), await t.ds.submitEmd('LOT-2025-0891', pay(1_00_000), ghost), await t.ds.notifications(ghost)]) {
       expect(r.ok ? null : r.error).toMatchObject({ code: 'invalid_session', what: 'Your session isn’t valid any more.' });
     }
     // A real user with the wrong role is refused too.
@@ -385,7 +417,7 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
   });
 
   it('demo reset restores the seed with fresh relative times', async () => {
-    must(await t.ds.payEmd('LOT-2025-0891', 'success', RAHUL));
+    await confirmedEmd('LOT-2025-0891', RAHUL);
     must(await t.ds.placeBid({ lotId: 'LOT-2025-0891', amountPerMt: 35_000, clientRequestId: 'pre-reset', seenHighestPerMt: 34_500 }, RAHUL));
     must(await t.ds.reset());
     const d = must(await t.ds.getLot('LOT-2025-0891', RAHUL))!;
@@ -393,5 +425,113 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
     expect(d.viewer.emdPaid).toBe(false);
     expect(Date.parse(d.lot.endAt) - Date.now()).toBeGreaterThan(2.9 * 3_600_000);
     expect(Date.parse(d.lot.endAt) - Date.now()).toBeLessThan(3.1 * 3_600_000);
+  });
+
+  it('EMD paid offline: reported, rejected with a reason, corrected, confirmed — the same record for both parties', async () => {
+    const first = must(await t.ds.submitEmd('LOT-2025-0891', pay(1_00_000, 'UTR-WRONG-1'), RAHUL));
+    expect(first).toMatchObject({ status: 'submitted', mode: 'manual', payment: { reference: 'UTR-WRONG-1', method: 'neft' } });
+    expect(must(await t.ds.sellerDashboard(SURESH))!.emdsToConfirm.map((e) => e.id)).toEqual([first.id]);
+    expect(code(await t.ds.decideEmd(first.id, { decision: 'confirmed', reason: '' }, IMRAN))).toBe('forbidden');
+    expect(code(await t.ds.decideEmd(first.id, { decision: 'rejected', reason: '' }, SURESH))).toBe('reason_required');
+    must(await t.ds.decideEmd(first.id, { decision: 'rejected', reason: 'No credit with this UTR' }, SURESH));
+    expect(must(await t.ds.getLot('LOT-2025-0891', RAHUL))!.viewer.emd).toMatchObject({ status: 'rejected', decision: { reason: 'No credit with this UTR', decidedBy: 'U-SURESH' } });
+    const again = must(await t.ds.submitEmd('LOT-2025-0891', pay(1_00_000, 'UTR-RIGHT-2'), RAHUL));
+    expect(again.id).toBe(first.id);
+    must(await t.ds.decideEmd(first.id, { decision: 'confirmed', reason: '' }, SURESH));
+    const forSeller = must(await t.ds.sellerLot('LOT-2025-0891', SURESH))!.emds.find((e) => e.id === first.id)!;
+    const forBuyer = must(await t.ds.getLot('LOT-2025-0891', RAHUL))!.viewer.emd!;
+    expect(forBuyer).toEqual(forSeller);
+    expect(forBuyer.history.map((h) => h.type)).toEqual(['submitted', 'decided', 'submitted', 'decided']);
+    expect(must(await t.ds.getLot('LOT-2025-0891', RAHUL))!.viewer.emdPaid).toBe(true);
+    expect(must(await t.ds.notifications(RAHUL))[0]).toMatchObject({ kind: 'emd_confirmed' });
+    const bad = await t.ds.submitEmd('LOT-2025-0910', { ...pay(1), paidOn: '2099-01-01' }, RAHUL);
+    expect(code(bad)).toBe('amount_mismatch');
+  });
+
+  it('losing EMDs are owed back at close and the seller records each refund', async () => {
+    await confirmedEmd('LOT-2025-0891', RAHUL);
+    must(await t.ds.placeBid({ lotId: 'LOT-2025-0891', amountPerMt: 35_000, clientRequestId: 'win', seenHighestPerMt: 34_500 }, RAHUL));
+    must(await t.ds.closeDemoAuction('LOT-2025-0891', OPS));
+    const due = must(await t.ds.sellerDashboard(SURESH))!.emdRefundsDue.filter((e) => e.lotId === 'LOT-2025-0891');
+    expect(due.length).toBeGreaterThan(0);
+    expect(due.some((e) => e.buyerId === 'U-RAHUL')).toBe(false);
+    const r = must(await t.ds.recordEmdRefund(due[0]!.id, { amount: due[0]!.amount, refundedOn: today(), reference: 'UTR-REFUND-1', note: '' }, SURESH));
+    expect(r).toMatchObject({ status: 'refunded', refund: { reference: 'UTR-REFUND-1', recordedBy: 'U-SURESH' } });
+    expect(code(await t.ds.recordEmdRefund(due[0]!.id, { amount: due[0]!.amount, refundedOn: today(), reference: 'UTR-REFUND-1', note: '' }, SURESH))).toBe('nothing_due');
+  });
+
+  it('balance paid offline: reported, rejected, corrected, confirmed — history on the transaction', async () => {
+    const due = must(await t.ds.transactionDetail('TX-1038', RAHUL))!.balanceDue;
+    must(await t.ds.txAction('TX-1038', { type: 'submit_balance_payment', payment: pay(due, 'UTR-BAL-1') }, RAHUL));
+    expect(code(await t.ds.txAction('TX-1038', { type: 'reject_balance_payment', reason: '' }, SURESH))).toBe('reason_required');
+    must(await t.ds.txAction('TX-1038', { type: 'reject_balance_payment', reason: 'Only part received' }, SURESH));
+    expect(must(await t.ds.transactionDetail('TX-1038', RAHUL))!).toMatchObject({ statusLabel: 'Won — awaiting balance payment', balancePayment: { decision: { decision: 'rejected', reason: 'Only part received' } } });
+    must(await t.ds.txAction('TX-1038', { type: 'submit_balance_payment', payment: pay(due, 'UTR-BAL-2') }, RAHUL));
+    expect(must(await t.ds.transactionDetail('TX-1038', SURESH))!.next).toMatchObject({ role: 'seller', action: 'confirm_balance_payment' });
+    must(await t.ds.txAction('TX-1038', { type: 'confirm_balance_payment' }, SURESH));
+    const d = must(await t.ds.transactionDetail('TX-1038', RAHUL))!;
+    expect(d.tx).toMatchObject({ status: 'balance_paid', balancePaid: due });
+    expect(d.paymentHistory.map((h) => h.type)).toEqual(['submitted', 'decided', 'submitted', 'decided']);
+    expect(d.timeline.map((e) => e.label)).toEqual(expect.arrayContaining(['Buyer reported the balance payment', 'Seller rejected the reported balance payment', 'Seller confirmed receiving the balance']));
+  });
+
+  it('an ordinary (non-assured) sale completes without any Lot Assurance step', async () => {
+    await t.expire('LOT-2025-0899');
+    const txId = must(await t.ds.getLot('LOT-2025-0899', RAHUL))!.viewer.transactionId!;
+    let d = must(await t.ds.transactionDetail(txId, RAHUL))!;
+    expect(d.assured).toBe(false);
+    must(await t.ds.txAction(txId, { type: 'submit_balance_payment', payment: pay(d.balanceDue) }, RAHUL));
+    must(await t.ds.txAction(txId, { type: 'confirm_balance_payment' }, IMRAN));
+    must(await t.ds.txAction(txId, { type: 'propose_lifting', at: new Date(Date.now() + 864e5).toISOString(), vehicle: 'CG 07 ZZ 1111' }, RAHUL));
+    must(await t.ds.txAction(txId, { type: 'confirm_lifting' }, IMRAN));
+    const ticket = must(await t.ds.uploadMedia(new File([PNG], 'ticket.png', { type: 'image/png' }), 'lifting', RAHUL));
+    must(await t.ds.txAction(txId, { type: 'record_weighbridge', ticketRef: 'WB-77', weighbridge: 'Bhilai Gate 1', grossMt: null, tareMt: null, measuredMt: 7.9, ticketMediaId: ticket.id }, RAHUL, [ticket]));
+    d = must(await t.ds.transactionDetail(txId, RAHUL))!;
+    expect(d.tx.status).toBe('material_checked');
+    expect(must(await t.ds.txAction(txId, { type: 'complete' }, RAHUL)).status).toBe('completed');
+  });
+
+  it('eligibility: apply with documents, review, then bid; documents open only for the owner and reviewers', async () => {
+    const reg = must(await t.ds.registerBuyer({ name: 'Asha Menon', email: 'asha@newco.example', phone: '98765 43210', companyName: 'NewCo Metals', businessType: 'Scrap trader / stockist', city: 'Nagpur', state: 'Maharashtra', industry: 'Steel', materials: ['Ferrous / HMS'] }));
+    const asha: Viewer = { id: reg.user.id, role: 'buyer' };
+    expect(must(await t.ds.accountView(asha))).toMatchObject({ status: 'incomplete', eligible: false });
+    expect(code(await t.ds.submitEmd('LOT-2025-0891', pay(1_00_000), asha))).toBe('not_eligible');
+    expect(code(await t.ds.submitEligibility(asha))).toBe('incomplete_application');
+    must(
+      await t.ds.saveEligibility(
+        { entityType: 'private_limited', legalName: 'NewCo Metals Private Limited', pan: 'AABCN1234F', gstin: '27AABCN1234F1Z5', registrationNumber: 'U27100MH2010PTC123456', registeredAddress: 'Plot 4, MIDC Hingna, Nagpur 440016', representative: { name: 'Asha Menon', designation: 'Director' }, sellerDeclaration: null, bankDetails: null },
+        asha,
+      ),
+    );
+    expect(code(await t.ds.uploadDocument(file('x.gif', 'image/gif'), 'pan_card', asha))).toBe('invalid_file');
+    const docs = [];
+    for (const kind of ['pan_card', 'constitution', 'address_proof', 'representative_id', 'authorisation_letter'] as const) docs.push(must(await t.ds.uploadDocument(file(`${kind}.pdf`), kind, asha)));
+    must(await t.ds.submitEligibility(asha));
+    expect(must(await t.ds.eligibilityQueue(OPS))!.waiting.map((r) => r.companyId)).toEqual([reg.company.id]);
+    expect(code(await t.ds.reviewEligibility(reg.company.id, { decision: 'approved', reason: '' }, asha))).toBe('forbidden');
+    // Owner and reviewer may open a document; another buyer and the seller may not.
+    expect(code(await t.ds.documentUrl(docs[0]!.id, asha))).toBe('ok');
+    expect(code(await t.ds.documentUrl(docs[0]!.id, OPS))).toBe('ok');
+    expect(code(await t.ds.documentUrl(docs[0]!.id, RAHUL))).toBe('forbidden');
+    expect(code(await t.ds.documentUrl(docs[0]!.id, SURESH))).toBe('forbidden');
+    const review = must(await t.ds.eligibilityReview(reg.company.id, OPS))!;
+    expect(review.documents.map((d) => d.kind)).toEqual(['pan_card', 'constitution', 'address_proof', 'representative_id', 'authorisation_letter']);
+    must(await t.ds.reviewEligibility(reg.company.id, { decision: 'approved', reason: 'Documents match the PAN and GSTIN.' }, OPS));
+    expect(must(await t.ds.accountView(asha))).toMatchObject({ status: 'approved', eligible: true, eligibility: { review: { reviewedBy: 'U-DEVENDRA' } } });
+    expect(code(await t.ds.submitEmd('LOT-2025-0891', pay(1_00_000), asha))).toBe('ok');
+
+    // The same PAN can't open a second account as a seller (cross-role), and the refusal names nobody.
+    const sel = must(await t.ds.registerSeller({ name: 'Ravi', companyName: 'Other Traders', businessType: 'Scrap trader', yard: 'Yard 1, Nagpur', city: 'Nagpur', state: 'Maharashtra', categories: ['ferrous_hms'], email: 'ravi@other.example', phone: '91234 56780' }));
+    const ravi: Viewer = { id: sel.user.id, role: 'seller' };
+    must(
+      await t.ds.saveEligibility(
+        { entityType: 'private_limited', legalName: 'Other Traders Private Limited', pan: 'AABCN1234F', gstin: '27AABCN1234F1Z5', registrationNumber: 'U27100MH2010PTC654321', registeredAddress: 'Yard 1, Wadi, Nagpur 440023', representative: { name: 'Ravi', designation: 'Director' }, sellerDeclaration: { authorisedToSell: true, materialSource: 'Own fabrication offcuts' }, bankDetails: { accountName: 'Other Traders', bankName: 'HDFC Bank', accountNumber: '50100123456789', ifsc: 'HDFC0001234', upiId: '' } },
+        ravi,
+      ),
+    );
+    for (const kind of ['pan_card', 'gst_certificate', 'constitution', 'address_proof', 'representative_id', 'authorisation_letter', 'premises_proof', 'cancelled_cheque'] as const) must(await t.ds.uploadDocument(file(`${kind}.pdf`), kind, ravi));
+    const dup = await t.ds.submitEligibility(ravi);
+    expect(dup.ok ? null : dup.error).toMatchObject({ code: 'duplicate_identity', what: 'These business details are already registered with AuctionIT.' });
+    expect(JSON.stringify(dup)).not.toMatch(/NewCo|Asha/);
   });
 });

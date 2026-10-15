@@ -22,6 +22,10 @@ import {
   TrustBadge,
 } from '@/components/ui';
 import { cn } from '@/lib/cn';
+import { PaymentForm, PaymentInstructions } from '@/components/payments/PaymentForm';
+import { PaymentHistory, PaymentStatusBadge, SubmissionDetails } from '@/components/payments/PaymentRecord';
+import { useData } from '@/data';
+import { useSession } from '@/lib/SessionProvider';
 
 export type RunAction = (action: TxAction, opts: { media?: LotMedia[]; success: string }) => Promise<boolean>;
 
@@ -51,12 +55,17 @@ function Waiting({ children }: { children: ReactNode }) {
 // ── 1. Balance ───────────────────────────────────────────────────────────────
 
 export function BalancePanel({ d, run, primary }: { d: TxDetailView; run: RunAction; primary: boolean }) {
-  const [confirm, setConfirm] = useState(false);
   const [defaultOpen, setDefaultOpen] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
   const { tx } = d;
   const paid = tx.balancePaidAt !== null;
+  const report = d.balancePayment;
+  const pending = !!report && !report.decision;
+  const awaiting = tx.status === 'won_awaiting_balance';
+  const sampleRecord = paid && !report;
 
   return (
     <Panel title="Balance payment" done={paid}>
@@ -68,15 +77,18 @@ export function BalancePanel({ d, run, primary }: { d: TxDetailView; run: RunAct
           </dd>
         </div>
         <div className="flex justify-between gap-sm sm:block">
-          <dt className="text-text-secondary">EMD already paid (counts toward price)</dt>
-          <dd className="text-text-strong">{formatINR(tx.emdAmount)} (simulated)</dd>
+          <dt className="text-text-secondary">EMD (counts toward the price)</dt>
+          <dd className="text-text-strong">
+            {formatINR(tx.emdAmount)}
+            {d.emd?.mode === 'simulated' ? ' (sample record)' : ''}
+          </dd>
         </div>
         <div className="flex justify-between gap-sm sm:block">
-          <dt className="text-text-secondary">{paid ? 'Balance paid' : 'Balance due'}</dt>
+          <dt className="text-text-secondary">{paid ? 'Balance confirmed by seller' : 'Balance due'}</dt>
           <dd className="text-price-md text-text-strong">{formatINR(paid ? tx.balancePaid : d.balanceDue)}</dd>
         </div>
         <div className="flex justify-between gap-sm sm:block">
-          <dt className="text-text-secondary">{paid ? 'Paid on' : 'Pay by'}</dt>
+          <dt className="text-text-secondary">{paid ? 'Confirmed on' : 'Pay by'}</dt>
           <dd className="text-text">
             {paid ? when(tx.balancePaidAt) : when(tx.paymentDeadline)}
             {!paid && !d.deadlinePassed && (
@@ -87,45 +99,117 @@ export function BalancePanel({ d, run, primary }: { d: TxDetailView; run: RunAct
           </dd>
         </div>
       </dl>
-      <p className="text-caption text-text-secondary">Final amount is settled on the weighbridge quantity after lifting. All payments here are simulated — no real money moves.</p>
+      <p className="text-caption text-text-secondary">
+        {sampleRecord
+          ? 'Sample record: this balance was recorded as paid without a payment report.'
+          : 'The buyer pays the seller directly and reports it here; it counts once the seller confirms receiving it. AuctionIT doesn’t collect or check money. The final amount is settled on the weighbridge quantity after lifting.'}
+      </p>
 
-      {tx.status === 'won_awaiting_balance' && d.as === 'buyer' && (
-        <div>
-          <Button variant={primary ? 'primary' : 'secondary'} onClick={() => setConfirm(true)}>
-            Pay {formatINR(d.balanceDue)} balance (simulated)
-          </Button>
+      {report && (pending || paid) && (
+        <div className="flex flex-col gap-xs rounded-md border border-border p-md">
+          <div className="flex flex-wrap items-center justify-between gap-xs">
+            <p className="text-label-md text-text-strong">Reported payment</p>
+            <PaymentStatusBadge status={report.decision?.decision ?? 'submitted'} />
+          </div>
+          <SubmissionDetails s={report.submission} />
         </div>
       )}
-      {tx.status === 'won_awaiting_balance' && d.as === 'seller' && <Waiting>Waiting for the buyer to pay the balance by {when(tx.paymentDeadline)}.</Waiting>}
-      {tx.status === 'won_awaiting_balance' && d.as === 'ops' &&
-        (d.deadlinePassed ? (
-          <Banner tone="warning" title="Payment deadline has passed" action={<Button variant="demo" onClick={() => setDefaultOpen(true)}>Mark as defaulted</Button>}>
-            The buyer didn’t pay by {when(tx.paymentDeadline)}. Under the provisional policy the EMD of {formatINR(tx.emdAmount)} is forfeited if marked defaulted.
+
+      {awaiting && d.as === 'buyer' &&
+        (pending ? (
+          <Waiting>Reported. Waiting for the seller to confirm receiving it — you’ll be notified.</Waiting>
+        ) : (
+          <div className="flex flex-col gap-md">
+            {report?.decision?.decision === 'rejected' && (
+              <Banner tone="danger" title="The seller couldn’t match your last report">
+                “{report.decision.reason}” Check the details and report the payment again.
+              </Banner>
+            )}
+            <PaymentInstructions amount={d.balanceDue} payee={d.paymentInstructions} deadline={`Pay by ${when(tx.paymentDeadline)}.`} />
+            <PaymentForm
+              formId="balance-form"
+              amount={d.balanceDue}
+              onSubmit={async (payment) => {
+                const ok = await run({ type: 'submit_balance_payment', payment }, { success: 'Balance payment reported. The seller has been asked to confirm it.' });
+                return ok ? null : { kind: 'rule', code: 'not_saved', what: 'The payment wasn’t reported.', next: 'See the message above and try again.' };
+              }}
+            />
+            <div>
+              <Button variant={primary ? 'primary' : 'secondary'} type="submit" form="balance-form">
+                Report balance payment
+              </Button>
+            </div>
+          </div>
+        ))}
+      {awaiting && d.as === 'seller' &&
+        (pending ? (
+          <div className="flex flex-wrap gap-xs">
+            <Button
+              variant={primary ? 'primary' : 'secondary'}
+              loading={busy}
+              onClick={async () => {
+                setBusy(true);
+                await run({ type: 'confirm_balance_payment' }, { success: 'Receipt confirmed. The buyer can now propose a lifting date.' });
+                setBusy(false);
+              }}
+            >
+              Confirm receipt of {formatINR(report.submission.amount)}
+            </Button>
+            <Button variant="ghost" onClick={() => setRejectOpen(true)} disabled={busy}>
+              Not received
+            </Button>
+          </div>
+        ) : (
+          <Waiting>Waiting for the buyer to pay {formatINR(d.balanceDue)} and report it by {when(tx.paymentDeadline)}. Check your account when they do.</Waiting>
+        ))}
+      {awaiting && d.as === 'ops' &&
+        (pending ? (
+          <Waiting>The buyer reported a payment; the seller hasn’t confirmed it yet. A default can’t be marked meanwhile.</Waiting>
+        ) : d.deadlinePassed ? (
+          <Banner tone="warning" title="Payment deadline has passed" action={<Button onClick={() => setDefaultOpen(true)}>Mark as defaulted</Button>}>
+            The buyer didn’t pay by {when(tx.paymentDeadline)}. Under the provisional policy the EMD of {formatINR(tx.emdAmount)} is forfeited to the seller if marked defaulted.
           </Banner>
         ) : (
           <Waiting>The buyer has until {when(tx.paymentDeadline)} to pay. Operations can mark a default only after that (provisional policy).</Waiting>
         ))}
+      <PaymentHistory events={d.paymentHistory} people={d.people} />
 
-      <ConfirmDialog
-        open={confirm}
-        onClose={() => setConfirm(false)}
-        busy={busy}
-        title="Pay the balance?"
-        consequence={`${formatINR(d.balanceDue)} for ${d.lot.title}. This is a simulated payment — nothing is charged.`}
-        confirmLabel="Pay balance (simulated)"
-        onConfirm={async () => {
-          setBusy(true);
-          const ok = await run({ type: 'pay_balance' }, { success: `Balance of ${formatINR(d.balanceDue)} recorded (simulated). Next: propose a lifting date.` });
-          setBusy(false);
-          if (ok) setConfirm(false);
-        }}
-      />
+      <Dialog
+        open={rejectOpen}
+        onClose={() => setRejectOpen(false)}
+        dismissible={!busy}
+        title="Reject the reported payment?"
+        description="The buyer sees your reason and can correct the details or pay again."
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setRejectOpen(false)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              loading={busy}
+              onClick={async () => {
+                setBusy(true);
+                const ok = await run({ type: 'reject_balance_payment', reason: rejectReason }, { success: 'Payment report rejected. The buyer has been told why.' });
+                setBusy(false);
+                if (ok) setRejectOpen(false);
+              }}
+            >
+              Reject payment
+            </Button>
+          </>
+        }
+      >
+        <Field label="What doesn’t match?" required helper="For example: “No credit with this UTR” or “Only ₹5,00,000 received”.">
+          <Textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} />
+        </Field>
+      </Dialog>
       <Dialog
         open={defaultOpen}
         onClose={() => setDefaultOpen(false)}
         dismissible={!busy}
         title="Mark this transaction as defaulted?"
-        description="The buyer missed the payment deadline. This ends the transaction, forfeits the EMD (simulated, provisional policy) and notifies both parties."
+        description="The buyer missed the payment deadline. This ends the transaction, forfeits the EMD to the seller (provisional policy) and notifies both parties."
         footer={
           <>
             <Button variant="ghost" onClick={() => setDefaultOpen(false)} disabled={busy}>
@@ -468,13 +552,13 @@ export function Reconciliation({ d }: { d: TxDetailView }) {
         {r.adjustment > 0 && <> − {formatINR(r.adjustment)} assurance adjustment</>}
       </p>
       <p className="text-body-md text-text-secondary">
-        Paid so far {formatINR(r.paid)} (EMD + balance, simulated).{' '}
+        Paid so far {formatINR(r.paid)} (EMD + balance).{' '}
         {d.tx.resolution === 'exit_refund' ? (
-          <strong className="text-success">Buyer exited: {formatINR(d.remedies.exitRefund)} returned (simulated).</strong>
+          <strong className="text-success">Buyer exited: {formatINR(d.remedies.exitRefund)} to be returned by the seller.</strong>
         ) : r.difference < 0 ? (
-          <strong className="text-success">Refund due to the buyer: {formatINR(-r.difference)} (simulated).</strong>
+          <strong className="text-success">Refund due to the buyer: {formatINR(-r.difference)}.</strong>
         ) : r.difference > 0 ? (
-          <strong className="text-warning">The buyer owes {formatINR(r.difference)} more (simulated).</strong>
+          <strong className="text-warning">The buyer owes {formatINR(r.difference)} more.</strong>
         ) : (
           'Nothing further to settle.'
         )}
@@ -523,7 +607,7 @@ export function CompletePanel({ d, run }: { d: TxDetailView; run: RunAction }) {
         onClose={() => setConfirm(false)}
         busy={busy}
         title="Complete this transaction?"
-        consequence={`Billing is finalised at ${formatMt(d.tx.weighbridge?.measuredMt ?? 0)} — ${formatINR(d.reconciliation?.payable ?? 0)} (simulated). Loading is marked complete, which closes the claim window.`}
+        consequence={`Billing is finalised at ${formatMt(d.tx.weighbridge?.measuredMt ?? 0)} — ${formatINR(d.reconciliation?.payable ?? 0)}. Loading is marked complete, which closes the claim window.`}
         confirmLabel="Complete transaction"
         onConfirm={async () => {
           setBusy(true);
@@ -543,7 +627,7 @@ export function FinalPanel({ d }: { d: TxDetailView }) {
   if (tx.status === 'defaulted') {
     return (
       <Banner tone="danger" title="This transaction defaulted">
-        The balance wasn’t paid by the deadline. The EMD of {formatINR(tx.emdAmount)} was {d.emdStatus === 'forfeited' ? 'forfeited' : 'handled'} under the provisional policy (simulated).
+        The balance wasn’t paid by the deadline. The EMD of {formatINR(tx.emdAmount)} was {d.emdStatus === 'forfeited' ? 'forfeited' : 'handled'} under the provisional policy.
       </Banner>
     );
   }
@@ -568,7 +652,7 @@ export function FinalPanel({ d }: { d: TxDetailView }) {
           <dd className="text-price-md text-text-strong">{formatMt(tx.finalQtyMt ?? 0)}</dd>
         </div>
         <div>
-          <dt className="text-caption text-text-secondary">Final value (simulated)</dt>
+          <dt className="text-caption text-text-secondary">Final value</dt>
           <dd className="text-price-md text-text-strong">{formatINR(tx.finalPayable ?? 0)}</dd>
         </div>
         <div>
@@ -583,5 +667,100 @@ export function FinalPanel({ d }: { d: TxDetailView }) {
         — the history lists this transaction.
       </p>
     </section>
+  );
+}
+
+// ── Refunds (arranged outside AuctionIT, recorded by the seller) ────────────
+
+export function RefundPanel({ d, run, onChanged }: { d: TxDetailView; run: RunAction; onChanged: () => void }) {
+  const { ds } = useData();
+  const { viewer } = useSession();
+  const [amount, setAmount] = useState(String(d.refundDue || ''));
+  const [refundedOn, setRefundedOn] = useState(new Date().toISOString().slice(0, 10));
+  const [reference, setReference] = useState('');
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [emdError, setEmdError] = useState<string | null>(null);
+  const emdDue = d.emd?.status === 'refund_due';
+  if (d.refundDue <= 0 && d.refunds.length === 0 && !emdDue && d.emd?.status !== 'refunded') return null;
+  const seller = d.as === 'seller';
+
+  return (
+    <Panel title="Refunds" done={d.refundDue === 0 && !emdDue}>
+      <p className="text-body-md text-text-secondary">
+        Refunds are made by the seller outside AuctionIT and recorded here with the bank reference, so both sides see the same record.
+      </p>
+      {d.refundDue > 0 && <Banner tone="warning" title={`${formatINR(d.refundDue)} is owed back to the buyer`}>{seller ? 'Record the refund once you have made it.' : 'The seller records the refund here once made.'}</Banner>}
+      {emdDue && (
+        <Banner
+          tone="warning"
+          title={`The EMD of ${formatINR(d.tx.emdAmount)} is owed back to the buyer`}
+          action={
+            seller && d.emd ? (
+              <Button
+                loading={busy}
+                onClick={async () => {
+                  if (!d.emd) return;
+                  setBusy(true);
+                  setEmdError(null);
+                  const r = await ds.recordEmdRefund(d.emd.id, { amount: d.emd.amount, refundedOn, reference, note }, viewer);
+                  setBusy(false);
+                  if (r.ok) onChanged();
+                  else setEmdError(`${r.error.what} ${r.error.next}`);
+                }}
+              >
+                Record EMD refund
+              </Button>
+            ) : undefined
+          }
+        >
+          {seller ? 'Fill in the date and bank reference below, then record it.' : 'The seller records the refund here once made.'}
+          {emdError && <span className="mt-xs block text-danger">{emdError}</span>}
+        </Banner>
+      )}
+      {d.emd?.refund && <p className="text-body-md text-text">EMD refund recorded: {formatINR(d.emd.refund.amount)} on {d.emd.refund.refundedOn}, ref {d.emd.refund.reference}.</p>}
+      {d.refunds.length > 0 && (
+        <ul className="flex flex-col gap-1 text-body-md">
+          {d.refunds.map((r, i) => (
+            <li key={i}>
+              Refund recorded: {formatINR(r.amount)} on {r.refundedOn}, ref {r.reference}
+              {r.note ? ` — ${r.note}` : ''}
+            </li>
+          ))}
+        </ul>
+      )}
+      {seller && (d.refundDue > 0 || emdDue) && (
+        <div className="grid gap-md sm:grid-cols-2">
+          {d.refundDue > 0 && (
+            <Field label="Amount refunded (₹)" required>
+              <Input inputMode="numeric" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ''))} />
+            </Field>
+          )}
+          <Field label="Date refunded" required>
+            <Input type="date" value={refundedOn} max={new Date().toISOString().slice(0, 10)} onChange={(e) => setRefundedOn(e.target.value)} />
+          </Field>
+          <Field label="Bank reference (UTR)" required>
+            <Input value={reference} onChange={(e) => setReference(e.target.value)} autoComplete="off" />
+          </Field>
+          <Field label="Note">
+            <Input value={note} onChange={(e) => setNote(e.target.value)} />
+          </Field>
+          {d.refundDue > 0 && (
+            <div>
+              <Button
+                loading={busy}
+                onClick={async () => {
+                  setBusy(true);
+                  await run({ type: 'record_refund', refund: { amount: Number(amount), refundedOn, reference, note } }, { success: 'Refund recorded. The buyer has been notified.' });
+                  setBusy(false);
+                }}
+              >
+                Record refund
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+    </Panel>
   );
 }

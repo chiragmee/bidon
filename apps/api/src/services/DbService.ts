@@ -1,4 +1,20 @@
 import {
+  accountView,
+  addDocument,
+  canViewDocument,
+  decideEmd,
+  docView,
+  eligibilityQueue,
+  eligibilityReview,
+  recordEmdRefund,
+  removeDocument,
+  reviewEligibility,
+  saveEligibility,
+  submitEligibility,
+  submitEmd,
+  withoutSamples,
+  type AccountDocument,
+  type DocumentView,
   bidRejection,
   bidNotifications,
   buyerDashboard,
@@ -10,7 +26,6 @@ import {
   markNotificationsRead,
   opsDecide,
   opsOverview,
-  payEmd,
   publishLot,
   registerBuyer,
   registerSeller,
@@ -31,8 +46,23 @@ import type { DataSource, DsResult } from '@auctionit/client';
 import type { Sql } from '../db/client';
 import { closeDueAuctions, closeLot, insertNotifications, loadState, reseed, withWrite } from '../db/repo';
 
+/** A private file already in storage, to be recorded on the uploader's company. */
+export type StoredDocument = Omit<AccountDocument, 'id' | 'companyId' | 'uploadedAt' | 'uploadedBy'>;
+
 /** The DataSource operations the API serves (uploads and change events are HTTP concerns). */
-export type Service = Omit<DataSource, 'kind' | 'subscribe' | 'uploadMedia'>;
+export type Service = Omit<DataSource, 'kind' | 'subscribe' | 'uploadMedia' | 'uploadDocument'> & {
+  /** Record a file the route already put in private storage. */
+  addDocument(doc: StoredDocument, viewer: Viewer): Promise<DsResult<DocumentView>>;
+};
+
+/** Unique-index names → the refusal the domain would give, for writes that race past its checks. */
+const UNIQUE: Record<string, { code: string; what: string; next: string }> = {
+  profiles_email_key: { code: 'duplicate_account', what: 'An AuctionIT account already uses this email, mobile number or sign-in.', next: 'Each person and business holds one account, as a buyer or a seller. Sign in to your existing account, or contact AuctionIT support.' },
+  profiles_phone_key: { code: 'duplicate_account', what: 'An AuctionIT account already uses this email, mobile number or sign-in.', next: 'Each person and business holds one account, as a buyer or a seller. Sign in to your existing account, or contact AuctionIT support.' },
+  profiles_auth_user_key: { code: 'duplicate_account', what: 'An AuctionIT account already uses this email, mobile number or sign-in.', next: 'Each person and business holds one account, as a buyer or a seller. Sign in to your existing account, or contact AuctionIT support.' },
+  companies_pan_key: { code: 'duplicate_identity', what: 'These business details are already registered with AuctionIT.', next: 'Each business can hold one account, as a buyer or a seller. If this is your business, sign in to that account; otherwise contact AuctionIT support.' },
+  companies_gstin_key: { code: 'duplicate_identity', what: 'These business details are already registered with AuctionIT.', next: 'Each business can hold one account, as a buyer or a seller. If this is your business, sign in to that account; otherwise contact AuctionIT support.' },
+};
 
 const actor = (v: Viewer) => ({ id: v.id ?? 'guest', role: v.role });
 const now = () => new Date().toISOString();
@@ -43,27 +73,50 @@ const now = () => new Date().toISOString();
  * functions for row-locked atomicity.
  */
 export class DbService implements Service {
-  constructor(private readonly sql: Sql) {}
+  /** What every operation sees: on the live site, the marketplace without seeded sample records. */
+  private readonly view: (s: DemoState) => DemoState;
+  constructor(
+    private readonly sql: Sql,
+    opts: { hideSamples?: boolean } = {},
+  ) {
+    this.view = opts.hideSamples ? withoutSamples : (s) => s;
+  }
+
+  private async state(): Promise<DemoState> {
+    return this.view(await loadState(this.sql));
+  }
 
   private async read<T>(fn: (s: DemoState, at: string) => T): Promise<DsResult<T>> {
     const at = now();
     await closeDueAuctions(this.sql, at);
-    return { ok: true, data: fn(await loadState(this.sql), at) };
+    return { ok: true, data: fn(await this.state(), at) };
   }
 
   private async write<T>(fn: (s: DemoState, at: string) => OpResult<T>): Promise<DsResult<T>> {
     const at = now();
     await closeDueAuctions(this.sql, at);
-    const r = await withWrite(this.sql, (_tx, s) => {
-      const out = fn(s, at);
-      return { state: out.state, result: out };
-    });
-    return r.ok ? { ok: true, data: r.value } : { ok: false, error: { ...r.error, kind: 'rule' } };
+    try {
+      const r = await withWrite(
+        this.sql,
+        (_tx, s) => {
+          const out = fn(s, at);
+          return { state: out.state, result: out };
+        },
+        this.view,
+      );
+      return r.ok ? { ok: true, data: r.value } : { ok: false, error: { ...r.error, kind: 'rule' } };
+    } catch (e) {
+      const unique = (e as { code?: string; constraint_name?: string }).code === '23505' ? UNIQUE[(e as { constraint_name?: string }).constraint_name ?? ''] : undefined;
+      if (unique) return { ok: false, error: { ...unique, kind: 'rule' } };
+      throw e;
+    }
   }
 
   listLots: Service['listLots'] = (filters) => this.read((s, at) => listLots(s, filters, at));
   getLot: Service['getLot'] = (id, viewer) => this.read((s, at) => lotDetail(s, id, viewer, at));
-  payEmd: Service['payEmd'] = (lotId, outcome, viewer) => this.write((s, at) => payEmd(s, { lotId, outcome }, actor(viewer), at));
+  submitEmd: Service['submitEmd'] = (lotId, input, viewer) => this.write((s, at) => submitEmd(s, lotId, input, actor(viewer), at));
+  decideEmd: Service['decideEmd'] = (emdId, decision, viewer) => this.write((s, at) => decideEmd(s, emdId, decision, actor(viewer), at));
+  recordEmdRefund: Service['recordEmdRefund'] = (emdId, refund, viewer) => this.write((s, at) => recordEmdRefund(s, emdId, refund, actor(viewer), at));
 
   /** place_bid (Postgres) re-checks every rule under a row lock; messages come from the domain. */
   placeBid: Service['placeBid'] = async (input, viewer) => {
@@ -93,7 +146,7 @@ export class DbService implements Service {
   closeDemoAuction: Service['closeDemoAuction'] = async (lotId, viewer) => {
     const at = now();
     await closeDueAuctions(this.sql, at);
-    const check = closeDemoAuction(await loadState(this.sql), lotId, actor(viewer), at);
+    const check = closeDemoAuction(await this.state(), lotId, actor(viewer), at);
     if (!check.ok) return { ok: false, error: { ...check.error, kind: 'rule' } };
     const r = await this.sql.begin((tx) => closeLot(tx, lotId, actor(viewer), true, at));
     if (!r.ok) return { ok: false, error: { kind: 'rule', code: r.code ?? 'not_live', what: 'This auction is no longer live, so it cannot be closed.', next: 'Only live auctions can be closed.' } };
@@ -118,8 +171,29 @@ export class DbService implements Service {
   registerBuyer: Service['registerBuyer'] = (input) => this.write((s, at) => registerBuyer(s, input, at));
   registerSeller: Service['registerSeller'] = (input) => this.write((s, at) => registerSeller(s, input, at));
 
+  me: Service['me'] = (viewer) => (viewer.id ? this.getUser(viewer.id) : Promise.resolve({ ok: true as const, data: null }));
+
+  accountView: Service['accountView'] = (viewer) => this.read((s) => (viewer.id ? accountView(s, viewer.id) : null));
+  saveEligibility: Service['saveEligibility'] = (input, viewer) => this.write((s, at) => saveEligibility(s, input, actor(viewer), at));
+  submitEligibility: Service['submitEligibility'] = (viewer) => this.write((s, at) => submitEligibility(s, actor(viewer), at));
+  addDocument: Service['addDocument'] = (doc, viewer) =>
+    this.write((s, at) => {
+      const r = addDocument(s, doc, actor(viewer), at);
+      return r.ok ? { ...r, value: docView(r.value) } : r;
+    });
+  removeDocument: Service['removeDocument'] = (id, viewer) => this.write((s, at) => removeDocument(s, id, actor(viewer), at));
+  /** Returns the document's private storage path; the route turns it into a short-lived signed link. */
+  documentUrl: Service['documentUrl'] = async (id, viewer) => {
+    const s = await this.state();
+    if (!canViewDocument(s, id, viewer)) return { ok: false, error: { kind: 'rule', code: 'forbidden', what: 'You can’t open this document.', next: 'Only its owner, a reviewer, or the seller a receipt was sent to can open it.' } };
+    return { ok: true, data: { url: s.documents.find((d) => d.id === id)?.path || null } };
+  };
+  eligibilityQueue: Service['eligibilityQueue'] = (viewer) => this.read((s) => (viewer.role === 'ops' ? eligibilityQueue(s) : null));
+  eligibilityReview: Service['eligibilityReview'] = (companyId, viewer) => this.read((s) => (viewer.role === 'ops' ? eligibilityReview(s, companyId) : null));
+  reviewEligibility: Service['reviewEligibility'] = (companyId, decision, viewer) => this.write((s, at) => reviewEligibility(s, companyId, decision, actor(viewer), at));
+
   getUser: Service['getUser'] = async (id) => {
-    const s = await loadState(this.sql);
+    const s = await this.state();
     const user = s.users.find((x) => x.id === id) ?? null;
     return { ok: true, data: user ? { user, company: s.companies.find((c) => c.id === user.companyId) ?? null } : null };
   };
@@ -144,9 +218,15 @@ export class DbService implements Service {
     return { ok: true, data: null };
   };
 
-  /** Role check for the session header: the user must exist with that role. */
+  /** Role check for the presenter session header: the user must exist with that role. */
   async verifySession(role: string, userId: string): Promise<boolean> {
     const [u] = await this.sql`select role from profiles where id = ${userId}`;
     return !!u && u.role === role;
+  }
+
+  /** The profile a verified Supabase Auth user owns — the only source of their id and role. */
+  async profileForAuthUser(authUserId: string): Promise<{ id: string; role: 'buyer' | 'seller' | 'ops' } | null> {
+    const [u] = await this.sql`select id, role from profiles where auth_user_id = ${authUserId}`;
+    return u ? { id: String(u.id), role: u.role as 'buyer' | 'seller' | 'ops' } : null;
   }
 }

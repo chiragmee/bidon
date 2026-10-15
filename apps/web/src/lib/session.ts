@@ -1,8 +1,8 @@
 import { DEMO_ACCOUNTS, type Role } from '@auctionit/domain';
 
 /**
- * Demo session: "<role>:<userId>" in a cookie, so the server-side route guard (src/proxy.ts) and
- * the client agree on who is signed in. Demo only — not an authentication mechanism.
+ * Who is signed in, as pages see it. Live site: from the verified Supabase session (lib/supabase/claims.ts).
+ * Presenter controls only: the sample-account cookie "<role>:<userId>" — not an authentication mechanism.
  */
 export const SESSION_COOKIE = 'auctionit_session';
 
@@ -35,8 +35,9 @@ export const HOME: Record<Role, string> = {
   ops: '/ops',
 };
 
-/** Which role a protected area needs; null = open to everyone. */
-export function requiredRole(pathname: string): Role | 'signed_in' | null {
+/** Which role a protected area needs; null = open to everyone. `account` = a buyer or seller account holder. */
+export function requiredRole(pathname: string): Role | 'signed_in' | 'account' | null {
+  if (pathname === '/account' || pathname.startsWith('/account/')) return 'account';
   if (pathname.startsWith('/buyer')) return 'buyer';
   if (pathname.startsWith('/seller')) return 'seller';
   if (pathname.startsWith('/ops')) return 'ops';
@@ -49,5 +50,6 @@ export function canView(pathname: string, role: Role): boolean {
   const need = requiredRole(pathname);
   if (need === null) return !(pathname.startsWith('/onboarding') && role !== 'guest');
   if (need === 'signed_in') return role !== 'guest';
+  if (need === 'account') return role === 'buyer' || role === 'seller';
   return need === role;
 }

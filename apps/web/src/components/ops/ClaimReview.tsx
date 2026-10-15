@@ -50,7 +50,7 @@ export function ClaimReview({ id }: { id: string }) {
   const { ds } = useData();
   const { viewer } = useSession();
   const toast = useToast();
-  const q = useQuery(`claim:${id}`, (s) => s.claimReview(id, viewer));
+  const q = useQuery(`claim:${id}`, (s) => s.claimReview(id, viewer), { enabled: viewer.role === 'ops' });
   const [outcome, setOutcome] = useState<OpsDecision['outcome'] | null>(null);
   const [reason, setReason] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -190,7 +190,7 @@ export function ClaimReview({ id }: { id: string }) {
           <h2 className="text-h3 text-text-strong">Decision</h2>
           <p>
             <strong>{OUTCOMES.find((o) => o.id === claim.opsDecision?.outcome)?.label}</strong>
-            {claim.opsDecision.amount > 0 && ` · ${formatINR(claim.opsDecision.amount)} (simulated)`}
+            {claim.opsDecision.amount > 0 && ` · ${formatINR(claim.opsDecision.amount)}`}
           </p>
           <p>“{claim.opsDecision.reason}”</p>
           <p className="text-caption text-text-secondary">

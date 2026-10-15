@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { at, bid, checkedTx, ctx, lot, T0, tx } from './fixtures';
+import { at, bid, checkedTx, ctx, lot, payment, T0, tx } from './fixtures';
 import {
   applyTransition,
   balanceDue,
@@ -8,6 +8,7 @@ import {
   createTransaction,
   nextStep,
   reconcile,
+  refundDue,
   stepperState,
   TX_RULES,
   type TxAction,
@@ -67,8 +68,10 @@ describe('createTransaction', () => {
 describe('happy path: won → completed (assured lot)', () => {
   it('walks every step with the right role', () => {
     let t = tx();
-    t = run(t, { type: 'pay_balance' }).tx;
-    expect(t).toMatchObject({ status: 'balance_paid', balancePaid: 1_340_000 });
+    t = run(t, { type: 'submit_balance_payment', payment: payment(1_340_000, T0) }).tx;
+    expect(t).toMatchObject({ status: 'won_awaiting_balance', balancePaid: 0, balancePayment: { submission: { amount: 1_340_000 }, decision: null } });
+    t = run(t, { type: 'confirm_balance_payment' }, seller).tx;
+    expect(t).toMatchObject({ status: 'balance_paid', balancePaid: 1_340_000, balancePayment: { decision: { decision: 'confirmed', decidedBy: 'U-SELLER' } } });
     t = run(t, { type: 'propose_lifting', at: at(60 * 24), vehicle: ' MH 04 GP 8812 ' }).tx;
     expect(t).toMatchObject({ status: 'lifting_proposed', liftingVehicle: 'MH 04 GP 8812' });
     t = run(t, { type: 'confirm_lifting' }, seller).tx;
@@ -107,7 +110,7 @@ describe('role and state guards', () => {
   });
 
   it('a buyer who is not on this transaction is rejected', () => {
-    expect(reject(tx(), { type: 'pay_balance' }, ctx('buyer', 'U-STRANGER'))).toBe('forbidden');
+    expect(reject(tx(), { type: 'submit_balance_payment', payment: payment(1_340_000, T0) }, ctx('buyer', 'U-STRANGER'))).toBe('forbidden');
   });
 
   it('every action rejects states outside its "from" list, with the next step', () => {
@@ -131,7 +134,43 @@ describe('role and state guards', () => {
   });
 
   it('terminal states say no further action is needed', () => {
-    expect(canTransition(tx({ status: 'completed' }), 'pay_balance', buyer)?.next).toMatch(/No further action/);
+    expect(canTransition(tx({ status: 'completed' }), 'submit_balance_payment', buyer)?.next).toMatch(/No further action/);
+  });
+});
+
+describe('balance payment: buyer reports, seller confirms (offline)', () => {
+  const reported = () => run(tx(), { type: 'submit_balance_payment', payment: payment(1_340_000, T0) }).tx;
+
+  it('only the exact balance, with the payment details, can be reported — once at a time', () => {
+    expect(reject(tx(), { type: 'submit_balance_payment', payment: payment(1_000, T0) })).toBe('amount_mismatch');
+    expect(reject(tx(), { type: 'submit_balance_payment', payment: { ...payment(1_340_000, T0), reference: '' } })).toBe('invalid_payment');
+    expect(reject(reported(), { type: 'submit_balance_payment', payment: payment(1_340_000, T0) })).toBe('already_submitted');
+  });
+
+  it('the seller confirms only a reported payment; rejection needs a reason and lets the buyer resubmit', () => {
+    expect(reject(tx(), { type: 'confirm_balance_payment' }, seller)).toBe('no_payment_reported');
+    expect(reject(reported(), { type: 'reject_balance_payment', reason: '' }, seller)).toBe('reason_required');
+    const r = run(reported(), { type: 'reject_balance_payment', reason: 'Not received yet' }, seller);
+    expect(r.tx).toMatchObject({ status: 'won_awaiting_balance', balancePaid: 0, balancePayment: { decision: { decision: 'rejected', reason: 'Not received yet' } } });
+    expect(r.audit[0]).toMatchObject({ action: 'reject_balance_payment', reason: 'Not received yet', actorRole: 'seller' });
+    const again = run(r.tx, { type: 'submit_balance_payment', payment: payment(1_340_000, T0, 'UTR-SECOND') }).tx;
+    expect(again.paymentHistory?.map((h) => h.type)).toEqual(['submitted', 'decided', 'submitted']);
+    expect(nextStep(again)).toMatchObject({ role: 'seller', action: 'confirm_balance_payment' });
+  });
+
+  it('Operations cannot mark a default while a reported payment awaits the seller', () => {
+    const late = ctx('ops', 'U-OPS', at(73 * 60));
+    expect(reject(reported(), { type: 'mark_defaulted', reason: 'No balance within 72h' }, late)).toBe('payment_pending');
+  });
+
+  it('refunds: owed after measurement below the paid amount; recorded by the seller up to what is due', () => {
+    const done = tx({ status: 'completed', balancePaid: 1_340_000, finalPayable: 1_389_600, resolution: 'completed' });
+    expect(refundDue(done)).toBe(1_440_000 - 1_389_600);
+    expect(reject(done, { type: 'record_refund', refund: { amount: 60_000, refundedOn: T0.slice(0, 10), reference: 'UTR-R1', note: '' } }, seller)).toBe('invalid_refund');
+    const r = run(done, { type: 'record_refund', refund: { amount: 50_400, refundedOn: T0.slice(0, 10), reference: 'UTR-R1', note: 'Excess paid' } }, seller);
+    expect(refundDue(r.tx)).toBe(0);
+    expect(reject(r.tx, { type: 'record_refund', refund: { amount: 1, refundedOn: T0.slice(0, 10), reference: 'UTR-R2', note: '' } }, seller)).toBe('nothing_due');
+    expect(refundDue(tx({ status: 'resolved', resolution: 'exit_refund', balancePaid: 1_340_000 }))).toBe(1_340_000);
   });
 });
 
@@ -174,7 +213,7 @@ describe('default', () => {
 
 describe('nextStep / stepperState', () => {
   it.each([
-    ['won_awaiting_balance', 'buyer', 'pay_balance'],
+    ['won_awaiting_balance', 'buyer', 'submit_balance_payment'],
     ['balance_paid', 'buyer', 'propose_lifting'],
     ['lifting_proposed', 'seller', 'confirm_lifting'],
     ['material_checked', 'buyer', 'complete'],

@@ -81,7 +81,7 @@ export function ClaimPanel({ d, onDone, primary }: { d: TxDetailView; onDone: (m
               <p className="text-overline uppercase text-text-secondary">Operations decision</p>
               <p>
                 <strong>{c.opsDecision.outcome === 'approve_adjustment' ? 'Price adjustment approved' : c.opsDecision.outcome === 'approve_exit' ? 'Exit and refund approved' : 'Claim rejected'}</strong>
-                {c.opsDecision.amount > 0 && <> · {formatINR(c.opsDecision.amount)} (simulated)</>}
+                {c.opsDecision.amount > 0 && <> · {formatINR(c.opsDecision.amount)}</>}
               </p>
               <p>“{c.opsDecision.reason}”</p>
             </div>
@@ -154,7 +154,7 @@ export function ClaimPanel({ d, onDone, primary }: { d: TxDetailView; onDone: (m
           const r = await ds.respondClaim(c.id, { decision: decision ?? 'dispute', explanation }, viewer, files);
           setBusy(false);
           setConfirm(false);
-          onDone(r.ok ? (decision === 'accept' ? 'Claim accepted — remedy applied (simulated).' : 'Dispute sent to Operations.') : `${r.error.what} ${r.error.next}`, r.ok);
+          onDone(r.ok ? (decision === 'accept' ? 'Claim accepted — remedy applied.' : 'Dispute sent to Operations.') : `${r.error.what} ${r.error.next}`, r.ok);
         }}
       />
     </Panel>

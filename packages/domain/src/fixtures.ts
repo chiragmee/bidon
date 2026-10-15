@@ -2,6 +2,10 @@
 import type { Ctx } from './context';
 import { sequentialIds } from './context';
 import type { Bid, EmdRecord, Lot, LotMedia, Role, Transaction } from './types';
+import { decideEmd, submitEmd } from './payments';
+import type { DemoState } from './seed';
+import { balanceDue } from './transaction';
+import { runTxAction } from './workflow';
 
 export const T0 = '2026-01-10T06:00:00.000Z';
 export const at = (minutes: number) => new Date(Date.parse(T0) + minutes * 60_000).toISOString();
@@ -56,7 +60,7 @@ export function bid(amount: number, bidderId = 'U-B1', minutes = 0, id = `BID-${
   return { id, lotId: 'LOT-1', bidderId, amountPerMt: amount, placedAt: at(minutes), clientRequestId: `req-${id}` };
 }
 
-export function emd(buyerId = 'U-BUYER', status: EmdRecord['status'] = 'succeeded'): EmdRecord {
+export function emd(buyerId = 'U-BUYER', status: EmdRecord['status'] = 'confirmed'): EmdRecord {
   return { id: `EMD-${buyerId}`, lotId: 'LOT-1', buyerId, amount: 100_000, status, reference: 'SIM-1', mode: 'simulated', createdAt: T0 };
 }
 
@@ -113,4 +117,37 @@ export function checkedTx(over: Partial<Transaction> = {}): Transaction {
     condition: { observedContaminationPct: 14, notes: 'Slag below top layer', photoMediaIds: ['M-1'], checkedAt: at(41), recordedBy: 'U-BUYER' },
     ...over,
   });
+}
+
+// ── Offline payments: report, then the seller confirms (docs/PHASE1_MVP.md) ──
+
+export const payment = (amount: number, now: string, reference = 'UTR000123456') => ({
+  amount,
+  method: 'neft' as const,
+  paidOn: now.slice(0, 10),
+  reference,
+  payerName: 'Test payer',
+  receiptDocumentId: null,
+});
+
+/** Buyer reports the lot's EMD and the lot's seller confirms it. */
+export function confirmedEmd(state: DemoState, lotId: string, buyer: { id: string; role: 'buyer' }, now: string): DemoState {
+  const lot = state.lots.find((l) => l.id === lotId);
+  if (!lot) throw new Error(`no lot ${lotId}`);
+  const s = submitEmd(state, lotId, payment(lot.emdAmount, now), buyer, now);
+  if (!s.ok) throw new Error(s.error.what);
+  const d = decideEmd(s.state, s.value.id, { decision: 'confirmed', reason: '' }, { id: lot.sellerId, role: 'seller' }, now);
+  if (!d.ok) throw new Error(d.error.what);
+  return d.state;
+}
+
+/** Buyer reports the balance and the seller confirms it. */
+export function paidBalance(state: DemoState, txId: string, now: string): DemoState {
+  const tx = state.transactions.find((t) => t.id === txId);
+  if (!tx) throw new Error(`no tx ${txId}`);
+  const s = runTxAction(state, txId, { type: 'submit_balance_payment', payment: payment(balanceDue(tx), now, 'UTR-BAL-0001') }, { id: tx.buyerId, role: 'buyer' }, now);
+  if (!s.ok) throw new Error(s.error.what);
+  const c = runTxAction(s.state, txId, { type: 'confirm_balance_payment' }, { id: tx.sellerId, role: 'seller' }, now);
+  if (!c.ok) throw new Error(c.error.what);
+  return c.state;
 }

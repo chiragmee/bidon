@@ -7,7 +7,8 @@ import { useState } from 'react';
 import type { Role } from '@auctionit/domain';
 import { ButtonLink, DemoModePill } from '@/components/ui';
 import { cn } from '@/lib/cn';
-import { DEMO_CONTROLS } from '@/lib/flags';
+import { AUTH_ENABLED, DEMO_CONTROLS } from '@/lib/flags';
+import { AccountMenu } from './AccountMenu';
 import { useSession } from '@/lib/SessionProvider';
 import { NotificationBell } from './NotificationBell';
 import { RoleSwitcher } from './RoleSwitcher';
@@ -31,7 +32,7 @@ export const NAV: Record<Role, { href: string; label: string }[]> = {
   ops: [
     { href: '/auctions', label: 'Auctions' },
     { href: '/ops', label: 'Operations' },
-    { href: '/lot-assurance', label: 'Lot Assurance' },
+    { href: '/ops/eligibility', label: 'Eligibility' },
   ],
 };
 
@@ -112,7 +113,7 @@ export function AppHeader({ showNav = true }: { showNav?: boolean }) {
             </>
           )}
           <NotificationBell />
-          <RoleSwitcher />
+          {AUTH_ENABLED ? <AccountMenu /> : <RoleSwitcher />}
         </div>
       </div>
       {showNav && menu && (

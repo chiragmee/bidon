@@ -4,15 +4,17 @@ import { useSearchParams } from 'next/navigation';
 import { Plus, Store } from 'lucide-react';
 import { Container, PageHeader } from '@/components/layout/Shells';
 import { TransactionCard } from '@/components/buyer/TransactionCard';
-import { Banner, Button, ButtonLink, Card, EmptyState, ErrorState, RetryIcon, SampleDataCaption, Skeleton, StatCard, StatusBadge } from '@/components/ui';
+import { Banner, Button, ButtonLink, Card, EmptyState, ErrorState, RetryIcon, SampleDataCaption, Skeleton, StatCard } from '@/components/ui';
 import { useQuery } from '@/data';
 import { useSession } from '@/lib/SessionProvider';
+import { EligibilityBadge } from '@/components/account/AccountPage';
+import { EmdPanel } from './EmdPanel';
 import { SellerLotsTable } from './SellerLotsTable';
 
 export function SellerDashboard() {
   const { viewer, session } = useSession();
   const welcome = useSearchParams().get('welcome') === '1';
-  const q = useQuery(`seller-dash:${session.userId}`, (ds) => ds.sellerDashboard(viewer), { pollMs: 15_000 });
+  const q = useQuery(`seller-dash:${session.userId}`, (ds) => ds.sellerDashboard(viewer), { pollMs: 15_000, enabled: viewer.role === 'seller' });
 
   if (q.error && !q.data) {
     return (
@@ -58,6 +60,18 @@ export function SellerDashboard() {
         Your listings, auctions and sales.
       </PageHeader>
 
+      {!d.eligible && (
+        <Banner
+          tone={d.company.verification === 'rejected' ? 'danger' : 'warning'}
+          title={d.company.verification === 'pending_review' ? 'Your account is under review' : 'Verify your business to publish auctions'}
+          action={<ButtonLink href="/account">Account and verification</ButtonLink>}
+        >
+          {d.company.verification === 'pending_review'
+            ? 'You can prepare drafts now; publishing opens once a reviewer approves your account.'
+            : 'Add your business details and documents. You can prepare drafts meanwhile, but only approved sellers can publish.'}
+        </Banner>
+      )}
+      <EmdPanel emds={[...d.emdsToConfirm, ...d.emdRefundsDue]} onChanged={q.reload} title="EMD payments to check" />
       {welcome && (
         <Banner tone="success" title="Your seller profile is ready">
           Create a lot: describe the material, add evidence, set the reserve and dates, preview it as a buyer, then publish. Business documents haven’t been checked — document verification isn’t available yet.
@@ -84,7 +98,7 @@ export function SellerDashboard() {
           <p className="text-h3 text-text-strong">{d.trackRecord.hasHistory ? d.trackRecordText : 'New seller'}</p>
           <p className="text-caption text-text-secondary">Updates automatically after every completed sale and resolved claim.</p>
         </div>
-        <StatusBadge kind="neutral">{d.company.verification === 'demo_approved' ? 'Documents not checked' : 'Pending'}</StatusBadge>
+        <EligibilityBadge status={d.company.verification} />
       </Card>
 
       {toDo.length > 0 && (
@@ -117,7 +131,7 @@ export function SellerDashboard() {
 
 export function SellerLots() {
   const { viewer, session } = useSession();
-  const q = useQuery(`seller-lots:${session.userId}`, (ds) => ds.sellerDashboard(viewer), { pollMs: 15_000 });
+  const q = useQuery(`seller-lots:${session.userId}`, (ds) => ds.sellerDashboard(viewer), { pollMs: 15_000, enabled: viewer.role === 'seller' });
   return (
     <Container className="flex flex-col gap-lg">
       <PageHeader title="My lots" actions={<ButtonLink href="/seller/lots/new" variant="primary" icon={<Plus aria-hidden />}>Create a new lot</ButtonLink>}>

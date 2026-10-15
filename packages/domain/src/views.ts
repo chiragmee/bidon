@@ -5,6 +5,9 @@
 import type { BuyerBidStatus, DerivedStatus } from './auction';
 import { buyerBidStatus, deriveAuctionStatus, hasEmd, highestBid, minNextBid } from './auction';
 import { ms } from './context';
+import { isEligible } from './eligibilityPolicy';
+import type { EmdView } from './payments';
+import { emdView, paymentInstructions } from './payments';
 import type { CategoryPolicy } from './policy';
 import { policyFor } from './policy';
 import type { DemoState } from './seed';
@@ -205,8 +208,15 @@ export interface LotDetailView {
   viewer: {
     role: Role;
     isOwnLot: boolean;
+    /** The seller has confirmed receiving this buyer's EMD (bidding allowed). */
     emdPaid: boolean;
-    emdFailed: boolean;
+    /** This buyer's EMD record for the lot, if any — the same record the seller sees. */
+    emd: EmdView | null;
+    /** Buyer accounts: eligibility status (only approved buyers report an EMD or bid). */
+    verification: Company['verification'] | null;
+    eligible: boolean;
+    /** Where to pay the EMD — shown only to approved buyers. */
+    paymentInstructions: ReturnType<typeof paymentInstructions>;
     bidStatus: BuyerBidStatus;
     myHighestPerMt: number | null;
     /** Set when the viewer is a party to this lot's transaction. */
@@ -246,6 +256,7 @@ export function lotDetail(state: DemoState, lotId: string, viewer: Viewer, now: 
   const closed = status === 'closed_reserve_met' || status === 'closed_unsold' || status === 'awarded';
   const winning = lot.winningBidId ? bids.find((b) => b.id === lot.winningBidId) : undefined;
   const emds = viewer.id ? state.emds.filter((e) => e.lotId === lot.id && e.buyerId === viewer.id) : [];
+  const viewerCompany = viewer.id ? companyOf(state, state.users.find((u) => u.id === viewer.id)?.companyId ?? '') : undefined;
 
   return {
     lot,
@@ -273,7 +284,10 @@ export function lotDetail(state: DemoState, lotId: string, viewer: Viewer, now: 
       role: viewer.role,
       isOwnLot: viewer.id === lot.sellerId,
       emdPaid: !!viewer.id && hasEmd(state.emds, lot.id, viewer.id),
-      emdFailed: emds.length > 0 && emds.every((e) => e.status === 'failed'),
+      emd: emds[0] ? emdView(state, emds[0]) : null,
+      verification: viewerCompany?.verification ?? null,
+      eligible: viewer.role === 'buyer' && isEligible(viewerCompany),
+      paymentInstructions: viewer.role === 'buyer' && isEligible(viewerCompany) && viewer.id !== lot.sellerId ? paymentInstructions(state, lot.sellerId) : null,
       bidStatus: viewer.id ? buyerBidStatus(lot, bids, viewer.id, now) : 'none',
       myHighestPerMt: mine.length ? Math.max(...mine.map((b) => b.amountPerMt)) : null,
       transactionId: isParty && tx ? tx.id : null,
@@ -323,6 +337,9 @@ export interface BuyerDashboardView {
   stats: { activeBids: number; leading: number; outbid: number; closingSoon: number; wonNextStep: number; inProgress: number; completed: number };
   activeBids: BuyerBidRow[];
   closedBids: BuyerBidRow[];
+  /** EMDs reported, waiting, rejected or owed back — newest first. */
+  emds: EmdView[];
+  eligible: boolean;
   transactions: TransactionCardView[];
   completed: TransactionCardView[];
 }
@@ -394,6 +411,11 @@ export function buyerDashboard(state: DemoState, buyerId: string, now: Iso): Buy
     },
     activeBids,
     closedBids,
+    emds: state.emds
+      .filter((e) => e.buyerId === buyerId && e.status !== 'confirmed' && e.status !== 'forfeited')
+      .sort((a, b) => ms(b.payment?.submittedAt ?? b.createdAt) - ms(a.payment?.submittedAt ?? a.createdAt))
+      .map((e) => emdView(state, e)),
+    eligible: isEligible(company),
     transactions: open,
     completed,
   };

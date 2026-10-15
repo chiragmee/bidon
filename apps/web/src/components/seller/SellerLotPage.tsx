@@ -10,6 +10,7 @@ import { AssuranceSummary, BidHistory, EvidenceList, Specs } from '@/components/
 import { AuctionStatusBadge, Banner, Button, ButtonLink, Card, ConfirmDialog, Countdown, EmptyState, ErrorState, LotAssuranceBadge, RetryIcon, Skeleton, StatusBadge, useToast } from '@/components/ui';
 import { useData, useQuery } from '@/data';
 import { useSession } from '@/lib/SessionProvider';
+import { EmdPanel } from './EmdPanel';
 
 const STEP_NAME = ['', 'Basic details', 'Quantity and condition', 'Evidence', 'Auction and assurance'];
 const when = (iso: string) => new Date(iso).toLocaleString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -86,6 +87,20 @@ export function SellerLotPage({ id }: { id: string }) {
           {d.status === 'live' ? 'Bidding is open now.' : `Buyers can see it now. Bidding opens ${when(l.startAt)}.`} It also appears on your dashboard.
         </Banner>
       )}
+
+      {d.status === 'draft' && !r.eligible && (
+        <Banner tone="warning" title="Your account must be approved before you can publish" action={<ButtonLink href="/account">Account and verification</ButtonLink>}>
+          You can keep preparing this draft meanwhile.
+        </Banner>
+      )}
+
+      <EmdPanel
+        emds={r.emds}
+        onChanged={() => {
+          rules.reload();
+          lot.reload();
+        }}
+      />
 
       {d.status === 'draft' && (
         <Card className="flex flex-col gap-sm p-lg">

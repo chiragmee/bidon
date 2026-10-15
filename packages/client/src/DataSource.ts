@@ -26,6 +26,16 @@ import type {
   TransactionCardView,
   User,
   Viewer,
+  AccountView,
+  DocumentKind,
+  DocumentView,
+  Eligibility,
+  EligibilityInput,
+  EligibilityQueueRow,
+  EligibilityReview,
+  EligibilityReviewView,
+  PaymentInput,
+  RefundInput,
 } from '@auctionit/domain';
 
 /**
@@ -47,7 +57,12 @@ export interface DataSource {
 
   listLots(filters: LotFilters): Promise<DsResult<LotListResult>>;
   getLot(id: string, viewer: Viewer): Promise<DsResult<LotDetailView | null>>;
-  payEmd(lotId: string, outcome: 'success' | 'failure', viewer: Viewer): Promise<DsResult<EmdRecord>>;
+  /** Buyer reports an EMD paid outside AuctionIT; it allows bidding only once the lot's seller confirms it. */
+  submitEmd(lotId: string, input: PaymentInput, viewer: Viewer): Promise<DsResult<EmdRecord>>;
+  /** The lot's seller confirms receiving a reported EMD, or rejects it with a reason. */
+  decideEmd(emdId: string, decision: { decision: 'confirmed' | 'rejected'; reason: string }, viewer: Viewer): Promise<DsResult<EmdRecord>>;
+  /** The seller records an EMD refund made outside AuctionIT. */
+  recordEmdRefund(emdId: string, refund: RefundInput, viewer: Viewer): Promise<DsResult<EmdRecord>>;
   placeBid(input: PlaceBidInput, viewer: Viewer): Promise<DsResult<{ amountPerMt: number; minNext: number }>>;
   closeDemoAuction(lotId: string, viewer: Viewer): Promise<DsResult<{ status: string; transactionId: string | null }>>;
 
@@ -75,6 +90,21 @@ export interface DataSource {
   uploadMedia(file: File, stage: LotMedia['stage'], viewer: Viewer): Promise<DsResult<LotMedia>>;
 
   registerBuyer(input: BuyerRegistration): Promise<DsResult<{ user: User; company: Company }>>;
+  /** The signed-in account (API: resolved from the verified sign-in, never from a client-supplied id). */
+  me(viewer: Viewer): Promise<DsResult<{ user: User; company: Company | null } | null>>;
+
+  // ── Eligibility (docs/PHASE1_MVP.md) ──
+  accountView(viewer: Viewer): Promise<DsResult<AccountView | null>>;
+  saveEligibility(input: EligibilityInput, viewer: Viewer): Promise<DsResult<Eligibility>>;
+  submitEligibility(viewer: Viewer): Promise<DsResult<Company>>;
+  /** Store a private file (eligibility document or payment receipt). */
+  uploadDocument(file: File, kind: DocumentKind, viewer: Viewer): Promise<DsResult<DocumentView>>;
+  removeDocument(id: string, viewer: Viewer): Promise<DsResult<null>>;
+  /** A short-lived link to a private file, for its owner, a reviewer or the seller a receipt was sent to. */
+  documentUrl(id: string, viewer: Viewer): Promise<DsResult<{ url: string | null }>>;
+  eligibilityQueue(viewer: Viewer): Promise<DsResult<{ waiting: EligibilityQueueRow[]; decided: EligibilityQueueRow[] } | null>>;
+  eligibilityReview(companyId: string, viewer: Viewer): Promise<DsResult<EligibilityReviewView | null>>;
+  reviewEligibility(companyId: string, decision: { decision: EligibilityReview['decision']; reason: string }, viewer: Viewer): Promise<DsResult<Company>>;
   getUser(id: string): Promise<DsResult<{ user: User; company: Company | null } | null>>;
   emailExists(email: string): Promise<DsResult<boolean>>;
 

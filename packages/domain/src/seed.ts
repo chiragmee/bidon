@@ -6,6 +6,7 @@
  */
 import { suggestedEmd } from './policy';
 import type {
+  AccountDocument,
   AuditEntry,
   Bid,
   CategoryId,
@@ -30,6 +31,8 @@ export interface DemoState {
   bids: Bid[];
   emds: EmdRecord[];
   transactions: Transaction[];
+  /** Private files: eligibility documents and payment receipts (docs/PHASE1_MVP.md). */
+  documents: AccountDocument[];
   claims: Claim[];
   audit: AuditEntry[];
   notifications: Notification[];
@@ -37,7 +40,8 @@ export interface DemoState {
   counters: Record<string, number>;
 }
 
-export const SEED_VERSION = 1;
+/** 2: manual payments, eligibility and private documents (older browser data is replaced). */
+export const SEED_VERSION = 2;
 
 /** One-click demo accounts (CLAUDE.md Roles). */
 export const DEMO_ACCOUNTS = {
@@ -49,14 +53,31 @@ export const DEMO_ACCOUNTS = {
 /** New records created after a reset start numbering here, clear of seeded ids. */
 export const NEW_ID_START = 2000;
 
+/** Fictional bank details for the sample sellers, so the EMD and balance screens show where to pay. Not real accounts. */
+const sampleBank = (name: string, n: string) => ({
+  entityType: null,
+  legalName: name,
+  pan: '',
+  gstin: '',
+  registrationNumber: '',
+  registeredAddress: '',
+  representative: { name: '', designation: '' },
+  sellerDeclaration: null,
+  bankDetails: { accountName: `${name} (sample)`, bankName: 'Sample bank — not a real account', accountNumber: `00000000${n}`, ifsc: 'SAMP0000001', upiId: '' },
+  documentIds: [],
+  submittedAt: null,
+  review: null,
+  history: [],
+});
+
 const companies: Company[] = [
   { id: 'C-VARDHAN', name: 'Vardhan Infra Projects Pvt Ltd', kind: 'buyer', city: 'Nagpur', state: 'Maharashtra', businessType: 'EPC contractor', sample: true, verification: 'demo_approved' },
   { id: 'C-KAVERI', name: 'Kaveri Recyclers', kind: 'buyer', city: 'Bhilai', state: 'Chhattisgarh', businessType: 'Scrap trader / stockist', sample: true, verification: 'demo_approved' },
   { id: 'C-SAIKRUPA', name: 'Sai Krupa Traders', kind: 'buyer', city: 'Raipur', state: 'Chhattisgarh', businessType: 'Scrap trader / stockist', sample: true, verification: 'demo_approved' },
   { id: 'C-DECCAN', name: 'Deccan Foundry Works', kind: 'buyer', city: 'Kolhapur', state: 'Maharashtra', businessType: 'Foundry and castings', sample: true, verification: 'demo_approved' },
-  { id: 'C-BALAJI', name: 'Shree Balaji Steels', kind: 'seller', city: 'Raipur', state: 'Chhattisgarh', businessType: 'Steel processor', yard: 'Raipur Yard #4, Urla Industrial Area', sample: true, verification: 'demo_approved' },
-  { id: 'C-NATIONAL', name: 'National Smelters', kind: 'seller', city: 'Bhilai', state: 'Chhattisgarh', businessType: 'Smelter', sample: true, verification: 'demo_approved' },
-  { id: 'C-MAHALAXMI', name: 'Mahalaxmi Metals', kind: 'seller', city: 'Pune', state: 'Maharashtra', businessType: 'Aluminium extruder', sample: true, verification: 'demo_approved' },
+  { id: 'C-BALAJI', name: 'Shree Balaji Steels', kind: 'seller', city: 'Raipur', state: 'Chhattisgarh', businessType: 'Steel processor', yard: 'Raipur Yard #4, Urla Industrial Area', sample: true, verification: 'demo_approved', eligibility: sampleBank('Shree Balaji Steels', '1001') },
+  { id: 'C-NATIONAL', name: 'National Smelters', kind: 'seller', city: 'Bhilai', state: 'Chhattisgarh', businessType: 'Smelter', sample: true, verification: 'demo_approved', eligibility: sampleBank('National Smelters', '1002') },
+  { id: 'C-MAHALAXMI', name: 'Mahalaxmi Metals', kind: 'seller', city: 'Pune', state: 'Maharashtra', businessType: 'Aluminium extruder', sample: true, verification: 'demo_approved', eligibility: sampleBank('Mahalaxmi Metals', '1003') },
 ];
 
 const users: User[] = [
@@ -170,7 +191,7 @@ export function createSeed(nowIso: Iso = new Date().toISOString()): DemoState {
     return out;
   }
 
-  function addEmd(lot: Lot, buyerId: string, before: Iso, status: EmdRecord['status'] = 'succeeded') {
+  function addEmd(lot: Lot, buyerId: string, before: Iso, status: EmdRecord['status'] = 'confirmed') {
     if (emds.some((e) => e.lotId === lot.id && e.buyerId === buyerId)) return;
     emds.push({
       id: `EMD-${lot.id.slice(-4)}-${buyerId.slice(2)}`,
@@ -181,6 +202,7 @@ export function createSeed(nowIso: Iso = new Date().toISOString()): DemoState {
       reference: `SIM-${lot.id.slice(-4)}${buyerId.slice(2, 5)}`,
       mode: 'simulated',
       createdAt: new Date(Date.parse(before) - 30 * 60_000).toISOString(),
+      history: [],
     });
   }
 
@@ -480,7 +502,8 @@ export function createSeed(nowIso: Iso = new Date().toISOString()): DemoState {
   notify('U-RAHUL', 'bid_accepted', 'Bid placed on LOT-2025-0899', 'You are leading at ₹6,10,000/MT.', '/auctions/LOT-2025-0899', -2, true);
 
   lots.sort((a, b) => b.id.localeCompare(a.id));
-  return { version: SEED_VERSION, seededAt: nowIso, companies, users, lots, bids, emds, transactions, claims, audit, notifications, counters: {} };
+  // Fresh copies: callers mutate states, and the company and user lists above are shared module constants.
+  return { version: SEED_VERSION, seededAt: nowIso, companies: companies.map((c) => JSON.parse(JSON.stringify(c)) as Company), users: users.map((u) => ({ ...u })), lots, bids, emds, transactions, documents: [], claims, audit, notifications, counters: {} };
 }
 
 /** Seed lookups that must exist; throws instead of silently producing a broken seed. */

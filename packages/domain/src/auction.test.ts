@@ -20,6 +20,7 @@ function attempt(over: Partial<BidAttempt> = {}): BidAttempt {
     bids: [bid(34_500, 'U-OTHER', -10)],
     emds: [emd()],
     actor: buyer,
+    eligible: true,
     amountPerMt: 35_000,
     clientRequestId: 'req-new',
     seenHighestPerMt: 34_500,
@@ -63,9 +64,10 @@ describe('highestBid / minNextBid', () => {
 });
 
 describe('hasEmd', () => {
-  it('needs a succeeded record for that buyer and lot', () => {
+  it('needs an EMD the seller confirmed — a reported or rejected payment is not enough', () => {
     expect(hasEmd([emd()], 'LOT-1', 'U-BUYER')).toBe(true);
-    expect(hasEmd([emd('U-BUYER', 'failed')], 'LOT-1', 'U-BUYER')).toBe(false);
+    expect(hasEmd([emd('U-BUYER', 'submitted')], 'LOT-1', 'U-BUYER')).toBe(false);
+    expect(hasEmd([emd('U-BUYER', 'rejected')], 'LOT-1', 'U-BUYER')).toBe(false);
     expect(hasEmd([emd()], 'LOT-2', 'U-BUYER')).toBe(false);
   });
 });
@@ -109,7 +111,11 @@ describe('validateBid', () => {
   });
   it('rejects without EMD', () => {
     expect(code({ emds: [] })).toBe('emd_required');
-    expect(code({ emds: [emd('U-BUYER', 'failed')] })).toBe('emd_required');
+    expect(code({ emds: [emd('U-BUYER', 'submitted')] })).toBe('emd_required');
+  });
+  it('rejects a buyer whose account is not approved, before checking the EMD', () => {
+    expect(code({ eligible: false })).toBe('not_eligible');
+    expect(code({ eligible: false, emds: [] })).toBe('not_eligible');
   });
   it('rejects below minimum when the buyer saw the current price', () => {
     expect(code({ amountPerMt: 34_900 })).toBe('below_minimum');

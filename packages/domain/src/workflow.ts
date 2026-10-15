@@ -11,8 +11,14 @@ import { clone, stateCtx } from './operations';
 import { policyFor } from './policy';
 import type { DemoState } from './seed';
 import type { TxAction } from './transaction';
-import { applyTransition, balanceDue } from './transaction';
+import { applyTransition } from './transaction';
 import type { Claim, Iso, LotMedia, Notification, OpsDecision, SellerResponse, Transaction } from './types';
+
+/** After an exit remedy the buyer's EMD is owed back; the seller records the refund on the EMD record. */
+function emdOwedBack(state: DemoState, lotId: string, buyerId: string) {
+  const emd = state.emds.find((e) => e.lotId === lotId && e.buyerId === buyerId && e.status === 'confirmed');
+  if (emd) emd.status = 'refund_due';
+}
 
 function notify(state: DemoState, ctx: Ctx, n: Omit<Notification, 'id' | 'read' | 'at'>) {
   state.notifications.push({ ...n, id: ctx.newId('N'), read: false, at: ctx.now });
@@ -42,6 +48,12 @@ export function runTxAction(
   /* v8 ignore next -- seeds and closes always create a transaction with its lot */
   if (!lot) return rejected(state, 'not_found', 'The lot for this transaction is missing.', 'Contact Operations.');
 
+  if (action.type === 'submit_balance_payment' && action.payment.receiptDocumentId) {
+    const companyId = state.users.find((u) => u.id === actor.id)?.companyId;
+    if (!state.documents.some((d) => d.id === action.payment.receiptDocumentId && d.kind === 'payment_receipt' && d.companyId === companyId)) {
+      return rejected(state, 'invalid_receipt', 'That receipt isn’t one of your uploads.', 'Upload the receipt again.');
+    }
+  }
   const next = clone(state);
   const ctx = stateCtx(next, now, actor);
   const r = applyTransition(tx, lot, action, ctx);
@@ -55,9 +67,17 @@ export function runTxAction(
   const href = `/transactions/${tx.id}`;
   const to = (userId: string, kind: Notification['kind'], title: string, body: string) => notify(next, ctx, { userId, kind, title, body, href });
   switch (action.type) {
-    case 'pay_balance':
-      to(tx.sellerId, 'balance_paid', `Balance paid on ${tx.id}`, `${formatINR(balanceDue(tx))} paid (simulated). The buyer will propose a lifting date.`);
-      to(tx.buyerId, 'balance_paid', `Balance paid on ${tx.id}`, `${formatINR(balanceDue(tx))} recorded (simulated). Next: propose a lifting date.`);
+    case 'submit_balance_payment':
+      to(tx.sellerId, 'payment_submitted', `Balance payment reported on ${tx.id}`, `The buyer reports paying ${formatINR(action.payment.amount)}, ref ${action.payment.reference.trim()}. Check your account, then confirm or reject it.`);
+      break;
+    case 'confirm_balance_payment':
+      to(tx.buyerId, 'payment_confirmed', `Balance payment confirmed on ${tx.id}`, `The seller confirmed receiving ${formatINR(updated.balancePaid)}. Next: propose a lifting date.`);
+      break;
+    case 'reject_balance_payment':
+      to(tx.buyerId, 'payment_rejected', `Balance payment not confirmed on ${tx.id}`, `The seller says: “${action.reason.trim()}”. Correct the details and report the payment again.`);
+      break;
+    case 'record_refund':
+      to(tx.buyerId, 'refund_recorded', `Refund recorded on ${tx.id}`, `The seller recorded a refund of ${formatINR(action.refund.amount)} on ${action.refund.refundedOn}, ref ${action.refund.reference.trim()}. Check your account.`);
       break;
     case 'propose_lifting':
       to(tx.sellerId, 'lifting_proposed', `Lifting date proposed for ${tx.id}`, `The buyer proposed ${new Date(action.at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}. Confirm it to proceed.`);
@@ -67,14 +87,14 @@ export function runTxAction(
       break;
     case 'complete':
       for (const u of [tx.buyerId, tx.sellerId]) {
-        to(u, 'transaction_completed', `${tx.id} completed`, `Final quantity ${formatMt(updated.finalQtyMt ?? 0)} · final value ${formatINR(updated.finalPayable ?? 0)} (simulated).`);
+        to(u, 'transaction_completed', `${tx.id} completed`, `Final quantity ${formatMt(updated.finalQtyMt ?? 0)} · final value ${formatINR(updated.finalPayable ?? 0)}.`);
       }
       break;
     case 'mark_defaulted': {
-      const emd = next.emds.find((e) => e.lotId === tx.lotId && e.buyerId === tx.buyerId && e.status === 'succeeded');
+      const emd = next.emds.find((e) => e.lotId === tx.lotId && e.buyerId === tx.buyerId && e.status === 'confirmed');
       if (emd) emd.status = policyFor(lot.category).emdOutcome.defaulted;
       for (const u of [tx.buyerId, tx.sellerId]) {
-        to(u, 'transaction_defaulted', `${tx.id} marked defaulted`, `The balance wasn’t paid by the deadline. EMD ${formatINR(tx.emdAmount)} forfeited (simulated, provisional policy).`);
+        to(u, 'transaction_defaulted', `${tx.id} marked defaulted`, `The balance wasn’t paid by the deadline. The EMD of ${formatINR(tx.emdAmount)} is forfeited to the seller (provisional policy).`);
       }
       break;
     }
@@ -139,6 +159,7 @@ export function sellerRespond(
   next.claims = next.claims.map((c) => (c.id === claimId ? r.value.claim : c));
   next.audit.push(...r.value.audit);
   const href = `/transactions/${tx.id}`;
+  if (updated.resolution === 'exit_refund') emdOwedBack(next, lot.id, tx.buyerId);
   if (response.decision === 'accept') {
     const text = describeRemedy(claim.requestedRemedy, claim.requestedRemedy === 'price_adjustment' ? updated.adjustment : tx.emdAmount + tx.balancePaid);
     for (const u of [tx.buyerId, tx.sellerId]) {
@@ -173,10 +194,7 @@ export function opsDecide(
   next.transactions = next.transactions.map((t) => (t.id === tx.id ? r.value.tx : t));
   next.claims = next.claims.map((c) => (c.id === claimId ? r.value.claim : c));
   next.audit.push(...r.value.audit);
-  if (decision.outcome === 'approve_exit') {
-    const emd = next.emds.find((e) => e.lotId === lot.id && e.buyerId === tx.buyerId && e.status === 'succeeded');
-    if (emd) emd.status = 'refunded';
-  }
+  if (decision.outcome === 'approve_exit') emdOwedBack(next, lot.id, tx.buyerId);
   const outcome =
     decision.outcome === 'reject'
       ? 'Claim rejected — the original terms apply.'

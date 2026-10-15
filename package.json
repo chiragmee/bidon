@@ -17,7 +17,8 @@
     "db:reset": "supabase db reset && pnpm --filter @auctionit/api db:seed",
     "demo:reset": "pnpm --filter @auctionit/api db:seed || echo 'No database configured. In browser demo mode use \"Reset demo data\" in the header role menu.'",
     "generate": "pnpm --filter @auctionit/scripts generate",
-    "e2e:http": "E2E_API_URL=http://localhost:4000 playwright test --project=desktop --workers=1"
+    "e2e:http": "E2E_API_URL=http://localhost:4000 playwright test --project=desktop --workers=1",
+    "e2e:live": "E2E_LIVE_CONFIG=1 E2E_AUTH=1 playwright test e2e/auth.spec.ts e2e/live-config.spec.ts"
   },
   "devDependencies": {
     "@playwright/test": "1.64.0",

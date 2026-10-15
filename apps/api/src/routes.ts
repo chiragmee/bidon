@@ -6,28 +6,50 @@ import { ApiError } from './errors';
 import * as S from './schemas';
 import type { Service } from './services/DbService';
 import type { MediaStore } from './services/storage';
+import type { AuthGate, AuthUser, DocumentStore } from './services/supabase';
 
-export type ApiService = Service & { verifySession(role: string, userId: string): Promise<boolean> };
+export type ApiService = Service & {
+  verifySession(role: string, userId: string): Promise<boolean>;
+  profileForAuthUser(authUserId: string): Promise<{ id: string; role: 'buyer' | 'seller' | 'ops' } | null>;
+};
 
-const FORBIDDEN_CODES = new Set(['forbidden', 'not_buyer', 'not_owner', 'own_lot']);
+export interface Identity {
+  /** Verifies Supabase access tokens; null when the API has no Supabase project (in-memory demo). */
+  auth: AuthGate | null;
+  documents: DocumentStore;
+}
+
+const FORBIDDEN_CODES = new Set(['forbidden', 'not_buyer', 'not_owner', 'own_lot', 'not_eligible']);
+const CONFLICT_CODES = new Set(['duplicate_account', 'duplicate_identity', 'already_registered']);
 
 /** Domain result → HTTP. Rule rejections keep their code and wording; the client shows them as-is. */
 function send<T>(res: Response, r: DsResult<T>) {
   if (r.ok) return res.json({ data: r.data });
-  const status = r.error.kind === 'network' ? 503 : r.error.code === 'not_found' ? 404 : FORBIDDEN_CODES.has(r.error.code) ? 403 : 422;
+  const status = r.error.kind === 'network' ? 503 : r.error.code === 'not_found' ? 404 : FORBIDDEN_CODES.has(r.error.code) ? 403 : CONFLICT_CODES.has(r.error.code) ? 409 : 422;
   return res.status(status).json({ error: { code: r.error.code, message: r.error.what, what: r.error.what, next: r.error.next } });
 }
 
 const viewerOf = (res: Response): Viewer => res.locals.viewer as Viewer;
+const authUserOf = (res: Response): AuthUser | null => (res.locals.authUser as AuthUser | undefined) ?? null;
 
 /**
- * Session ("role:userId") from the x-demo-session header; the user must exist with that role.
- * Not authentication — see docs/PRODUCTION_GAPS.md #13 (D-066).
+ * Who is calling. Live site: `Authorization: Bearer <Supabase access token>`, verified by Supabase Auth; the
+ * profile linked to that auth user decides id and role (docs/PHASE1_MVP.md). Presenter controls only (local
+ * data): the `x-demo-session: role:userId` header of the sample accounts. Otherwise the caller is a guest.
  */
-function session(service: ApiService) {
+function session(service: ApiService, env: Env, auth: AuthGate | null) {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const raw = req.header('x-demo-session');
     res.locals.viewer = { id: null, role: 'guest' } satisfies Viewer;
+    const bearer = /^Bearer\s+(.+)$/i.exec(req.header('authorization') ?? '')?.[1];
+    if (bearer) {
+      const user = auth ? await auth.verify(bearer) : null;
+      if (!user) return next(new ApiError(401, 'invalid_session', 'Your sign-in has expired or isn’t valid.', 'Sign in again.'));
+      res.locals.authUser = user;
+      const profile = user.emailVerified ? await service.profileForAuthUser(user.id) : null;
+      if (profile) res.locals.viewer = { id: profile.id, role: profile.role } satisfies Viewer;
+      return next();
+    }
+    const raw = env.DEMO_CONTROLS_ENABLED ? req.header('x-demo-session') : undefined;
     if (!raw) return next();
     const [role, userId] = decodeURIComponent(raw).split(':');
     if (!role || !userId || !(await service.verifySession(role, userId))) {
@@ -71,9 +93,9 @@ function filtersFrom(q: Request['query']): LotFilters {
   };
 }
 
-export function createRouter(service: ApiService, media: MediaStore, env: Env): Router {
+export function createRouter(service: ApiService, media: MediaStore, env: Env, identity: Identity): Router {
   const r = express.Router();
-  const withSession = session(service);
+  const withSession = session(service, env, identity.auth);
   r.use((req, res, next) => {
     withSession(req, res, next).catch(next);
   });
@@ -88,15 +110,10 @@ export function createRouter(service: ApiService, media: MediaStore, env: Env): 
   // ── Lots and bidding ──
   r.get('/lots', wrap(async (req, res) => send(res, await service.listLots(filtersFrom(req.query)))));
   r.get('/lots/:id', wrap(async (req, res) => send(res, await service.getLot(id(req), viewerOf(res)))));
-  r.post(
-    '/lots/:id/emd',
-    requireRole('buyer'),
-    wrap(async (req, res) => {
-      const { outcome } = S.EmdBody.parse(req.body);
-      if (outcome === 'failure') presenterOnly(env, 'Simulating a failed payment isn’t available here.');
-      send(res, await service.payEmd(id(req), outcome, viewerOf(res)));
-    }),
-  );
+  // EMD paid outside AuctionIT: the buyer reports it, the lot's seller confirms or rejects it, and records refunds.
+  r.post('/lots/:id/emd', requireRole('buyer'), wrap(async (req, res) => send(res, await service.submitEmd(id(req), S.PaymentBody.parse(req.body), viewerOf(res)))));
+  r.post('/emds/:id/decision', requireRole('seller'), wrap(async (req, res) => send(res, await service.decideEmd(id(req), S.PaymentDecisionBody.parse(req.body), viewerOf(res)))));
+  r.post('/emds/:id/refund', requireRole('seller'), wrap(async (req, res) => send(res, await service.recordEmdRefund(id(req), S.RefundBody.parse(req.body), viewerOf(res)))));
   r.post(
     '/lots/:id/bids',
     requireRole('buyer'),
@@ -154,10 +171,82 @@ export function createRouter(service: ApiService, media: MediaStore, env: Env): 
   r.post('/seller/lots/:id/publish', requireRole('seller'), wrap(async (req, res) => send(res, await service.publishLot(id(req), viewerOf(res)))));
   r.delete('/seller/lots/:id', requireRole('seller'), wrap(async (req, res) => send(res, await service.deleteDraft(id(req), viewerOf(res)))));
 
-  // ── Accounts and notifications ──
-  r.post('/onboarding/buyer', wrap(async (req, res) => send(res, await service.registerBuyer(S.BuyerRegistration.parse(req.body)))));
-  r.post('/onboarding/seller', wrap(async (req, res) => send(res, await service.registerSeller(S.SellerRegistration.parse(req.body)))));
-  r.get('/users/exists', wrap(async (req, res) => send(res, await service.emailExists(String(req.query.email ?? '')))));
+  // ── Accounts ──
+  /**
+   * Create the buyer or seller profile for a verified sign-in. Email and auth id come from the verified token,
+   * never from the form; one profile per sign-in, and the role can't be changed afterwards (no role switching).
+   * Without a sign-in this is allowed only with presenter controls (sample-data demo, local data).
+   */
+  const register = (role: 'buyer' | 'seller') =>
+    wrap(async (req, res) => {
+      const user = authUserOf(res);
+      if (!user && !env.DEMO_CONTROLS_ENABLED) throw new ApiError(401, 'unauthenticated', 'Create your sign-in and verify your email first.', 'Sign up, open the link we email you, then sign in.');
+      if (user && !user.emailVerified) throw new ApiError(403, 'email_not_verified', 'Your email address isn’t verified yet.', 'Open the link in the email we sent you, then sign in again.');
+      if (user && (await service.profileForAuthUser(user.id))) throw new ApiError(409, 'already_registered', 'This sign-in already has an AuctionIT account.', 'Each sign-in holds one account. Go to your dashboard.');
+      if (!user && viewerOf(res).role !== 'guest') throw new ApiError(409, 'already_registered', 'You’re signed in to an existing account.', 'Sign out first to create a new account.');
+      const fromToken = user ? { email: user.email, authUserId: user.id } : {};
+      const r =
+        role === 'buyer'
+          ? await service.registerBuyer({ ...S.BuyerRegistration.parse(req.body), ...fromToken })
+          : await service.registerSeller({ ...S.SellerRegistration.parse(req.body), ...fromToken });
+      if (r.ok && user) await identity.auth?.setProfile(user.id, { role, profileId: r.data.user.id });
+      send(res, r);
+    });
+  r.post('/onboarding/buyer', register('buyer'));
+  r.post('/onboarding/seller', register('seller'));
+  /** The signed-in account, or null for a guest or a verified sign-in that hasn't created its profile yet. */
+  r.get('/me', wrap(async (_req, res) => send(res, await service.me(viewerOf(res)))));
+
+  // ── Eligibility: the account holder's application and documents ──
+  r.get('/account', requireRole('buyer', 'seller'), wrap(async (_req, res) => send(res, await service.accountView(viewerOf(res)))));
+  r.put('/account/eligibility', requireRole('buyer', 'seller'), wrap(async (req, res) => send(res, await service.saveEligibility(S.EligibilityBody.parse(req.body), viewerOf(res)))));
+  r.post('/account/eligibility/submit', requireRole('buyer', 'seller'), wrap(async (_req, res) => send(res, await service.submitEligibility(viewerOf(res)))));
+  r.post(
+    '/account/documents',
+    requireRole('buyer', 'seller'),
+    express.raw({ type: () => true, limit: '11mb' }),
+    wrap(async (req, res) => {
+      const kind = String(req.query.kind) as (typeof S.DOCUMENT_KINDS)[number];
+      if (!S.DOCUMENT_KINDS.includes(kind)) throw new ApiError(422, 'invalid_kind', 'Unknown document type.', 'Upload from your account page or the payment form.');
+      const viewer = viewerOf(res);
+      const me = await service.me(viewer);
+      const companyId = me.ok ? me.data?.company?.id : undefined;
+      if (!companyId) throw new ApiError(403, 'forbidden', 'Only a buyer or seller account can upload documents.', 'Sign in to your own account.');
+      const name = String(req.query.name ?? 'document');
+      const type = String(req.query.type ?? req.header('content-type') ?? '');
+      const bytes = Buffer.isBuffer(req.body) ? req.body : Buffer.alloc(0);
+      const stored = await identity.documents.put({ name, type, bytes }, companyId);
+      if (!stored.ok) return send(res, stored);
+      send(res, await service.addDocument({ kind, fileName: name, contentType: type, size: bytes.length, path: stored.data.path }, viewer));
+    }),
+  );
+  r.delete('/account/documents/:id', requireRole('buyer', 'seller'), wrap(async (req, res) => send(res, await service.removeDocument(id(req), viewerOf(res)))));
+  /** A one-minute signed link to a private file — only for its owner, a reviewer, or the seller a receipt was sent to. */
+  r.get(
+    '/documents/:id/url',
+    requireRole('signed_in'),
+    wrap(async (req, res) => {
+      const r2 = await service.documentUrl(id(req), viewerOf(res));
+      if (!r2.ok) return send(res, r2);
+      const path = r2.data.url;
+      send(res, { ok: true, data: { url: path && !path.startsWith('data:') ? await identity.documents.signedUrl(path) : path } });
+    }),
+  );
+
+  // ── Eligibility review (internal reviewers: the ops role, never offered at sign-up) ──
+  r.get('/ops/eligibility', requireRole('ops'), wrap(async (_req, res) => send(res, await service.eligibilityQueue(viewerOf(res)))));
+  r.get('/ops/eligibility/:id', requireRole('ops'), wrap(async (req, res) => send(res, await service.eligibilityReview(id(req), viewerOf(res)))));
+  r.post('/ops/eligibility/:id/decision', requireRole('ops'), wrap(async (req, res) => send(res, await service.reviewEligibility(id(req), S.ReviewBody.parse(req.body), viewerOf(res)))));
+
+  // ── Notifications ──
+  // Lets anyone test whether an email holds an account, so only for the sample-data demo; the live sign-up checks duplicates itself.
+  r.get(
+    '/users/exists',
+    wrap(async (req, res) => {
+      presenterOnly(env, 'This check isn’t available.', 'Continue with sign-up; duplicates are refused there.');
+      send(res, await service.emailExists(String(req.query.email ?? '')));
+    }),
+  );
   r.get(
     '/users/:id',
     requireRole('signed_in'),

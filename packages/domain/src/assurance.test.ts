@@ -109,9 +109,9 @@ describe('remedies (D-008)', () => {
   it('exit refunds EMD + balance paid', () => {
     expect(exitRefund(checkedTx())).toBe(1_440_000);
   });
-  it('describes remedies as simulated', () => {
-    expect(describeRemedy('price_adjustment', 83_376)).toBe('Price reduced by ₹83,376 (simulated)');
-    expect(describeRemedy('exit_refund', 1_440_000)).toMatch(/₹14,40,000.*simulated/);
+  it('describes remedies without claiming AuctionIT moves money', () => {
+    expect(describeRemedy('price_adjustment', 83_376)).toBe('Price reduced by ₹83,376');
+    expect(describeRemedy('exit_refund', 1_440_000)).toBe('Buyer exits; the seller returns ₹14,40,000 EMD and balance');
   });
   it('applyRemedy sets final figures', () => {
     expect(applyRemedy(checkedTx(), 'price_adjustment', 83_376, ops)).toMatchObject({

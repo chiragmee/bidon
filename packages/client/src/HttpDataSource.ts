@@ -1,10 +1,12 @@
-import type { LotFilters, LotMedia, Viewer } from '@auctionit/domain';
+import type { DocumentView, LotFilters, LotMedia, Viewer } from '@auctionit/domain';
 import type { DataSource, DsError, DsResult } from './DataSource';
 
 export interface HttpOptions {
   baseUrl: string;
-  /** Demo session sent with every request ("role:userId"); real auth would replace this. */
+  /** Presenter-controls only: demo session sent as x-demo-session ("role:userId"). The API ignores it on the live site. */
   session?: () => string | null;
+  /** Supabase Auth access token for the signed-in user (live site). The API derives identity and role from it. */
+  accessToken?: () => Promise<string | null>;
   fetch?: typeof fetch;
   /** Called after every successful write so open views refresh. */
   onChange?: () => void;
@@ -36,8 +38,12 @@ export class HttpDataSource implements DataSource {
 
   private async call<T>(method: string, path: string, body?: unknown, viewer?: Viewer, isWrite = method !== 'GET'): Promise<DsResult<T>> {
     const headers: Record<string, string> = {};
-    const session = viewer?.id ? `${viewer.role}:${viewer.id}` : this.opts.session?.();
-    if (session) headers['x-demo-session'] = session;
+    const token = this.opts.accessToken ? await this.opts.accessToken() : null;
+    if (token) headers.authorization = `Bearer ${token}`;
+    else {
+      const session = viewer?.id ? `${viewer.role}:${viewer.id}` : this.opts.session?.();
+      if (session) headers['x-demo-session'] = session;
+    }
     if (body !== undefined && !(body instanceof Blob)) headers['content-type'] = 'application/json';
     let res: Response;
     try {
@@ -69,7 +75,9 @@ export class HttpDataSource implements DataSource {
 
   listLots: DataSource['listLots'] = (filters) => this.call('GET', `/lots${query(filters)}`);
   getLot: DataSource['getLot'] = (id, viewer) => this.call('GET', `/lots/${encodeURIComponent(id)}`, undefined, viewer);
-  payEmd: DataSource['payEmd'] = (lotId, outcome, viewer) => this.call('POST', `/lots/${encodeURIComponent(lotId)}/emd`, { outcome }, viewer);
+  submitEmd: DataSource['submitEmd'] = (lotId, input, viewer) => this.call('POST', `/lots/${encodeURIComponent(lotId)}/emd`, input, viewer);
+  decideEmd: DataSource['decideEmd'] = (emdId, decision, viewer) => this.call('POST', `/emds/${encodeURIComponent(emdId)}/decision`, decision, viewer);
+  recordEmdRefund: DataSource['recordEmdRefund'] = (emdId, refund, viewer) => this.call('POST', `/emds/${encodeURIComponent(emdId)}/refund`, refund, viewer);
   placeBid: DataSource['placeBid'] = (input, viewer) => this.call('POST', `/lots/${encodeURIComponent(input.lotId)}/bids`, input, viewer);
   closeDemoAuction: DataSource['closeDemoAuction'] = (lotId, viewer) => this.call('POST', `/lots/${encodeURIComponent(lotId)}/close`, {}, viewer);
 
@@ -93,6 +101,21 @@ export class HttpDataSource implements DataSource {
   registerBuyer: DataSource['registerBuyer'] = (input) => this.call('POST', '/onboarding/buyer', input);
   registerSeller: DataSource['registerSeller'] = (input) => this.call('POST', '/onboarding/seller', input);
   getUser: DataSource['getUser'] = (id) => this.call('GET', `/users/${encodeURIComponent(id)}`);
+  me: DataSource['me'] = (viewer) => this.call('GET', '/me', undefined, viewer);
+
+  accountView: DataSource['accountView'] = (viewer) => this.call('GET', '/account', undefined, viewer);
+  saveEligibility: DataSource['saveEligibility'] = (input, viewer) => this.call('PUT', '/account/eligibility', input, viewer);
+  submitEligibility: DataSource['submitEligibility'] = (viewer) => this.call('POST', '/account/eligibility/submit', {}, viewer);
+  uploadDocument: DataSource['uploadDocument'] = async (file, kind, viewer) => {
+    const path = `/account/documents?kind=${encodeURIComponent(kind)}&name=${encodeURIComponent(file.name)}&type=${encodeURIComponent(file.type)}`;
+    const r = await this.call<DocumentView>('POST', path, file, viewer);
+    return r.ok || r.error.code !== 'network' ? r : { ok: false, error: { ...r.error, what: `The upload of ${file.name} was interrupted.`, next: 'Retry the upload. Nothing else was changed.' } };
+  };
+  removeDocument: DataSource['removeDocument'] = (id, viewer) => this.call('DELETE', `/account/documents/${encodeURIComponent(id)}`, undefined, viewer);
+  documentUrl: DataSource['documentUrl'] = (id, viewer) => this.call('GET', `/documents/${encodeURIComponent(id)}/url`, undefined, viewer);
+  eligibilityQueue: DataSource['eligibilityQueue'] = (viewer) => this.call('GET', '/ops/eligibility', undefined, viewer);
+  eligibilityReview: DataSource['eligibilityReview'] = (companyId, viewer) => this.call('GET', `/ops/eligibility/${encodeURIComponent(companyId)}`, undefined, viewer);
+  reviewEligibility: DataSource['reviewEligibility'] = (companyId, decision, viewer) => this.call('POST', `/ops/eligibility/${encodeURIComponent(companyId)}/decision`, decision, viewer);
   emailExists: DataSource['emailExists'] = (email) => this.call('GET', `/users/exists?email=${encodeURIComponent(email)}`);
   notifications: DataSource['notifications'] = (viewer) => this.call('GET', '/notifications', undefined, viewer);
   markNotificationsRead: DataSource['markNotificationsRead'] = (viewer) => this.call('POST', '/notifications/read', {}, viewer);

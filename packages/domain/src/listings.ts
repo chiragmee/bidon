@@ -8,7 +8,8 @@ import { audit, ms } from './context';
 import type { ListingDraft } from './listing';
 import { canSellerEdit, draftFromLot, publishBlockers } from './listing';
 import type { OpResult } from './operations';
-import { clone, stateCtx, validateEmail } from './operations';
+import { accountIdentityProblem, clone, stateCtx } from './operations';
+import { eligibilityRejection, isEligible } from './eligibilityPolicy';
 import { policyFor, suggestedEmd } from './policy';
 import type { DemoState } from './seed';
 import type { CategoryId, Company, Iso, Lot, User } from './types';
@@ -116,6 +117,8 @@ export function publishLot(state: DemoState, lotId: string, actor: Actor, now: I
   if (!lot) return rejected(state, 'not_found', 'That lot does not exist.', 'Go back to your lots.');
   if (actor.role !== 'seller' || lot.sellerId !== actor.id) return rejected(state, 'forbidden', 'Only the seller of this lot can publish it.', 'Open one of your own lots.');
   if (lot.status !== 'draft') return rejected(state, 'already_published', 'This lot is already published.', 'View it in your lots.');
+  const company = state.companies.find((c) => c.id === lot.sellerCompanyId);
+  if (!isEligible(company)) return { ok: false, state, error: eligibilityRejection(company) };
   const problems = publishBlockers(draftFromLot(lot), now);
   if (problems.length) {
     return rejected(state, 'cannot_publish', `This lot can’t be published yet: ${problems.map((p) => p.message).join(' ')}`, 'Fix the listed items in the wizard, then publish.');
@@ -153,6 +156,8 @@ export interface SellerRegistration {
   categories: CategoryId[];
   email: string;
   phone: string;
+  /** Set by the API from the verified Supabase identity — never from the form. */
+  authUserId?: string | null;
 }
 
 export function registerSeller(state: DemoState, input: SellerRegistration, now: Iso): OpResult<{ user: User; company: Company }> {
@@ -170,15 +175,8 @@ export function registerSeller(state: DemoState, input: SellerRegistration, now:
     .map(([, l]) => l);
   if (input.categories.length === 0) missing.push('material categories');
   if (missing.length) return rejected(state, 'incomplete_profile', `Your profile is missing: ${missing.join(', ')}.`, 'Fill in the highlighted fields.');
-  const emailError = validateEmail(input.email);
-  if (emailError) return rejected(state, 'invalid_email', emailError, 'Correct the email and try again.');
-  if (!/^\+?[\d\s-]{10,15}$/.test(input.phone.trim())) {
-    return rejected(state, 'invalid_phone', 'Enter a 10-digit mobile number, for example 98765 43210.', 'Correct the number and try again.');
-  }
-  const email = input.email.trim().toLowerCase();
-  if (state.users.some((u) => u.email.toLowerCase() === email)) {
-    return rejected(state, 'duplicate_email', 'An account with this email already exists.', 'Sign in to that account, or use a different email.');
-  }
+  const identity = accountIdentityProblem(state, input);
+  if (identity.error) return { ok: false, state, error: identity.error };
   const next = clone(state);
   const ctx = stateCtx(next, now, { id: 'guest', role: 'guest' });
   const company: Company = {
@@ -190,11 +188,11 @@ export function registerSeller(state: DemoState, input: SellerRegistration, now:
     businessType: input.businessType,
     yard: input.yard.trim(),
     sample: false,
-    verification: 'demo_approved',
+    verification: 'incomplete',
   };
-  const user: User = { id: ctx.newId('U'), name: input.name.trim(), email, role: 'seller', companyId: company.id, title: 'Owner' };
+  const user: User = { id: ctx.newId('U'), name: input.name.trim(), email: identity.email, role: 'seller', companyId: company.id, title: 'Owner', phone: identity.phone, authUserId: input.authUserId ?? null };
   next.companies.push(company);
   next.users.push(user);
-  next.audit.push(audit({ ...ctx, actor: { id: user.id, role: 'seller' } }, { entity: 'user', entityId: user.id, action: 'register_seller_demo', to: 'demo_approved' }));
+  next.audit.push(audit({ ...ctx, actor: { id: user.id, role: 'seller' } }, { entity: 'user', entityId: user.id, action: 'register_seller', to: 'incomplete' }));
   return { ok: true, state: next, value: { user, company } };
 }

@@ -10,14 +10,16 @@ import { useData, useQuery } from '@/data';
 import { HOME } from '@/lib/session';
 import { useSession } from '@/lib/SessionProvider';
 import { ClaimPanel } from './ClaimPanel';
-import { BalancePanel, CompletePanel, ConditionCard, FinalPanel, LiftingPanel, Reconciliation, WeighbridgeCard, type RunAction } from './TxPanels';
+import { BalancePanel, RefundPanel, CompletePanel, ConditionCard, FinalPanel, LiftingPanel, Reconciliation, WeighbridgeCard, type RunAction } from './TxPanels';
+
+const EMD_TEXT = { submitted: 'reported', confirmed: 'held by seller', rejected: 'not confirmed', refund_due: 'refund due', refunded: 'refunded', forfeited: 'forfeited' } as const;
 
 function Summary({ d }: { d: TxDetailView }) {
   const rows: [string, string][] = [
     ['Winning bid', formatINR(d.tx.pricePerMt, { perMt: true })],
     ['Estimated quantity', formatMt(d.tx.estimatedQtyMt, { estimate: true })],
-    ['EMD (simulated)', `${formatINR(d.tx.emdAmount)}${d.emdStatus ? ` · ${d.emdStatus === 'succeeded' ? 'held' : d.emdStatus}` : ''}`],
-    ['Balance paid (simulated)', d.tx.balancePaid ? formatINR(d.tx.balancePaid) : '—'],
+    ['EMD', `${formatINR(d.tx.emdAmount)}${d.emd ? ` · ${EMD_TEXT[d.emd.status]}` : ''}`],
+    ['Balance confirmed by seller', d.tx.balancePaid ? formatINR(d.tx.balancePaid) : '—'],
     ['Measured quantity', d.tx.weighbridge ? formatMt(d.tx.weighbridge.measuredMt) : 'At lifting'],
     ['Final value', d.tx.finalPayable !== null ? formatINR(d.tx.finalPayable) : 'After completion'],
   ];
@@ -176,7 +178,8 @@ export function TransactionWorkspace({ id }: { id: string }) {
             </>
           )}
           {tx.status !== 'defaulted' && <LiftingPanel d={d} run={run} primary={action === 'propose_lifting' || action === 'confirm_lifting'} />}
-          <BalancePanel d={d} run={run} primary={action === 'pay_balance'} />
+          <RefundPanel d={d} run={run} onChanged={q.reload} />
+          <BalancePanel d={d} run={run} primary={action === 'submit_balance_payment' || action === 'confirm_balance_payment'} />
         </div>
         <aside className="flex flex-col gap-lg" aria-label="Transaction details">
           <Summary d={d} />

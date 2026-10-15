@@ -27,7 +27,7 @@ export interface CategoryPolicy {
   claimWindow: 'before_loading_complete';
   /** Hours after winning to pay the balance before Ops may mark the transaction defaulted. */
   paymentDeadlineHours: number;
-  /** What happens to EMD (simulated) in each case. */
+  /** What happens to the EMD in each case. */
   emdOutcome: { notWon: 'refunded'; defaulted: 'forfeited'; exitRefund: 'refunded' };
   /** Category-specific attribute fields for the listing wizard (step 2). */
   attributeFields: { key: string; label: string; required: boolean }[];

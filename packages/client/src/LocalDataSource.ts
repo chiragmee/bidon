@@ -9,7 +9,19 @@ import {
   markNotificationsRead,
   opsDecide,
   opsOverview,
-  payEmd,
+  accountView,
+  addDocument,
+  canViewDocument,
+  decideEmd,
+  docView,
+  eligibilityQueue,
+  eligibilityReview,
+  recordEmdRefund,
+  removeDocument,
+  reviewEligibility,
+  saveEligibility,
+  submitEligibility,
+  submitEmd,
   placeBid,
   processDueClosures,
   publishLot,
@@ -24,6 +36,7 @@ import {
   transactionDetail,
   transactionSummary,
   validateUpload,
+  validateDocumentFile,
   type DemoState,
   type ListingDraft,
   type LotMedia,
@@ -40,6 +53,8 @@ export interface LocalOptions {
   shouldFail?: (op: string) => boolean;
   /** Turn an uploaded file into a URL to keep (browser: small JPEG data URL). */
   preview?: (file: File) => Promise<string>;
+  /** Keep a private document in this browser (data URL), or '' when it is too large to keep. */
+  keepDocument?: (file: File) => Promise<string>;
   clock?: () => string;
 }
 
@@ -110,7 +125,9 @@ export class LocalDataSource implements DataSource {
 
   listLots: DataSource['listLots'] = (filters) => this.read('listLots', (s) => listLots(s, filters, this.now()));
   getLot: DataSource['getLot'] = (id, viewer) => this.as(viewer, () => this.read('getLot', (s) => lotDetail(s, id, viewer, this.now())));
-  payEmd: DataSource['payEmd'] = (lotId, outcome, viewer) => this.as(viewer, () => this.write('payEmd', (s) => payEmd(s, { lotId, outcome }, actor(viewer), this.now())));
+  submitEmd: DataSource['submitEmd'] = (lotId, input, viewer) => this.as(viewer, () => this.write('submitEmd', (s) => submitEmd(s, lotId, input, actor(viewer), this.now())));
+  decideEmd: DataSource['decideEmd'] = (emdId, decision, viewer) => this.as(viewer, () => this.write('decideEmd', (s) => decideEmd(s, emdId, decision, actor(viewer), this.now())));
+  recordEmdRefund: DataSource['recordEmdRefund'] = (emdId, refund, viewer) => this.as(viewer, () => this.write('recordEmdRefund', (s) => recordEmdRefund(s, emdId, refund, actor(viewer), this.now())));
   placeBid: DataSource['placeBid'] = (input, viewer) =>
     this.as(viewer, () => this.write('placeBid', (s) => {
       const r = placeBid(s, input, actor(viewer), this.now());
@@ -136,6 +153,41 @@ export class LocalDataSource implements DataSource {
   registerSeller: DataSource['registerSeller'] = (input) => this.write('registerSeller', (s) => registerSeller(s, input, this.now()));
   registerBuyer: DataSource['registerBuyer'] = (input) => this.write('registerBuyer', (s) => registerBuyer(s, input, this.now()));
 
+  /** Like getUser: an account that no longer exists is simply null here (session checks belong to the calls that act). */
+  me: DataSource['me'] = (viewer) => (viewer.id ? this.getUser(viewer.id) : Promise.resolve({ ok: true as const, data: null }));
+
+  accountView: DataSource['accountView'] = (viewer) => this.as(viewer, () => this.read('accountView', (s) => (viewer.id ? accountView(s, viewer.id) : null)));
+  saveEligibility: DataSource['saveEligibility'] = (input, viewer) => this.as(viewer, () => this.write('saveEligibility', (s) => saveEligibility(s, input, actor(viewer), this.now())));
+  submitEligibility: DataSource['submitEligibility'] = (viewer) => this.as(viewer, () => this.write('submitEligibility', (s) => submitEligibility(s, actor(viewer), this.now())));
+  uploadDocument: DataSource['uploadDocument'] = (file, kind, viewer) =>
+    this.as(viewer, async () => {
+      const problem = validateDocumentFile(file);
+      if (problem) return { ok: false, error: { kind: 'rule', code: 'invalid_file', what: problem, next: 'Choose a different file.' } };
+      const path = this.opts.keepDocument ? await this.opts.keepDocument(file) : '';
+      return this.recordDocument({ kind, fileName: file.name, contentType: file.type, size: file.size, path }, viewer);
+    });
+  /** Record a stored private file on the viewer's company (the API's in-memory mode calls this after its own storage step). */
+  recordDocument(doc: Parameters<typeof addDocument>[1], viewer: Viewer) {
+    return this.as(viewer, () =>
+      this.write('uploadDocument', (s) => {
+        const r = addDocument(s, doc, actor(viewer), this.now());
+        return r.ok ? { ...r, value: docView(r.value) } : r;
+      }),
+    );
+  }
+  removeDocument: DataSource['removeDocument'] = (id, viewer) => this.as(viewer, () => this.write('removeDocument', (s) => removeDocument(s, id, actor(viewer), this.now())));
+  documentUrl: DataSource['documentUrl'] = (id, viewer) =>
+    this.as(viewer, () =>
+      this.delay().then(() => {
+        const s = this.current();
+        if (!canViewDocument(s, id, viewer)) return { ok: false as const, error: { kind: 'rule' as const, code: 'forbidden', what: 'You can’t open this document.', next: 'Only its owner, a reviewer, or the seller a receipt was sent to can open it.' } };
+        return { ok: true as const, data: { url: s.documents.find((d) => d.id === id)?.path || null } };
+      }),
+    );
+  eligibilityQueue: DataSource['eligibilityQueue'] = (viewer) => this.as(viewer, () => this.read('eligibilityQueue', (s) => (viewer.role === 'ops' ? eligibilityQueue(s) : null)));
+  eligibilityReview: DataSource['eligibilityReview'] = (companyId, viewer) => this.as(viewer, () => this.read('eligibilityReview', (s) => (viewer.role === 'ops' ? eligibilityReview(s, companyId) : null)));
+  reviewEligibility: DataSource['reviewEligibility'] = (companyId, decision, viewer) => this.as(viewer, () => this.write('reviewEligibility', (s) => reviewEligibility(s, companyId, decision, actor(viewer), this.now())));
+
   getUser: DataSource['getUser'] = (id) =>
     this.read('getUser', (s) => {
       const user = s.users.find((u) => u.id === id);
@@ -143,7 +195,7 @@ export class LocalDataSource implements DataSource {
     });
   emailExists: DataSource['emailExists'] = (email) => this.read('emailExists', (s) => s.users.some((u) => u.email.toLowerCase() === email.trim().toLowerCase()));
   notifications: DataSource['notifications'] = (viewer) =>
-    this.as(viewer, () => this.read('notifications', (s) => s.notifications.filter((n) => n.userId === viewer.id).sort((a, b) => Date.parse(b.at) - Date.parse(a.at))));
+    this.as(viewer, () => this.read('notifications', (s) => s.notifications.filter((n) => n.userId === viewer.id).sort((a, b) => Date.parse(b.at) - Date.parse(a.at) || b.id.localeCompare(a.id, 'en', { numeric: true }))));
   markNotificationsRead: DataSource['markNotificationsRead'] = (viewer) =>
     this.as(viewer, () =>
       this.delay().then(() => {

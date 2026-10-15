@@ -155,11 +155,7 @@ export function LotDetail({ id }: { id: string }) {
           setEmdOpen(false);
           q.reload();
         }}
-        onPaid={() => {
-          setEmdOpen(false);
-          q.reload();
-          openBid();
-        }}
+        onSubmitted={q.reload}
       />
       <BidDialog
         key={bidAttempt}

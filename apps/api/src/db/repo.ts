@@ -56,11 +56,16 @@ export async function writeDiff(tx: Tx, before: DemoState, after: DemoState): Pr
  * Every write: one transaction, the global write lock (same as place_bid/close_auction), a fresh
  * snapshot, the domain operation, then the row diff. Writes are serialised — fine at demo scale.
  */
-export async function withWrite<T>(sql: Sql, fn: (tx: Tx, state: DemoState) => Promise<{ state: DemoState; result: T }> | { state: DemoState; result: T }): Promise<T> {
+export async function withWrite<T>(
+  sql: Sql,
+  fn: (tx: Tx, state: DemoState) => Promise<{ state: DemoState; result: T }> | { state: DemoState; result: T },
+  /** The view the operation works on (e.g. without sample data). The diff is taken against the same view, so rows outside it are never written or deleted. */
+  view: (s: DemoState) => DemoState = (s) => s,
+): Promise<T> {
   return sql.begin(async (tx) => {
     await tx`select app_write_lock()`;
     await tx`set constraints all deferred`;
-    const before = await loadState(tx);
+    const before = view(await loadState(tx));
     const { state, result } = await fn(tx, before);
     if (state !== before) await writeDiff(tx, before, state);
     return result;

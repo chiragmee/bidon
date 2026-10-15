@@ -172,7 +172,7 @@ export function priceAdjustment(lot: Lot, tx: Transaction, type: ClaimType, obse
   return Math.round((t.excess / 100) * tx.weighbridge.measuredMt * tx.pricePerMt);
 }
 
-/** Exit: EMD and any balance paid are returned (simulated); seller keeps the material. */
+/** Exit: the seller returns the EMD and any balance paid (outside AuctionIT, recorded as refunds); seller keeps the material. */
 export function exitRefund(tx: Transaction): Rupees {
   return tx.emdAmount + tx.balancePaid;
 }
@@ -183,8 +183,8 @@ export function remedyAmount(lot: Lot, tx: Transaction, claim: Pick<Claim, 'type
 
 export function describeRemedy(kind: RemedyKind, amount: Rupees): string {
   return kind === 'price_adjustment'
-    ? `Price reduced by ${formatINR(amount)} (simulated)`
-    : `Buyer exits; ${formatINR(amount)} EMD and balance returned (simulated)`;
+    ? `Price reduced by ${formatINR(amount)}`
+    : `Buyer exits; the seller returns ${formatINR(amount)} EMD and balance`;
 }
 
 /** Applies a final remedy to the transaction. */

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Actor } from './context';
-import { closeDemoAuction, payEmd, placeBid } from './operations';
+import { closeDemoAuction, placeBid } from './operations';
+import { confirmedEmd, paidBalance } from './fixtures';
 import { createSeed, type DemoState } from './seed';
 import { sellerTrackRecord } from './trackRecord';
 import type { TxAction } from './transaction';
@@ -24,7 +25,7 @@ const file = (id: string, kind: LotMedia['kind'] = 'photo'): LotMedia => ({ id, 
 /** Journey A 1–8: EMD, bid ₹35,000, Ops closes → TX-2000 for Rahul. */
 function wonLot0891() {
   let s = createSeed(NOW);
-  s = ok(payEmd(s, { lotId: 'LOT-2025-0891', outcome: 'success' }, RAHUL, NOW)).state;
+  s = confirmedEmd(s, 'LOT-2025-0891', RAHUL, NOW);
   s = ok(placeBid(s, { lotId: 'LOT-2025-0891', amountPerMt: 35_000, clientRequestId: 'a', seenHighestPerMt: 34_500 }, RAHUL, NOW)).state;
   const c = ok(closeDemoAuction(s, 'LOT-2025-0891', OPS, t(0.1)));
   return { s: c.state, txId: c.value.transactionId! };
@@ -35,7 +36,7 @@ function upToChecked(observed: number) {
   const txId = won.txId;
   let s = won.s;
   const run = (a: TxAction, actor: Actor = RAHUL, media: LotMedia[] = []) => (s = ok(runTxAction(s, txId, a, actor, t(1), media)).state);
-  run({ type: 'pay_balance' });
+  s = paidBalance(s, txId, t(1));
   run({ type: 'propose_lifting', at: t(24), vehicle: 'MH 04 GP 8812' });
   run({ type: 'confirm_lifting' }, SURESH);
   run({ type: 'record_weighbridge', ticketRef: 'WB-1', weighbridge: 'Raipur Gate #2', grossMt: 54.2, tareMt: 15.6, measuredMt: 38.6, ticketMediaId: 'T1' }, RAHUL, [file('T1')]);
@@ -59,7 +60,7 @@ describe('journey A 9–14, complete branch', () => {
     expect(done.value).toMatchObject({ status: 'completed', finalQtyMt: 38.6, finalPayable: 13_51_000 });
     const kinds = done.state.notifications.filter((n) => n.href === `/transactions/${txId}`).map((n) => `${n.userId}:${n.kind}`);
     expect(kinds).toEqual(
-      expect.arrayContaining(['U-SURESH:balance_paid', 'U-SURESH:lifting_proposed', 'U-RAHUL:lifting_confirmed', 'U-RAHUL:transaction_completed', 'U-SURESH:transaction_completed']),
+      expect.arrayContaining(['U-SURESH:payment_submitted', 'U-RAHUL:payment_confirmed', 'U-SURESH:lifting_proposed', 'U-RAHUL:lifting_confirmed', 'U-RAHUL:transaction_completed', 'U-SURESH:transaction_completed']),
     );
     expect(sellerTrackRecord('U-SURESH', done.state.transactions, done.state.claims).completedSales).toBe(7);
   });
@@ -69,7 +70,7 @@ describe('journey A 9–14, complete branch', () => {
     const r = runTxAction(s, txId, { type: 'confirm_lifting' }, RAHUL, t(1));
     expect(r.ok ? 'ok' : r.error.code).toBe('forbidden');
     expect(r.state).toBe(s);
-    expect(runTxAction(s, 'TX-NOPE', { type: 'pay_balance' }, RAHUL, t(1)).ok).toBe(false);
+    expect(runTxAction(s, 'TX-NOPE', { type: 'confirm_lifting' }, RAHUL, t(1)).ok).toBe(false);
   });
 });
 
@@ -114,13 +115,13 @@ describe('journey A 13 claim branch → seller response → Ops (journey C)', ()
 
     const decided = ok(opsDecide(d.state, c.value.id, { outcome: 'approve_exit', reason: 'Photos show debris throughout the lower layers.' }, OPS, t(4)));
     expect(decided.value.opsDecision).toMatchObject({ outcome: 'approve_exit', decidedBy: 'U-DEVENDRA', amount: 14_00_000 });
-    expect(decided.state.emds.find((e) => e.lotId === 'LOT-2025-0891' && e.buyerId === 'U-RAHUL')?.status).toBe('refunded');
+    expect(decided.state.emds.find((e) => e.lotId === 'LOT-2025-0891' && e.buyerId === 'U-RAHUL')?.status).toBe('refund_due'); // owed back; the seller records the refund when made
 
     const views = [RAHUL, SURESH, OPS].map((v) => transactionDetail(decided.state, txId, v, t(4))!);
     expect(new Set(views.map((v) => `${v.tx.status}|${v.tx.resolution}|${v.claim?.status}`)).size).toBe(1);
     expect(views.map((v) => v.as)).toEqual(['buyer', 'seller', 'ops']);
     expect(views[0]?.timeline.map((e) => e.label)).toEqual(
-      expect.arrayContaining(['Auction closed early by Operations', 'Balance paid (simulated)', 'Seller disputed the claim', 'Operations approved exit and refund']),
+      expect.arrayContaining(['Auction closed early by Operations', 'Buyer reported the balance payment', 'Seller confirmed receiving the balance', 'Seller disputed the claim', 'Operations approved exit and refund']),
     );
     expect(buyerDashboard(decided.state, 'U-RAHUL', t(4))?.completed.some((x) => x.id === txId)).toBe(true);
   });
@@ -197,7 +198,7 @@ describe('views', () => {
 
   it('formats remedy outcomes', () => {
     expect(formatRemedyOutcome('approve_adjustment', 83_376)).toMatch(/Deduct ₹83,376/);
-    expect(formatRemedyOutcome('approve_exit', 1)).toMatch(/Return/);
+    expect(formatRemedyOutcome('approve_exit', 1)).toMatch(/seller returns/);
     expect(formatRemedyOutcome('reject', 1)).toMatch(/Original terms/);
   });
 });

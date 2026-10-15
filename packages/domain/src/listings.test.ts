@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { ListingDraft } from './listing';
 import { deleteDraft, publishLot, registerSeller, saveDraft, type SellerRegistration } from './listings';
-import { payEmd, placeBid } from './operations';
+import { placeBid } from './operations';
+import { confirmedEmd } from './fixtures';
 import { createSeed, type DemoState } from './seed';
 import { sellerDashboard, sellerLot } from './sellerViews';
 import type { LotMedia } from './types';
@@ -86,7 +87,7 @@ describe('editing rules (§14)', () => {
     expect(view.edit.details?.code).toBe('not_editable');
     expect(view.edit.bids?.what).toMatch(/cannot be changed by anyone/);
     // A bid on the live lot keeps it that way.
-    let st = ok(payEmd(s, { lotId: id, outcome: 'success' }, RAHUL, t(2))).state;
+    let st = confirmedEmd(s, id, RAHUL, t(2));
     st = ok(placeBid(st, { lotId: id, amountPerMt: 33_500, clientRequestId: 'x', seenHighestPerMt: null }, RAHUL, t(2))).state;
     expect(sellerDashboard(st, 'U-SURESH', t(2))?.lots.find((l) => l.id === id)).toMatchObject({ tab: 'live', bidCount: 1, highestBidPerMt: 33_500 });
   });
@@ -139,9 +140,10 @@ describe('registerSeller (§12.1)', () => {
     email: 'kavita@raometal.example',
     phone: '98765 43210',
   };
-  it('creates a real (non-sample) seller, active without document checks, who can then list', () => {
+  it('creates a real (non-sample) seller who can prepare drafts but not publish until approved', () => {
     const r = ok(registerSeller(createSeed(NOW), good, NOW));
-    expect(r.value.company).toMatchObject({ kind: 'seller', verification: 'demo_approved', sample: false, yard: 'Plot 12, MIDC' });
+    expect(r.value.company).toMatchObject({ kind: 'seller', verification: 'incomplete', sample: false, yard: 'Plot 12, MIDC' });
+    expect(r.value.user.phone).toBe('+919876543210');
     const d = sellerDashboard(r.state, r.value.user.id, NOW)!;
     expect(d.trackRecord.hasHistory).toBe(false);
     expect(d.lots).toEqual([]);
@@ -151,7 +153,7 @@ describe('registerSeller (§12.1)', () => {
     [{ companyName: '', categories: [] }, 'incomplete_profile'],
     [{ email: 'x@y' }, 'invalid_email'],
     [{ phone: '123' }, 'invalid_phone'],
-    [{ email: 'suresh@balajisteels.example' }, 'duplicate_email'],
+    [{ email: 'suresh@balajisteels.example' }, 'duplicate_account'],
   ] as const)('%o → %s', (patch, code) => {
     const r = registerSeller(createSeed(NOW), { ...good, ...patch } as SellerRegistration, NOW);
     expect(r.ok ? 'ok' : r.error.code).toBe(code);

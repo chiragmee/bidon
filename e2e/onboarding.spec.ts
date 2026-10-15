@@ -9,8 +9,10 @@ test('buyer onboarding: validation, duplicate email, kept values, success', asyn
   await page.getByLabel(/Work email/).fill('asha@newco..com');
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
   await expect(page.getByText(/two dots in a row/)).toBeVisible();
-  // No password field: password sign-in doesn't exist yet, so none is collected (docs/PRODUCTION_GAPS.md #13).
+  await expect(page.getByText(/10-digit mobile number/)).toBeVisible();
+  // Browser demo mode collects no password; the live site signs up with Supabase Auth first (docs/PHASE1_MVP.md).
   await expect(page.getByLabel(/Password/)).toHaveCount(0);
+  await page.getByLabel(/Mobile number/).fill('98765 43210');
 
   await page.getByLabel(/Work email/).fill('rahul.sharma@vardhan.example');
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
@@ -33,8 +35,8 @@ test('buyer onboarding: validation, duplicate email, kept values, success', asyn
   await expect(page.getByLabel(/Company name/)).toHaveValue('NewCo Metals');
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
 
-  await expect(page.getByText('Documents not checked')).toBeVisible();
-  await expect(page.getByText(/KYC aren’t checked yet/)).toBeVisible();
+  await expect(page.getByText('Business review needed')).toBeVisible();
+  await expect(page.getByText(/An AuctionIT reviewer checks them/)).toBeVisible();
   await page.getByRole('button', { name: 'Create buyer account' }).click();
 
   await expect(page).toHaveURL(/\/buyer\/dashboard\?welcome=1/);
@@ -42,6 +44,8 @@ test('buyer onboarding: validation, duplicate email, kept values, success', asyn
   await expect(page.getByText('Your buyer profile is ready')).toBeVisible();
   // A real registration is not labelled as sample data.
   await expect(page.getByText('Sample data')).toHaveCount(0);
+  // Not approved yet: told what to do next, and can't bid.
+  await expect(page.getByText('Verify your business to bid')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'No active bids' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'No transactions in progress' })).toBeVisible();
 });

@@ -172,7 +172,7 @@ export function AssuranceSummary({ d }: { d: LotDetailView }) {
           {declared !== null && <> (seller declared up to {formatPct(declared)})</>}. Measured quantity within ±{policy.tolerance.quantityVariancePct}% of the estimate.
         </Row>
         <Row title="If the lot is outside tolerance" policy>
-          You can ask for a price adjustment for the excess, or exit the deal with your EMD and any balance refunded (simulated — no money moves yet).
+          You can ask for a price adjustment for the excess, or exit the deal with your EMD and any balance refunded by the seller.
         </Row>
         <Row title="How to claim" policy>
           Raise a claim with at least {policy.claimEvidenceMin} files (lifting photos or the weighbridge ticket) before loading is complete. The
@@ -205,7 +205,7 @@ export function SellerCard({ d }: { d: LotDetailView }) {
           {d.seller.sample && <SampleDataCaption className="ml-auto shrink-0" />}
         </div>
         <div className="flex flex-wrap gap-xs">
-          <StatusBadge kind="neutral">{d.seller.verification === 'demo_approved' ? 'Documents not checked' : 'Pending'}</StatusBadge>
+          <StatusBadge kind="neutral">{d.seller.verification === 'approved' ? 'Documents reviewed by AuctionIT' : d.seller.verification === 'demo_approved' ? 'Sample account' : 'Documents not reviewed'}</StatusBadge>
           {r.hasHistory ? <StatusBadge kind="reserve_met">{d.trackRecordText}</StatusBadge> : <StatusBadge kind="neutral">New seller</StatusBadge>}
         </div>
         <p className="text-caption text-text-secondary">

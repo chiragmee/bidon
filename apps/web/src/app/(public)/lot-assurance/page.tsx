@@ -80,7 +80,7 @@ export default function LotAssurancePage() {
           <li>Within tolerance: the transaction completes normally. You pay for the measured weight.</li>
           <li>Outside tolerance: raise a claim with evidence before loading is complete. The seller can accept a price adjustment or your exit.</li>
           <li>If the seller disputes it, AuctionIT Operations reviews the evidence and records a reasoned decision.</li>
-          <li>A refund is never automatic just because a claim was raised. Payments and refunds are recorded without moving money — no payment provider is connected yet.</li>
+          <li>A refund is never automatic just because a claim was raised. Refunds are made by the seller outside AuctionIT and recorded here; AuctionIT doesn’t hold or move money.</li>
         </ul>
       </section>
 

@@ -1,6 +1,6 @@
 import { expect, isHttp, signIn, test } from './fixtures';
 
-const KEY = 'auctionit:demo:v1';
+const KEY = 'auctionit:demo:v2';
 
 test('a lost session asks to sign in again — and keeps what was typed', async ({ page, context }) => {
   test.skip(isHttp, 'removes the account through browser demo storage');

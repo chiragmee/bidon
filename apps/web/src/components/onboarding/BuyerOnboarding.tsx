@@ -3,13 +3,14 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { validateEmail } from '@auctionit/domain';
+import { normalisePhone, validateEmail } from '@auctionit/domain';
 import { Container } from '@/components/layout/Shells';
 import { Banner, Button, Card, Field, Input, Select, StatusBadge, Stepper } from '@/components/ui';
 import { useData, type DsError } from '@/data';
 import { demoSessionFor } from '@/lib/session';
 import { useSession } from '@/lib/SessionProvider';
-import { DEMO_CONTROLS } from '@/lib/flags';
+import { AUTH_ENABLED, DEMO_CONTROLS } from '@/lib/flags';
+import { useSignInGate } from './SignInGate';
 
 const DRAFT_KEY = 'auctionit:onboarding:buyer';
 const STEPS = ['Account', 'Business', 'Review'] as const;
@@ -20,6 +21,7 @@ const MATERIALS = ['Ferrous / HMS', 'Mixed steel', 'Copper and wire', 'Aluminium
 interface Draft {
   name: string;
   email: string;
+  phone: string;
   companyName: string;
   businessType: string;
   city: string;
@@ -30,7 +32,7 @@ interface Draft {
   savedAt: number;
 }
 
-const EMPTY: Draft = { name: '', email: '', companyName: '', businessType: '', city: '', state: '', industry: '', materials: [], step: 1, savedAt: 0 };
+const EMPTY: Draft = { name: '', email: '', phone: '', companyName: '', businessType: '', city: '', state: '', industry: '', materials: [], step: 1, savedAt: 0 };
 type Errors = Partial<Record<keyof Draft, string>>;
 
 function loadDraft(): { draft: Draft; restored: boolean } {
@@ -50,8 +52,9 @@ function validateStep(step: 1 | 2, d: Draft): Errors {
   const e: Errors = {};
   if (step === 1) {
     if (!d.name.trim()) e.name = 'Enter your full name.';
-    const em = validateEmail(d.email);
+    const em = AUTH_ENABLED ? null : validateEmail(d.email);
     if (em) e.email = em;
+    if (!normalisePhone(d.phone)) e.phone = 'Enter a 10-digit mobile number, for example 98765 43210.';
   } else {
     if (!d.companyName.trim()) e.companyName = 'Enter your registered company name.';
     if (!d.businessType) e.businessType = 'Choose the type of business.';
@@ -63,10 +66,10 @@ function validateStep(step: 1 | 2, d: Draft): Errors {
   return e;
 }
 
-/** SPEC §9: account → business profile → review. Short, forgiving, demo-approved — never "KYC verified". */
+/** SPEC §9: account → business profile → review; eligibility documents follow on the account page (docs/PHASE1_MVP.md). */
 export function BuyerOnboarding() {
   const { ds } = useData();
-  const { session, signInAs } = useSession();
+  const { session, signInAs, auth, refreshAccount } = useSession();
   const router = useRouter();
   // Rendered client-only (see app page), so the saved draft can initialise state directly.
   const [initial] = useState(loadDraft);
@@ -101,7 +104,7 @@ export function BuyerOnboarding() {
     const e = validateStep(d.step, d);
     setErrors(e);
     if (Object.keys(e).length) return;
-    if (d.step === 1) {
+    if (d.step === 1 && !AUTH_ENABLED) {
       setBusy(true);
       const r = await ds.emailExists(d.email);
       setBusy(false);
@@ -121,10 +124,11 @@ export function BuyerOnboarding() {
     }
     setBusy(true);
     setFailure(null);
-    const r = await ds.registerBuyer({ ...d });
+    // Live site: the API takes the email from the verified sign-in, not from this form.
+    const r = await ds.registerBuyer({ ...d, email: auth?.email ?? d.email });
     setBusy(false);
     if (!r.ok) {
-      if (r.error.code === 'duplicate_email') setErrors({ email: r.error.what });
+      if (r.error.code === 'duplicate_account') setErrors({ email: r.error.what });
       return setFailure(r.error);
     }
     try {
@@ -132,8 +136,12 @@ export function BuyerOnboarding() {
     } catch {
       /* ignore */
     }
-    signInAs({ role: 'buyer', userId: r.data.user.id }, '/buyer/dashboard?welcome=1');
+    if (AUTH_ENABLED) await refreshAccount('/buyer/dashboard?welcome=1');
+    else signInAs({ role: 'buyer', userId: r.data.user.id }, '/buyer/dashboard?welcome=1');
   }
+
+  const signUpFirst = useSignInGate('buyer');
+  if (signUpFirst) return signUpFirst;
 
   const incomplete = { ...validateStep(1, d), ...validateStep(2, d) };
 
@@ -148,7 +156,7 @@ export function BuyerOnboarding() {
       </Card>
 
       <div className="mt-lg flex flex-col gap-md">
-        {session.role !== 'guest' && (
+        {!AUTH_ENABLED && session.role !== 'guest' && (
           <Banner tone="info" title="You’re already signed in">
             You’re viewing as a {session.role}. Creating an account here signs you in as the new buyer.
           </Banner>
@@ -189,7 +197,17 @@ export function BuyerOnboarding() {
               <Input autoComplete="name" value={d.name} onChange={(e) => set('name', e.target.value)} />
             </Field>
             <Field label="Work email" helper="Used for bid alerts, dispatch documents and invoices." error={errors.email} required>
-              <Input type="email" autoComplete="email" value={d.email} onChange={(e) => set('email', e.target.value)} placeholder="name@company.com" />
+              <Input
+                type="email"
+                autoComplete="email"
+                value={AUTH_ENABLED ? (auth?.email ?? '') : d.email}
+                readOnly={AUTH_ENABLED}
+                onChange={(e) => set('email', e.target.value)}
+                placeholder="name@company.com"
+              />
+            </Field>
+            <Field label="Mobile number" helper="One account per number. Used by sellers and AuctionIT to reach you about lots and payments." error={errors.phone} required>
+              <Input type="tel" autoComplete="tel" value={d.phone} onChange={(e) => set('phone', e.target.value)} placeholder="98765 43210" />
             </Field>
             {errors.email?.includes('already exists') && (
               <p className="-mt-md text-caption">
@@ -262,7 +280,7 @@ export function BuyerOnboarding() {
           <>
             {(
               [
-                ['Account', 1, [['Name', d.name], ['Email', d.email]]],
+                ['Account', 1, [['Name', d.name], ['Email', AUTH_ENABLED ? (auth?.email ?? '') : d.email], ['Mobile', d.phone]]],
                 ['Business', 2, [['Company', d.companyName], ['Business type', d.businessType], ['Location', [d.city, d.state].filter(Boolean).join(', ')], ['Industry', d.industry], ['Materials', d.materials.join(', ')]]],
               ] as const
             ).map(([title, step, rows]) => (
@@ -285,13 +303,12 @@ export function BuyerOnboarding() {
             ))}
             <Card className="flex flex-col gap-xs bg-surface-muted">
               <StatusBadge kind="neutral" className="self-start">
-                Documents not checked
+                Business review needed
               </StatusBadge>
               <p className="text-body-md text-text">
-                Your profile is active straight away. Business documents and KYC aren’t checked yet — document verification isn’t available.
-                Password sign-in isn’t available yet either; this browser stays signed in to the new account.
+                Next you’ll add your business details and documents (PAN, GST if registered, address proof). An AuctionIT reviewer checks them; you can browse
+                auctions meanwhile, and pay EMDs and bid once approved.
               </p>
-              <p className="text-body-md text-text-secondary">Next: find a lot, pay the EMD (simulated) and place a bid.</p>
             </Card>
             {Object.keys(incomplete).length > 0 && (
               <Banner tone="warning" title="A few details are missing">

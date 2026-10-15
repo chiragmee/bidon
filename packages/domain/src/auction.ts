@@ -39,8 +39,9 @@ export function minNextBid(lot: Pick<Lot, 'reservePerMt' | 'bidIncrement'>, bids
   return base + lot.bidIncrement;
 }
 
+/** A bid needs an EMD the lot's seller has confirmed receiving — a reported payment is not enough. */
 export function hasEmd(emds: readonly EmdRecord[], lotId: string, buyerId: string): boolean {
-  return emds.some((e) => e.lotId === lotId && e.buyerId === buyerId && e.status === 'succeeded');
+  return emds.some((e) => e.lotId === lotId && e.buyerId === buyerId && e.status === 'confirmed');
 }
 
 export type BidRejectionCode =
@@ -51,6 +52,7 @@ export type BidRejectionCode =
   | 'auction_closed'
   | 'not_published'
   | 'own_lot'
+  | 'not_eligible'
   | 'emd_required'
   | 'outbid'
   | 'below_minimum';
@@ -60,6 +62,8 @@ export interface BidAttempt {
   bids: readonly Bid[];
   emds: readonly EmdRecord[];
   actor: Actor;
+  /** The bidder's account is approved (eligibility review). */
+  eligible: boolean;
   amountPerMt: unknown;
   clientRequestId: string;
   /** The highest bid the buyer saw when they opened the dialog — detects stale submissions. */
@@ -92,8 +96,13 @@ export function bidRejection(
       return r('This auction has closed, so it no longer accepts bids.', 'See the result on the lot page or browse other live auctions.');
     case 'own_lot':
       return r('Sellers cannot bid on their own lots.', 'Use a buyer account for other lots.');
+    case 'not_eligible':
+      return r('Your account isn’t approved to bid yet.', 'Complete your business verification on your account page; you can bid once a reviewer approves it.');
     case 'emd_required':
-      return r(`An EMD of ${formatINR(ctx.lot.emdAmount)} is needed before you can bid on this lot.`, 'Pay the EMD (simulated — no payment provider is connected yet), then place your bid.');
+      return r(
+        `An EMD of ${formatINR(ctx.lot.emdAmount)}, confirmed by the seller, is needed before you can bid on this lot.`,
+        'Pay the EMD to the seller, report the payment here, and bid once the seller confirms receiving it.',
+      );
     case 'outbid':
       return r(`Another bidder placed ${formatINR(ctx.highest ?? 0, { perMt: true })} while you were bidding.`, `Your bid was not placed. The new minimum is ${min}.`);
     case 'below_minimum':
@@ -116,6 +125,7 @@ export function validateBid(a: BidAttempt): Result<{ amountPerMt: Rupees; minNex
   if (status === 'scheduled') return no('auction_not_started');
   if (status !== 'live') return no('auction_closed');
   if (lot.sellerId === actor.id) return no('own_lot');
+  if (!a.eligible) return no('not_eligible');
   if (!hasEmd(a.emds, lot.id, actor.id)) return no('emd_required');
 
   const minNext = minNextBid(lot, bids);

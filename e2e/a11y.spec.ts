@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
-import { action, expect, signIn, test } from './fixtures';
+import { action, confirmEmd, expect, reportEmd, signIn, test } from './fixtures';
 
 /** Zero serious or critical WCAG 2.1 A/AA violations (PHASES 6.4). */
 async function axe(page: Page, label: string) {
@@ -37,6 +37,9 @@ const SCREENS: [string, 'guest' | 'buyer' | 'seller' | 'ops', string][] = [
   ['ops auctions', 'ops', '/ops/auctions'],
   ['claim review', 'ops', '/ops/claims/CLM-1042-01'],
   ['notifications', 'buyer', '/notifications'],
+  ['account and verification (buyer)', 'buyer', '/account'],
+  ['account and verification (seller)', 'seller', '/account'],
+  ['eligibility queue', 'ops', '/ops/eligibility'],
   ['access denied', 'guest', '/access-denied?need=ops&from=/ops'],
   ['not found', 'guest', '/nowhere'],
 ];
@@ -55,8 +58,10 @@ test('axe: dialogs and menus', async ({ page, context }) => {
   await page.goto('/auctions/LOT-2025-0891');
   await action(page, 'Pay EMD to bid').click();
   await axe(page, 'EMD dialog');
-  await page.getByRole('button', { name: 'Pay ₹1,00,000 (simulated)' }).click();
-  await page.getByRole('button', { name: 'Continue to bid' }).click();
+  await page.keyboard.press('Escape');
+  await reportEmd(page);
+  await confirmEmd(page, 'LOT-2025-0891');
+  await action(page, 'Place bid').click();
   await axe(page, 'bid dialog');
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: /Viewing as Buyer/ }).click();
@@ -90,11 +95,11 @@ test('keyboard: skip link, visible focus, dialog focus trap and Escape', async (
   // Dialog: opened from the keyboard, focus stays inside while tabbing, Escape closes it.
   await action(page, 'Pay EMD to bid').focus();
   await page.keyboard.press('Enter');
-  const dialog = page.getByRole('dialog', { name: 'Pay EMD to start bidding' });
+  const dialog = page.getByRole('dialog', { name: 'Pay the EMD, then report it' });
   await expect(dialog).toBeVisible();
   // A native modal makes the page behind it inert: Tab cycles through the dialog and may step out to
   // the browser's own toolbar (activeElement = body), but never onto page content behind it.
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 14; i++) {
     await page.keyboard.press('Tab');
     const where = await page.evaluate(() => {
       const el = document.activeElement;
@@ -112,12 +117,32 @@ async function press(locator: ReturnType<Page['locator']>, key: 'Enter' | 'Space
   await locator.page().keyboard.press(key);
 }
 
-test('keyboard only: journey A — pay EMD and bid', async ({ page, context }) => {
+/** Focus a field and type into it with the keyboard. */
+async function type(locator: ReturnType<Page['locator']>, text: string) {
+  await locator.focus();
+  await locator.page().keyboard.type(text);
+}
+
+test('keyboard only: journey A — report the EMD, seller confirms, bid', async ({ page, context }) => {
   await signIn(context, 'buyer');
   await page.goto('/auctions/LOT-2025-0891');
   await press(action(page, 'Pay EMD to bid'));
-  await press(page.getByRole('button', { name: 'Pay ₹1,00,000 (simulated)' }));
-  await press(page.getByRole('button', { name: 'Continue to bid' }));
+  const emd = page.getByRole('dialog', { name: 'Pay the EMD, then report it' });
+  await type(emd.getByLabel(/UTR number/), 'UTR000123456');
+  await type(emd.getByLabel(/Paid from/), 'Vardhan Infra Projects Pvt Ltd');
+  await press(emd.getByRole('button', { name: 'Report EMD payment' }));
+  await press(page.getByRole('dialog', { name: 'EMD payment reported' }).getByRole('button', { name: 'Done' }));
+
+  // The seller confirms receipt, by keyboard.
+  await signIn(context, 'seller');
+  await page.goto('/seller/lots/LOT-2025-0891');
+  const row = page.getByRole('listitem', { name: 'EMD from Vardhan Infra Projects Pvt Ltd' });
+  await press(row.getByRole('button', { name: 'Confirm receipt' }));
+  await expect(row.getByText('Receipt confirmed by seller')).toBeVisible();
+
+  await signIn(context, 'buyer');
+  await page.goto('/auctions/LOT-2025-0891');
+  await press(action(page, 'Place bid'));
   const input = page.getByLabel(/Your bid per MT/);
   await input.focus();
   await page.keyboard.press('ControlOrMeta+A');

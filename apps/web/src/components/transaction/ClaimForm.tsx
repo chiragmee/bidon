@@ -175,7 +175,7 @@ function Form({ d }: { d: TxDetailView }) {
           {(
             [
               ['price_adjustment', 'Price adjustment', adjustmentAvailable ? `Deduct ${formatINR(adjustment)} — the excess over the limit × measured MT × your price (provisional policy).` : 'Only for contamination outside tolerance. Quantity is already priced by the weighbridge.', !adjustmentAvailable],
-              ['exit_refund', 'Exit and refund', `Leave the deal: ${formatINR(exit)} EMD and balance returned (simulated). The seller keeps the material.`, false],
+              ['exit_refund', 'Exit and refund', `Leave the deal: ${formatINR(exit)} EMD and balance returned by the seller. The seller keeps the material.`, false],
             ] as const
           ).map(([id, label, help, disabled]) => (
             <label key={id} className={cn('flex items-start gap-xs rounded-md border p-sm', remedy === id ? 'border-primary bg-primary-container' : 'border-border bg-surface', disabled && 'opacity-60')}>
@@ -208,7 +208,7 @@ function Form({ d }: { d: TxDetailView }) {
         onClose={() => setConfirm(false)}
         busy={busy}
         title="Submit this claim?"
-        consequence={`The seller is asked to accept or dispute it. If they dispute it, AuctionIT Operations decides on the evidence. Remedy requested: ${remedy === 'price_adjustment' ? `price adjustment of ${formatINR(adjustment)}` : `exit with ${formatINR(exit)} refunded`} (simulated).`}
+        consequence={`The seller is asked to accept or dispute it. If they dispute it, AuctionIT Operations decides on the evidence. Remedy requested: ${remedy === 'price_adjustment' ? `price adjustment of ${formatINR(adjustment)}` : `exit with ${formatINR(exit)} refunded by the seller`}.`}
         confirmLabel="Submit claim"
         onConfirm={submit}
       />

@@ -10,7 +10,7 @@ const ENTRIES: { role: Exclude<Role, 'guest'>; title: string; body: string; cta:
   {
     role: 'buyer',
     title: 'Explore as Buyer',
-    body: 'Browse lots, review the evidence, pay the EMD (simulated) and place bids — sample account: Rahul Sharma, Vardhan Infra Projects.',
+    body: 'Browse lots, review the evidence, report the EMD you paid and place bids — sample account: Rahul Sharma, Vardhan Infra Projects.',
     cta: 'Explore as Buyer',
     Icon: Gavel,
   },
