@@ -77,7 +77,8 @@ create table lots (
   constraint lots_published_valid check (
     status = 'draft' or (reserve_per_mt > 0 and emd_amount > 0 and start_at is not null and end_at > start_at)
   ),
-  constraint lots_assurance_agreed check (not assurance_enabled or assurance_agreed_at is not null)
+  -- A draft may switch assurance on before the seller agrees; a published assured lot must have agreed.
+  constraint lots_assurance_agreed check (status = 'draft' or not assurance_enabled or assurance_agreed_at is not null)
 );
 create index lots_status_end_idx on lots (status, end_at);
 create index lots_seller_idx on lots (seller_id);

@@ -22,12 +22,15 @@ const RAHUL: Viewer = { id: 'U-RAHUL', role: 'buyer' };
 const ANITA: Viewer = { id: 'U-ANITA', role: 'buyer' };
 const SURESH: Viewer = { id: 'U-SURESH', role: 'seller' };
 const OPS: Viewer = { id: 'U-DEVENDRA', role: 'ops' };
+const IMRAN: Viewer = { id: 'U-IMRAN', role: 'seller' };
 const PNG = new Uint8Array(Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64'));
 
 interface Target {
   ds: DataSource;
   /** Move a live auction's end time into the past (as if time passed). */
   expire(lotId: string): Promise<void>;
+  /** Test back door: make a user the seller of a lot (to reach the own-lot rule no real role can). */
+  setSeller(lotId: string, userId: string): Promise<void>;
 }
 
 function must<T>(r: DsResult<T>): T {
@@ -71,6 +74,10 @@ const targets: [string, () => Promise<Target>][] = [
             const lot = s.lots.find((l) => l.id === lotId)!;
             lot.endAt = new Date(Date.now() - 60_000).toISOString();
           }),
+        setSeller: async (lotId, userId) =>
+          store.mutate((s) => {
+            s.lots.find((l) => l.id === lotId)!.sellerId = userId;
+          }),
       };
     },
   ],
@@ -87,6 +94,10 @@ const targets: [string, () => Promise<Target>][] = [
           mem.mutate((s) => {
             s.lots.find((l) => l.id === lotId)!.endAt = new Date(Date.now() - 60_000).toISOString();
           }),
+        setSeller: async (lotId, userId) =>
+          mem.mutate((s) => {
+            s.lots.find((l) => l.id === lotId)!.sellerId = userId;
+          }),
       };
     },
   ],
@@ -102,6 +113,9 @@ if (hasDb) {
         ds: new HttpDataSource({ baseUrl: url }),
         expire: async (lotId) => {
           await pgSql!`update lots set end_at = now() - interval '1 minute' where id = ${lotId}`;
+        },
+        setSeller: async (lotId, userId) => {
+          await pgSql!`update lots set seller_id = ${userId} where id = ${lotId}`;
         },
       };
     },
@@ -288,5 +302,89 @@ describe.each(targets)('DataSource contract — %s', (_name, make) => {
     expect(must(await t.ds.claimReview('CLM-1042-01', OPS))!.outcomes).toEqual({ approve_adjustment: 83_376, approve_exit: 14_40_000, reject: 13_89_600 });
     expect(must(await t.ds.emailExists('Rahul.Sharma@vardhan.example'))).toBe(true);
     expect(code(await t.ds.registerBuyer({ name: 'X', email: 'rahul.sharma@vardhan.example', companyName: 'X', businessType: 'X', city: 'X', state: 'X', industry: 'X', materials: ['X'] }))).toBe('duplicate_email');
+  });
+  it('a seller can never bid on their own lot (domain and place_bid agree)', async () => {
+    await t.setSeller('LOT-2025-0891', 'U-RAHUL');
+    expect(code(await t.ds.payEmd('LOT-2025-0891', 'success', RAHUL))).toBe('own_lot');
+    const r = await t.ds.placeBid({ lotId: 'LOT-2025-0891', amountPerMt: 35_000, clientRequestId: 'own', seenHighestPerMt: 34_500 }, RAHUL);
+    expect(r.ok ? null : r.error).toMatchObject({ code: 'own_lot', what: 'Sellers cannot bid on their own lots.' });
+  });
+
+  it('listings publish only when complete and valid, with the specific reason', async () => {
+    const base = { title: 'Plate offcuts for test', category: 'ferrous_hms' as const, grade: 'MS', description: 'Offcuts.', yard: 'Y', city: 'Raipur', state: 'Chhattisgarh', estimatedQtyMt: 10, contaminationPct: 2, attributes: { form: 'Offcuts', thickness: '8 mm' } };
+    const start = new Date(Date.now() + 3_600_000).toISOString();
+    const why = async (patch: object) => {
+      const d = must(await t.ds.saveDraft(null, { ...base, ...patch }, SURESH));
+      const r = await t.ds.publishLot(d.id, SURESH);
+      return r.ok ? 'published' : r.error.what;
+    };
+    expect(await why({ reservePerMt: 0, startAt: start, endAt: start })).toMatch(/reserve price per MT greater than ₹0.*closing time must be after the opening time/);
+    expect(await why({ reservePerMt: 30_000, startAt: start, endAt: new Date(Date.now() + 9e6).toISOString(), assuranceEnabled: true })).toMatch(/at least 6 photos and 1 video.*agree to the Lot Assurance terms/);
+    expect(await why({ reservePerMt: 30_000, startAt: new Date(Date.now() - 7_200_000).toISOString(), endAt: start })).toMatch(/start time is in the past/);
+    const std = must(await t.ds.saveDraft(null, { ...base, category: 'non_ferrous', attributes: { alloy: 'Cu', form: 'Wire' }, assuranceEnabled: true, assuranceAgreed: true }, SURESH));
+    expect(std.assurance.enabled).toBe(false); // standard categories never carry assurance
+  });
+
+  it('sellers cannot touch another seller’s lot', async () => {
+    expect(code(await t.ds.saveDraft('LOT-2025-0920', { title: 'Hijacked title here' }, IMRAN))).toBe('not_owner');
+    expect(code(await t.ds.publishLot('LOT-2025-0920', IMRAN))).toBe('forbidden');
+    expect(code(await t.ds.deleteDraft('LOT-2025-0920', IMRAN))).toBe('not_found');
+    expect(must(await t.ds.sellerLot('LOT-2025-0920', IMRAN))).toBeNull();
+    expect(must(await t.ds.getLot('LOT-2025-0920', IMRAN))).toBeNull();
+  });
+
+  it('won is not completed: steps run in order, by the right party, with reasons', async () => {
+    expect(code(await t.ds.txAction('TX-1038', { type: 'complete' }, RAHUL))).toBe('invalid_state');
+    expect(code(await t.ds.txAction('TX-1038', { type: 'propose_lifting', at: new Date(Date.now() + 864e5).toISOString(), vehicle: 'X' }, RAHUL))).toBe('invalid_state');
+    expect(code(await t.ds.txAction('TX-1038', { type: 'pay_balance' }, SURESH))).toBe('forbidden');
+    expect(code(await t.ds.txAction('TX-1038', { type: 'mark_defaulted', reason: 'Not yet due at all.' }, OPS))).toBe('deadline_not_passed');
+    must(await t.ds.txAction('TX-1038', { type: 'pay_balance' }, RAHUL));
+    must(await t.ds.txAction('TX-1038', { type: 'propose_lifting', at: new Date(Date.now() + 864e5).toISOString(), vehicle: 'CG 04 AB 1234' }, RAHUL));
+    expect(code(await t.ds.txAction('TX-1038', { type: 'confirm_lifting' }, RAHUL))).toBe('forbidden');
+    must(await t.ds.txAction('TX-1038', { type: 'confirm_lifting' }, SURESH));
+    const incomplete = await t.ds.txAction('TX-1038', { type: 'record_weighbridge', ticketRef: '', weighbridge: 'Gate 2', grossMt: null, tareMt: null, measuredMt: 29, ticketMediaId: null }, RAHUL);
+    expect(incomplete.ok ? null : incomplete.error).toMatchObject({ code: 'incomplete_measurement', what: 'The measurement is missing: ticket reference, ticket photo or scan.' });
+    expect(code(await t.ds.txAction('TX-1035', { type: 'mark_defaulted', reason: 'Overdue payment.' }, RAHUL))).toBe('forbidden');
+    expect(must(await t.ds.txAction('TX-1035', { type: 'mark_defaulted', reason: 'Balance not paid within 72 hours.' }, OPS)).status).toBe('defaulted');
+  });
+
+  it('claims are refused with every specific reason', async () => {
+    const input = { type: 'contamination' as const, observedValue: 15, mediaIds: [] as string[], expected: 'Up to 6%', observed: '15%', explanation: 'Found debris.', requestedRemedy: 'price_adjustment' as const };
+    const why = async (tx: string, v: Viewer, patch: object = {}) => {
+      const r = await t.ds.submitClaim(tx, { ...input, ...patch }, v, []);
+      return r.ok ? 'opened' : `${r.error.code}: ${r.error.what}`;
+    };
+    expect(await why('TX-1038', RAHUL)).toMatch(/not_eligible: .*Lifting has not started yet/);
+    expect(await why('TX-1031', ANITA)).toMatch(/standard lot without Lot Assurance.*already closed.*Loading is already complete/);
+    // TX-1045 through lifting checks (mixed steel: limit 10%).
+    must(await t.ds.txAction('TX-1045', { type: 'confirm_lifting' }, SURESH));
+    const tkt = must(await t.ds.uploadMedia(new File([PNG], 't.png', { type: 'image/png' }), 'lifting', RAHUL));
+    must(await t.ds.txAction('TX-1045', { type: 'record_weighbridge', ticketRef: 'WB-1', weighbridge: 'Gate', grossMt: null, tareMt: null, measuredMt: 35, ticketMediaId: tkt.id }, RAHUL, [tkt]));
+    must(await t.ds.txAction('TX-1045', { type: 'record_condition', observedContaminationPct: 12, notes: '', photoMediaIds: [tkt.id] }, RAHUL, []));
+    expect(await why('TX-1045', RAHUL, { observedValue: 5, mediaIds: [tkt.id, tkt.id + 'x'] })).toMatch(/5.0% is within the agreed limit of 10.0%/);
+    expect(await why('TX-1045', RAHUL, { mediaIds: [tkt.id] })).toMatch(/You attached 1 file; at least 2 are needed/);
+    expect(await why('TX-1045', SURESH)).toMatch(/^forbidden/);
+    must(await t.ds.txAction('TX-1045', { type: 'complete' }, RAHUL));
+    expect(await why('TX-1045', RAHUL, { mediaIds: ['a', 'b'] })).toMatch(/Loading is already complete, so the claim window has closed/);
+  });
+
+  it('a session whose user no longer exists is refused the same way', async () => {
+    const ghost: Viewer = { id: 'U-GHOST', role: 'buyer' };
+    for (const r of [await t.ds.buyerDashboard(ghost), await t.ds.payEmd('LOT-2025-0891', 'success', ghost), await t.ds.notifications(ghost)]) {
+      expect(r.ok ? null : r.error).toMatchObject({ code: 'invalid_session', what: 'Your demo session isn’t valid any more.' });
+    }
+    // A real user with the wrong role is refused too.
+    expect(code(await t.ds.buyerDashboard({ id: 'U-SURESH', role: 'buyer' }))).toBe('invalid_session');
+  });
+
+  it('demo reset restores the seed with fresh relative times', async () => {
+    must(await t.ds.payEmd('LOT-2025-0891', 'success', RAHUL));
+    must(await t.ds.placeBid({ lotId: 'LOT-2025-0891', amountPerMt: 35_000, clientRequestId: 'pre-reset', seenHighestPerMt: 34_500 }, RAHUL));
+    must(await t.ds.reset());
+    const d = must(await t.ds.getLot('LOT-2025-0891', RAHUL))!;
+    expect(d.bidCount).toBe(5);
+    expect(d.viewer.emdPaid).toBe(false);
+    expect(Date.parse(d.lot.endAt) - Date.now()).toBeGreaterThan(2.9 * 3_600_000);
+    expect(Date.parse(d.lot.endAt) - Date.now()).toBeLessThan(3.1 * 3_600_000);
   });
 });

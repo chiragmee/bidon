@@ -50,6 +50,12 @@ const NETWORK: DsResult<never> = {
 
 const actor = (v: Viewer) => ({ id: v.id ?? 'guest', role: v.role });
 
+/** Same answer the API gives when the session's user no longer exists (e.g. after a data reset). */
+export const INVALID_SESSION: DsResult<never> = {
+  ok: false,
+  error: { kind: 'rule', code: 'invalid_session', what: 'Your demo session isn’t valid any more.', next: 'Choose a demo account again — the data may have been reset.' },
+};
+
 /**
  * The DataSource that runs packages/domain directly against a state snapshot — demo mode in the
  * browser, and the reference implementation the contract tests compare the API against.
@@ -76,6 +82,17 @@ export class LocalDataSource implements DataSource {
     return r.state;
   }
 
+  /** A signed-in viewer must still exist with that role (parity with the API's session check). */
+  private valid(viewer: Viewer): boolean {
+    if (!viewer.id) return true;
+    const u = this.store.load().users.find((x) => x.id === viewer.id);
+    return !!u && u.role === viewer.role;
+  }
+
+  private as<T>(viewer: Viewer, run: () => Promise<DsResult<T>>): Promise<DsResult<T>> {
+    return this.valid(viewer) ? run() : this.delay().then(() => INVALID_SESSION);
+  }
+
   private read<T>(op: string, fn: (s: DemoState) => T): Promise<DsResult<T>> {
     return this.delay().then(() => (this.opts.shouldFail?.(op) ? NETWORK : { ok: true, data: fn(this.current()) }));
   }
@@ -92,30 +109,30 @@ export class LocalDataSource implements DataSource {
   }
 
   listLots: DataSource['listLots'] = (filters) => this.read('listLots', (s) => listLots(s, filters, this.now()));
-  getLot: DataSource['getLot'] = (id, viewer) => this.read('getLot', (s) => lotDetail(s, id, viewer, this.now()));
-  payEmd: DataSource['payEmd'] = (lotId, outcome, viewer) => this.write('payEmd', (s) => payEmd(s, { lotId, outcome }, actor(viewer), this.now()));
+  getLot: DataSource['getLot'] = (id, viewer) => this.as(viewer, () => this.read('getLot', (s) => lotDetail(s, id, viewer, this.now())));
+  payEmd: DataSource['payEmd'] = (lotId, outcome, viewer) => this.as(viewer, () => this.write('payEmd', (s) => payEmd(s, { lotId, outcome }, actor(viewer), this.now())));
   placeBid: DataSource['placeBid'] = (input, viewer) =>
-    this.write('placeBid', (s) => {
+    this.as(viewer, () => this.write('placeBid', (s) => {
       const r = placeBid(s, input, actor(viewer), this.now());
       return r.ok ? { ...r, value: { amountPerMt: r.value.bid.amountPerMt, minNext: r.value.minNext } } : r;
-    });
-  closeDemoAuction: DataSource['closeDemoAuction'] = (lotId, viewer) => this.write('closeDemoAuction', (s) => closeDemoAuction(s, lotId, actor(viewer), this.now()));
+    }));
+  closeDemoAuction: DataSource['closeDemoAuction'] = (lotId, viewer) => this.as(viewer, () => this.write('closeDemoAuction', (s) => closeDemoAuction(s, lotId, actor(viewer), this.now())));
 
-  buyerDashboard: DataSource['buyerDashboard'] = (viewer) => this.read('buyerDashboard', (s) => (viewer.id ? buyerDashboard(s, viewer.id, this.now()) : null));
-  transactionSummary: DataSource['transactionSummary'] = (id, viewer) => this.read('transactionSummary', (s) => transactionSummary(s, id, viewer));
-  transactionDetail: DataSource['transactionDetail'] = (id, viewer) => this.read('transactionDetail', (s) => transactionDetail(s, id, viewer, this.now()));
-  txAction: DataSource['txAction'] = (id, action, viewer, media = []) => this.write('txAction', (s) => runTxAction(s, id, action, actor(viewer), this.now(), media));
-  submitClaim: DataSource['submitClaim'] = (txId, input, viewer, media) => this.write('submitClaim', (s) => submitClaim(s, txId, input, actor(viewer), this.now(), media));
-  respondClaim: DataSource['respondClaim'] = (claimId, response, viewer, media) => this.write('respondClaim', (s) => sellerRespond(s, claimId, response, actor(viewer), this.now(), media));
-  decideClaim: DataSource['decideClaim'] = (claimId, decision, viewer) => this.write('decideClaim', (s) => opsDecide(s, claimId, decision, actor(viewer), this.now()));
-  claimReview: DataSource['claimReview'] = (claimId, viewer) => this.read('claimReview', (s) => claimReview(s, claimId, viewer, this.now()));
-  opsOverview: DataSource['opsOverview'] = (viewer) => this.read('opsOverview', (s) => (viewer.role === 'ops' ? opsOverview(s, this.now()) : null));
+  buyerDashboard: DataSource['buyerDashboard'] = (viewer) => this.as(viewer, () => this.read('buyerDashboard', (s) => (viewer.id ? buyerDashboard(s, viewer.id, this.now()) : null)));
+  transactionSummary: DataSource['transactionSummary'] = (id, viewer) => this.as(viewer, () => this.read('transactionSummary', (s) => transactionSummary(s, id, viewer)));
+  transactionDetail: DataSource['transactionDetail'] = (id, viewer) => this.as(viewer, () => this.read('transactionDetail', (s) => transactionDetail(s, id, viewer, this.now())));
+  txAction: DataSource['txAction'] = (id, action, viewer, media = []) => this.as(viewer, () => this.write('txAction', (s) => runTxAction(s, id, action, actor(viewer), this.now(), media)));
+  submitClaim: DataSource['submitClaim'] = (txId, input, viewer, media) => this.as(viewer, () => this.write('submitClaim', (s) => submitClaim(s, txId, input, actor(viewer), this.now(), media)));
+  respondClaim: DataSource['respondClaim'] = (claimId, response, viewer, media) => this.as(viewer, () => this.write('respondClaim', (s) => sellerRespond(s, claimId, response, actor(viewer), this.now(), media)));
+  decideClaim: DataSource['decideClaim'] = (claimId, decision, viewer) => this.as(viewer, () => this.write('decideClaim', (s) => opsDecide(s, claimId, decision, actor(viewer), this.now())));
+  claimReview: DataSource['claimReview'] = (claimId, viewer) => this.as(viewer, () => this.read('claimReview', (s) => claimReview(s, claimId, viewer, this.now())));
+  opsOverview: DataSource['opsOverview'] = (viewer) => this.as(viewer, () => this.read('opsOverview', (s) => (viewer.role === 'ops' ? opsOverview(s, this.now()) : null)));
 
-  sellerDashboard: DataSource['sellerDashboard'] = (viewer) => this.read('sellerDashboard', (s) => (viewer.id && viewer.role === 'seller' ? sellerDashboard(s, viewer.id, this.now()) : null));
-  sellerLot: DataSource['sellerLot'] = (lotId, viewer) => this.read('sellerLot', (s) => (viewer.id ? sellerLot(s, lotId, viewer.id, this.now()) : null));
-  saveDraft: DataSource['saveDraft'] = (lotId, draft: ListingDraft, viewer) => this.write('saveDraft', (s) => saveDraft(s, { lotId, draft }, actor(viewer), this.now()));
-  publishLot: DataSource['publishLot'] = (lotId, viewer) => this.write('publishLot', (s) => publishLot(s, lotId, actor(viewer), this.now()));
-  deleteDraft: DataSource['deleteDraft'] = (lotId, viewer) => this.write('deleteDraft', (s) => deleteDraft(s, lotId, actor(viewer), this.now()));
+  sellerDashboard: DataSource['sellerDashboard'] = (viewer) => this.as(viewer, () => this.read('sellerDashboard', (s) => (viewer.id && viewer.role === 'seller' ? sellerDashboard(s, viewer.id, this.now()) : null)));
+  sellerLot: DataSource['sellerLot'] = (lotId, viewer) => this.as(viewer, () => this.read('sellerLot', (s) => (viewer.id ? sellerLot(s, lotId, viewer.id, this.now()) : null)));
+  saveDraft: DataSource['saveDraft'] = (lotId, draft: ListingDraft, viewer) => this.as(viewer, () => this.write('saveDraft', (s) => saveDraft(s, { lotId, draft }, actor(viewer), this.now())));
+  publishLot: DataSource['publishLot'] = (lotId, viewer) => this.as(viewer, () => this.write('publishLot', (s) => publishLot(s, lotId, actor(viewer), this.now())));
+  deleteDraft: DataSource['deleteDraft'] = (lotId, viewer) => this.as(viewer, () => this.write('deleteDraft', (s) => deleteDraft(s, lotId, actor(viewer), this.now())));
   registerSeller: DataSource['registerSeller'] = (input) => this.write('registerSeller', (s) => registerSeller(s, input, this.now()));
   registerBuyer: DataSource['registerBuyer'] = (input) => this.write('registerBuyer', (s) => registerBuyer(s, input, this.now()));
 
@@ -126,12 +143,14 @@ export class LocalDataSource implements DataSource {
     });
   emailExists: DataSource['emailExists'] = (email) => this.read('emailExists', (s) => s.users.some((u) => u.email.toLowerCase() === email.trim().toLowerCase()));
   notifications: DataSource['notifications'] = (viewer) =>
-    this.read('notifications', (s) => s.notifications.filter((n) => n.userId === viewer.id).sort((a, b) => Date.parse(b.at) - Date.parse(a.at)));
+    this.as(viewer, () => this.read('notifications', (s) => s.notifications.filter((n) => n.userId === viewer.id).sort((a, b) => Date.parse(b.at) - Date.parse(a.at))));
   markNotificationsRead: DataSource['markNotificationsRead'] = (viewer) =>
-    this.delay().then(() => {
-      if (viewer.id) this.store.save(markNotificationsRead(this.current(), viewer.id));
-      return { ok: true as const, data: null };
-    });
+    this.as(viewer, () =>
+      this.delay().then(() => {
+        if (viewer.id) this.store.save(markNotificationsRead(this.current(), viewer.id));
+        return { ok: true as const, data: null };
+      }),
+    );
 
   uploadMedia: DataSource['uploadMedia'] = async (file, stage) => {
     await this.delay();
