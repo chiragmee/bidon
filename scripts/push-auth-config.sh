@@ -10,7 +10,7 @@ set -a; . "$ENV_FILE"; set +a
 : "${SUPABASE_AUTH_SMTP_USER:?not set in $ENV_FILE}"
 : "${SUPABASE_AUTH_SMTP_PASS:?not set in $ENV_FILE}"
 echo "Changes to push (passwords hidden):"
-supabase config diff --project-ref "$REF" 2>/dev/null | grep '^{' | python3 -c '
+supabase config diff --project-ref "$REF" --output-format json 2>/dev/null | grep '^{' | python3 -c '
 import json,sys
 for c in json.load(sys.stdin)["changes"]:
     p=".".join(c["path"]); hide=("pass" in p)
