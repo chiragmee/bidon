@@ -91,7 +91,12 @@ design chosen, and the provisional business decisions (also logged in `docs/DECI
 | Production safeguards | Presenter controls and the demo header require a local database whatever the env says; reseed script refuses non-local databases; sample records hidden from every API view on a non-local database (rows untouched) | `apps/api/src/env.ts`, `db/reseed.ts`, `packages/domain/src/samples.ts`, `db/repo.ts withWrite(view)` |
 | Defects fixed on the way | Unsold auctions left confirmed EMDs as paid (now owed back) · seed shared its company/user objects between calls · local data source ordered same-time notifications differently from Postgres · sign-out raced the session listener · role-specific pages queried as the new role during a presenter switch | D-091, `seed.ts`, `LocalDataSource.ts`, `SessionProvider.tsx` |
 
-## Configuration and migrations the live site needs (not done — no deploy was requested)
+## Live status (2026-10-15, after the user said go)
+
+Done: step 1 (both migrations applied to `qainjxytjilrgajndogv`; the old API kept answering), step 3 (Vercel `NEXT_PUBLIC_SUPABASE_URL` + `NEXT_PUBLIC_SUPABASE_ANON_KEY`, Production + Preview), step 4 (pushed 94b9c48; Render and Vercel deployed). Verified live: API refuses reset (403), the sample-account header (401), the email probe (403), forged tokens and sign-up without sign-in; no sample lots served; web shows the password sign-in, Buyer/Seller-only sign-up, no demo controls, `/dev/components` 404, protected pages redirect to sign-in; no console errors at 1440 and 390. No account was created on the live site.
+**Not done:** step 2 (Supabase Auth settings — reading the CLI's login token was blocked by the permission policy, so it's for the owner in the dashboard; SMTP needs provider credentials) and step 5 (needs a real reviewer to sign up first).
+
+## Configuration and migrations the live site needs
 
 Order matters: 1 → 2 → 3 → push code → 5.
 
