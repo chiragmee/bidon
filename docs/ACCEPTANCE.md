@@ -32,7 +32,7 @@ Every test fails on any console error and on horizontal page scroll.
 
 ## Not done here
 
-- **Deployment.** Nothing has been deployed: no hosted Supabase, Render or Vercel exists for AuctionIT yet. `docs/DEPLOY.md` is ready; deploying needs the owner's accounts and a go-ahead. Per CLAUDE.md, it isn't called deployed until it is, and `/health` answers.
+- **Deployment — done 2026-10-15.** Web: https://auctionit-sand.vercel.app (Vercel project `auctionit`, root `apps/web`, auto-deploys from `main`). API: https://auctionit-api-vmo3.onrender.com (Render `srv-db85cv689jmc73c9ird0`, free plan, `/health` → `mode: supabase`). Database and storage: Supabase project `auctionit` (`qainjxytjilrgajndogv`, ap-south-1), migrations applied, seeded, `lot-media` bucket present. Verified live: buyer EMD and bid on desktop seen by a guest on a phone-sized browser, CORS limited to the Vercel origin, no console errors; data reset afterwards.
 - **Real authentication.** Demo sessions only (D-066). Supabase Auth is the next step before any real use.
 - **Scale.** The API loads the whole dataset per request and serialises writes. That's right for a demo, not for production (ADR 0001 says when and how to change it).
 - **Real photos.** Lots show designed placeholder tiles until photos are added to `apps/web/public/demo-images/`.

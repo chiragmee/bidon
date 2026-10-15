@@ -4,6 +4,8 @@ A working demo of a B2B marketplace for industrial scrap and surplus auctions. I
 
 > **The auction does not change. Lot Assurance makes the material, the measurement rule and the outcome if it differs clear — and AuctionIT handles exceptions without inspecting every lot.**
 
+**Live demo:** https://auctionit-sand.vercel.app (API: https://auctionit-api-vmo3.onrender.com/health). The free API instance sleeps when idle, so open the health link first; it takes up to a minute to wake.
+
 **Everything here is a demo.** Companies, people, prices, ratings and metrics are sample data. EMD, balance payments and refunds are simulated; no real money moves. Tolerances and remedies are illustrative demo policy, not approved AuctionIT terms.
 
 ---
