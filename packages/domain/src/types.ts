@@ -3,6 +3,8 @@
  * quantities are metric tonnes (MT) as decimals; times are ISO-8601 strings.
  */
 
+import type { Region } from './regions';
+
 export type Role = 'guest' | 'buyer' | 'seller' | 'ops';
 export type Iso = string;
 export type Rupees = number;
@@ -65,6 +67,8 @@ export interface Eligibility {
   /** CIN (companies) or LLPIN (LLPs). */
   registrationNumber: string;
   registeredAddress: string;
+  /** State of the registered address (regions.ts code, e.g. "MH"); decides the region and so the reviewers. '' = not set. */
+  state: string;
   representative: { name: string; designation: string };
   /** Sellers: authority to sell the material, and bank details for receiving EMD and payments. */
   sellerDeclaration: { authorisedToSell: boolean; materialSource: string } | null;
@@ -111,7 +115,15 @@ export interface User {
   phone?: string | null;
   /** Supabase Auth user id; the API resolves the signed-in user through this, never through a client value. */
   authUserId?: string | null;
+  /**
+   * Operations staff only (D-102). admin: every region, appoints reviewers. reviewer: only `regions`.
+   * removed: no staff access (kept for the history of their decisions). Missing = reviewer with no regions (fail closed).
+   */
+  staffLevel?: StaffLevel | null;
+  regions?: Region[];
 }
+
+export type StaffLevel = 'admin' | 'reviewer' | 'removed';
 
 // ── Lots and auctions ────────────────────────────────────────────────────────
 

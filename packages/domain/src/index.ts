@@ -20,3 +20,5 @@ export * from './eligibility';
 export * from './paymentRules';
 export * from './payments';
 export * from './samples';
+export * from './regions';
+export * from './staff';

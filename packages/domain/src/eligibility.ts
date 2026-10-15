@@ -25,6 +25,8 @@ import { clone, stateCtx } from './operations';
 import type { DemoState } from './seed';
 import type { AccountDocument, Company, DocumentKind, Eligibility, EligibilityReview, Iso, Rejection, User, VerificationStatus } from './types';
 import type { Viewer } from './views';
+import { REGION_LABEL, regionOf, stateByCode, type Region } from './regions';
+import { companyRegion, coversCompany, staffAccess, staffForRegion } from './staff';
 
 export type { DocumentRequirement } from './eligibilityPolicy';
 export { STATUS_TEXT, eligibilityRejection, isEligible } from './eligibilityPolicy';
@@ -36,6 +38,7 @@ const emptyEligibility = (): Eligibility => ({
   gstin: '',
   registrationNumber: '',
   registeredAddress: '',
+  state: '',
   representative: { name: '', designation: '' },
   sellerDeclaration: null,
   bankDetails: null,
@@ -87,6 +90,7 @@ export function saveEligibility(state: DemoState, input: EligibilityInput, actor
     gstin: normaliseGstin(input.gstin),
     registrationNumber: input.registrationNumber.replace(/\s+/g, '').toUpperCase(),
     registeredAddress: input.registeredAddress.trim(),
+    state: stateByCode(input.state)?.code ?? '',
     representative: { name: input.representative.name.trim(), designation: input.representative.designation.trim() },
     sellerDeclaration: company.kind === 'seller' ? (input.sellerDeclaration ?? { authorisedToSell: false, materialSource: '' }) : null,
     bankDetails:
@@ -159,6 +163,7 @@ export function eligibilityProblems(state: DemoState, company: Company): Missing
     if (r) out.push({ field: 'registrationNumber', message: r });
   }
   need('registeredAddress', e.registeredAddress.length >= 10, 'Enter the full registered address.');
+  need('state', !!stateByCode(e.state), 'Choose the state of the registered address.');
   need('representative', !!e.representative.name && !!e.representative.designation, 'Enter the authorised representative’s name and designation.');
   if (role === 'seller') {
     need('sellerDeclaration', !!e.sellerDeclaration?.authorisedToSell, 'Confirm that you are authorised to sell the material you will list.');
@@ -217,7 +222,8 @@ export function submitEligibility(state: DemoState, actor: Actor, now: Iso): OpR
   const submitted = company.eligibility ?? emptyEligibility();
   company.eligibility = { ...submitted, submittedAt: now, history: [...submitted.history, { action: 'submitted', by: actor.id, at: now, reason: null }] };
   next.audit.push(audit(ctx, { entity: 'company', entityId: company.id, action: 'submit_eligibility', from, to: 'pending_review' }));
-  for (const reviewer of next.users.filter((u) => u.role === 'ops')) {
+  // The admin and the reviewers of the applicant's region (D-102).
+  for (const reviewer of staffForRegion(next, regionOf(company.eligibility.state))) {
     next.notifications.push({ id: ctx.newId('N'), userId: reviewer.id, kind: 'eligibility_submitted', title: `${company.name} applied as a ${company.kind}`, body: 'An application is waiting for review.', href: `/ops/eligibility/${company.id}`, read: false, at: now });
   }
   return { ok: true, state: next, value: company };
@@ -225,9 +231,11 @@ export function submitEligibility(state: DemoState, actor: Actor, now: Iso): OpR
 
 /** Reviewer's decision. A reason is required to ask for information or reject (and recommended to approve). */
 export function reviewEligibility(state: DemoState, companyId: string, input: { decision: EligibilityReview['decision']; reason: string }, actor: Actor, now: Iso): OpResult<Company> {
-  if (actor.role !== 'ops') return rejected(state, 'forbidden', 'Only an AuctionIT reviewer can decide applications.', 'Ask a reviewer.');
+  const access = actor.role === 'ops' ? staffAccess(state, actor.id) : null;
+  if (!access) return rejected(state, 'forbidden', 'Only an AuctionIT reviewer can decide applications.', 'Ask a reviewer.');
   const company = state.companies.find((c) => c.id === companyId);
   if (!company?.eligibility) return rejected(state, 'not_found', 'That application does not exist.', 'Go back to the review queue.');
+  if (!coversCompany(access, company)) return rejected(state, 'other_region', 'This application is outside your regions.', 'A reviewer for its region, or the admin, decides it.');
   if (company.verification !== 'pending_review') return rejected(state, 'not_pending', `This application is “${STATUS_TEXT[company.verification]}”, not waiting for review.`, 'Go back to the review queue.');
   const reason = input.reason.trim();
   if (input.decision !== 'approved' && reason.length < 10) {
@@ -256,7 +264,14 @@ export function reviewEligibility(state: DemoState, companyId: string, input: { 
 export function canViewDocument(state: DemoState, docId: string, viewer: Viewer): boolean {
   const doc = state.documents.find((d) => d.id === docId);
   if (!doc || !viewer.id) return false;
-  if (viewer.role === 'ops') return true;
+  if (viewer.role === 'ops') {
+    // Staff: payment receipts (claims and disputes) always; eligibility documents only for their regions.
+    const access = staffAccess(state, viewer.id);
+    if (!access) return false;
+    if (doc.kind === 'payment_receipt') return true;
+    const owner = state.companies.find((c) => c.id === doc.companyId);
+    return !!owner && coversCompany(access, owner);
+  }
   const user = state.users.find((u) => u.id === viewer.id);
   if (user?.companyId === doc.companyId) return true;
   if (doc.kind !== 'payment_receipt' || viewer.role !== 'seller') return false;
@@ -332,11 +347,34 @@ export interface EligibilityQueueRow {
   kind: Company['kind'];
   status: VerificationStatus;
   submittedAt: Iso | null;
+  /** null = no state given yet (only the admin sees these). */
+  region: Region | null;
+  regionLabel: string;
+  stateName: string;
 }
 
-export function eligibilityQueue(state: DemoState): { waiting: EligibilityQueueRow[]; decided: EligibilityQueueRow[] } {
+/** Applications this staff member covers: all for the admin, their regions for a reviewer, none otherwise. */
+export function eligibilityQueue(state: DemoState, viewerId: string | null | undefined): { waiting: EligibilityQueueRow[]; decided: EligibilityQueueRow[] } {
+  const access = staffAccess(state, viewerId);
   const rows = state.companies
-    .flatMap((c): EligibilityQueueRow[] => (c.eligibility?.submittedAt ? [{ companyId: c.id, name: c.name, legalName: c.eligibility.legalName, kind: c.kind, status: c.verification, submittedAt: c.eligibility.submittedAt }] : []))
+    .filter((c) => coversCompany(access, c))
+    .flatMap((c): EligibilityQueueRow[] => {
+      if (!c.eligibility?.submittedAt) return [];
+      const region = companyRegion(c);
+      return [
+        {
+          companyId: c.id,
+          name: c.name,
+          legalName: c.eligibility.legalName,
+          kind: c.kind,
+          status: c.verification,
+          submittedAt: c.eligibility.submittedAt,
+          region,
+          regionLabel: region ? REGION_LABEL[region] : 'Region not set',
+          stateName: stateByCode(c.eligibility.state)?.name ?? '',
+        },
+      ];
+    })
     .sort((a, b) => String(a.submittedAt).localeCompare(String(b.submittedAt)));
   return { waiting: rows.filter((r) => r.status === 'pending_review'), decided: rows.filter((r) => r.status !== 'pending_review').reverse() };
 }
@@ -350,11 +388,20 @@ export interface EligibilityReviewView {
   /** Other accounts with the same normalised legal or trading name — for the reviewer to check, not a refusal. */
   possibleDuplicates: { companyId: string; name: string; kind: Company['kind']; status: VerificationStatus }[];
   reviewerNames: Record<string, string>;
+  region: Region | null;
+  regionLabel: string;
+  stateName: string;
+  /** The viewer is the admin: may set the state of an application that has none. */
+  canSetState: boolean;
 }
 
-export function eligibilityReview(state: DemoState, companyId: string): EligibilityReviewView | null {
+/** One application, for a staff member who covers it (null otherwise — the API answers 404). */
+export function eligibilityReview(state: DemoState, companyId: string, viewerId: string | null | undefined): EligibilityReviewView | null {
   const company = state.companies.find((c) => c.id === companyId);
   if (!company?.eligibility) return null;
+  const access = staffAccess(state, viewerId);
+  if (!coversCompany(access, company)) return null;
+  const region = companyRegion(company);
   const e = company.eligibility;
   const docs = state.documents.filter((d) => e.documentIds.includes(d.id));
   const kinds = new Set(docs.map((d) => d.kind));
@@ -369,5 +416,9 @@ export function eligibilityReview(state: DemoState, companyId: string): Eligibil
       .filter((c) => c.id !== company.id && (names.has(normaliseName(c.name)) || (c.eligibility && names.has(normaliseName(c.eligibility.legalName)))))
       .map((c) => ({ companyId: c.id, name: c.name, kind: c.kind, status: c.verification })),
     reviewerNames: Object.fromEntries(state.users.filter((u) => u.role === 'ops').map((u) => [u.id, u.name])),
+    region,
+    regionLabel: region ? REGION_LABEL[region] : 'Region not set',
+    stateName: stateByCode(company.eligibility.state)?.name ?? '',
+    canSetState: access?.level === 'admin',
   };
 }

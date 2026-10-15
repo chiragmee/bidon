@@ -61,6 +61,7 @@ const sampleBank = (name: string, n: string) => ({
   gstin: '',
   registrationNumber: '',
   registeredAddress: '',
+  state: '',
   representative: { name: '', designation: '' },
   sellerDeclaration: null,
   bankDetails: { accountName: `${name} (sample)`, bankName: 'Sample bank — not a real account', accountNumber: `00000000${n}`, ifsc: 'SAMP0000001', upiId: '' },
@@ -88,7 +89,7 @@ const users: User[] = [
   { id: 'U-SURESH', name: 'Suresh Agrawal', email: 'suresh@balajisteels.example', role: 'seller', companyId: 'C-BALAJI', title: 'Dispatch head' },
   { id: 'U-IMRAN', name: 'Imran Qureshi', email: 'imran@nationalsmelters.example', role: 'seller', companyId: 'C-NATIONAL', title: 'Commercial manager' },
   { id: 'U-PRIYA', name: 'Priya Kulkarni', email: 'priya@mahalaxmi.example', role: 'seller', companyId: 'C-MAHALAXMI', title: 'Director' },
-  { id: 'U-DEVENDRA', name: 'Devendra Nath', email: 'devendra.nath@auctionit.example', role: 'ops', companyId: null, title: 'Operations lead' },
+  { id: 'U-DEVENDRA', name: 'Devendra Nath', email: 'devendra.nath@auctionit.example', role: 'ops', companyId: null, title: 'Operations lead', staffLevel: 'admin' },
 ];
 
 const SELLER_COMPANY: Record<string, string> = { 'U-SURESH': 'C-BALAJI', 'U-IMRAN': 'C-NATIONAL', 'U-PRIYA': 'C-MAHALAXMI' };

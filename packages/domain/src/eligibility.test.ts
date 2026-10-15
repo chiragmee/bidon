@@ -29,6 +29,7 @@ const buyerApp: EligibilityInput = {
   gstin: '27AABCN1234F1Z5',
   registrationNumber: 'U27100MH2010PTC123456',
   registeredAddress: 'Plot 4, MIDC Hingna, Nagpur 440016',
+  state: 'MH',
   representative: { name: 'Asha Menon', designation: 'Director' },
   sellerDeclaration: null,
   bankDetails: null,
@@ -74,7 +75,7 @@ describe('eligibility: apply → review → approved / needs info / rejected', (
     expect(st.notifications.at(-1)).toMatchObject({ userId: 'U-DEVENDRA', kind: 'eligibility_submitted', href: `/ops/eligibility/${companyId}` });
     const locked = saveEligibility(st, buyerApp, actor, NOW);
     expect(locked.ok ? 'ok' : locked.error.code).toBe('not_editable');
-    expect(eligibilityQueue(st).waiting.map((r) => r.companyId)).toEqual([companyId]);
+    expect(eligibilityQueue(st, 'U-DEVENDRA').waiting.map((r) => r.companyId)).toEqual([companyId]);
 
     const notReviewer = reviewEligibility(st, companyId, { decision: 'approved', reason: '' }, actor, NOW);
     expect(notReviewer.ok ? 'ok' : notReviewer.error.code).toBe('forbidden');
@@ -142,7 +143,7 @@ describe('duplicate and cross-role accounts', () => {
   it('a similar name is only flagged to the reviewer', () => {
     const a = newBuyer();
     const st = must(submitEligibility(applied(a.s, a.actor, { ...buyerApp, legalName: 'Vardhan Infra Projects Pvt. Ltd.' }, BUYER_DOCS), a.actor, NOW)).state;
-    expect(eligibilityReview(st, a.companyId)?.possibleDuplicates).toEqual([{ companyId: 'C-VARDHAN', name: 'Vardhan Infra Projects Pvt Ltd', kind: 'buyer', status: 'demo_approved' }]);
+    expect(eligibilityReview(st, a.companyId, 'U-DEVENDRA')?.possibleDuplicates).toEqual([{ companyId: 'C-VARDHAN', name: 'Vardhan Infra Projects Pvt Ltd', kind: 'buyer', status: 'demo_approved' }]);
   });
 });
 
