@@ -33,7 +33,7 @@ export function LotDetail({ id }: { id: string }) {
   const { viewer, session } = useSession();
   const toast = useToast();
   // Refresh every 5s so the current bid stays live (PHASES 3.5); other tabs push changes instantly.
-  const q = useQuery(`lot:${id}:${session.userId}`, (s) => s.getLot(id, viewer), { pollMs: 5000 });
+  const q = useQuery(`lot:${id}:${session.userId}`, (s) => s.getLot(id, viewer), { pollMs: 5000, keepPrevious: true });
   const [emdOpen, setEmdOpen] = useState(false);
   const [bidOpen, setBidOpen] = useState(false);
   // New key per opening = a fresh bid attempt (new request id, cleared errors).

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { cookies } from 'next/headers';
+import { SessionLostDialog } from '@/components/layout/SessionLostDialog';
 import { ToastProvider } from '@/components/ui/Toast';
 import { DataProvider } from '@/data';
 import { parseSession, SESSION_COOKIE } from '@/lib/session';
@@ -21,7 +22,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <DataProvider>
           <SessionProvider initial={session}>
-            <ToastProvider>{children}</ToastProvider>
+            <ToastProvider>
+              {children}
+              <SessionLostDialog />
+            </ToastProvider>
           </SessionProvider>
         </DataProvider>
       </body>

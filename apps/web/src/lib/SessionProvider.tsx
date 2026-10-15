@@ -38,7 +38,8 @@ export function SessionProvider({ initial, children }: { initial: Session; child
     (next: Session, to: string | null) => {
       writeCookie(next);
       setSession(next);
-      if (to) router.push(to);
+      // Staying on the same URL keeps client state (form entries); only navigate when the path changes.
+      if (to && to !== window.location.pathname + window.location.search) router.push(to);
       else router.refresh();
     },
     [router],

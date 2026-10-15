@@ -24,6 +24,8 @@ export const test = base.extend<{ consoleErrors: string[]; freshData: void }>({
         // Chrome logs every 4xx fetch. A 422 is the API refusing a business rule on purpose (e.g. the
         // simulated failed EMD payment); the page shows it. Anything else still fails the test.
         if (/Failed to load resource: .* status of 422/.test(m.text())) return;
+        // A test that deliberately opens a missing page expects the browser to log its 404.
+        if (test.info().annotations.some((a) => a.type === 'expects-404') && /status of 404/.test(m.text())) return;
         errors.push(m.text());
       });
       page.on('pageerror', (e) => errors.push(String(e)));

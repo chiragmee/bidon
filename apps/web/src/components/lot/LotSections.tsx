@@ -249,7 +249,7 @@ export function BidHistory({ d }: { d: LotDetailView }) {
       {d.bids.length === 0 ? (
         <p className="text-body-md text-text-secondary">No bids yet. The first bid must be at least {formatINR(d.minNextBidPerMt, { perMt: true })}.</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+        <div tabIndex={0} role="region" aria-label="Bid history table" className="overflow-x-auto rounded-lg border border-border bg-surface">
           <table className="w-full text-body-md">
             <thead className="bg-surface-muted text-overline uppercase text-on-trust-declared">
               <tr>

@@ -20,7 +20,7 @@ Run one phase per session ("Run Phase N from docs/PHASES.md"). Each ends: typech
 - [x] **Phase 3** (2026-10-15) — Guest + buyer journey (demo access, role switcher + reset, catalogue, lot detail, EMD, bid, onboarding, buyer dashboard) · e2e A1–A7
 - [x] **Phase 4** (2026-10-15) — Seller onboarding, dashboard, 4-step wizard, preview/publish, lot management · e2e B1–B9
 - [x] **Phase 5** (2026-10-15) — `/transactions/[id]`, lifting check, claims + seller response, `/ops`, track record, notifications · e2e A8–A14, B10, C
-- [ ] **Phase 6** — Hardening: §21 walk, role security matrix, resilience, a11y, visual pass vs Stitch
+- [x] **Phase 6** (2026-10-15) — Hardening: §21 walk, role security matrix, resilience, a11y, visual pass vs Stitch
 - [ ] **Phase 7** — Env, README, DEPLOY.md, DEMO_SCRIPT.md, clean-clone run, §26 report
 
 **Chosen order: fast track 1 → 3 → 5 → 4 → 2 → 6 → 7** (D-015). Phases 3–5 and 4 run on `DemoDataSource`, which moves from Phase 2.6 into Phase 3 (D-011). Phase 2 then adds Supabase + API + `HttpDataSource` + contract tests behind the same interface.
@@ -107,7 +107,7 @@ Enforced: **D** domain (`packages/domain`) · **A** API · **DB** Postgres const
 | [x] | Bid before start → `auction_not_started` | D A DB UI | U C |
 | [x] | Bid after end / closed → `auction_closed` | D A DB UI | U C |
 | [x] | No EMD → `emd_required` | D A DB UI | U C E |
-| [ ] | Seller bidding own lot → `own_lot` | D A DB | U C |
+| [x] | Seller bidding own lot → `own_lot` | D A DB | U C |
 | [x] | Duplicate client request id → `duplicate` (idempotent) | A DB UI | C |
 | [x] | Stale bid (someone outbid meanwhile) → `outbid`, UI refreshes minimum | D A DB UI | U C |
 | [x] | 20 concurrent bids → one consistent highest, no duplicates | DB | C |
@@ -119,43 +119,43 @@ Enforced: **D** domain (`packages/domain`) · **A** API · **DB** Postgres const
 ### Listings (§13, §14, §20 Listings)
 | ✓ | Rule | Enforced | Test |
 |---|---|---|---|
-| [ ] | Required fields per step (category-specific) | D UI | U E |
-| [ ] | Reserve > 0; EMD > 0 | D A DB UI | U C |
-| [ ] | End after start; start not in past at publish | D A DB UI | U C E |
-| [ ] | Assurance only for eligible categories; requires agreement + evidence requirement met | D A UI | U C |
+| [x] | Required fields per step (category-specific) | D UI | U E |
+| [x] | Reserve > 0; EMD > 0 | D A DB UI | U C |
+| [x] | End after start; start not in past at publish | D A DB UI | U C E |
+| [x] | Assurance only for eligible categories; requires agreement + evidence requirement met | D A UI | U C |
 | [x] | Publish blocked with specific reasons; drafts saved and editable | D A UI | U C E |
 | [x] | Status after publish reflects start time | D A | U C |
 | [x] | Seller cannot edit live lot / change reserve after first bid / alter bids / change winner | D A UI | U C |
-| [ ] | Seller cannot touch another seller's lot | A UI | C |
+| [x] | Seller cannot touch another seller's lot | A UI | C |
 
 ### Transactions (§15, §20 Transactions)
 | ✓ | Rule | Enforced | Test |
 |---|---|---|---|
-| [ ] | Won ≠ completed; completion needs balance paid, lifting confirmed, and (assured) accepted lifting check | D A | U C |
+| [x] | Won ≠ completed; completion needs balance paid, lifting confirmed, and (assured) accepted lifting check | D A | U C |
 | [x] | Every transition has one allowed role; others rejected with reason | D A UI | U C |
-| [ ] | Invalid transition for current state rejected with reason | D A UI | U C |
-| [ ] | Buyer proposes lifting date; seller confirms | D A UI | U E(A11) |
+| [x] | Invalid transition for current state rejected with reason | D A UI | U C |
+| [x] | Buyer proposes lifting date; seller confirms | D A UI | U E(A11) |
 | [x] | Payable = measured MT × winning price; reconcile vs balance paid | D | U |
-| [ ] | Defaulted only by Ops after payment deadline (policy) | D A UI | U C |
+| [x] | Defaulted only by Ops after payment deadline (policy) | D A UI | U C |
 | [x] | Weighbridge (ticket, MT, file, time) and condition check are separate records + cards | D A UI | U E(A12) |
-| [ ] | Measurement accepted only when all required fields present | D A UI | U |
+| [x] | Measurement accepted only when all required fields present | D A UI | U |
 
 ### Lot Assurance claims (§16, §20 Assurance)
 | ✓ | Rule | Enforced | Test |
 |---|---|---|---|
-| [ ] | Ineligible: standard lot → `not_assured` | D A UI | U C |
-| [ ] | Ineligible: no valid winning transaction → `no_transaction` | D A | U |
-| [ ] | Ineligible: lifting not started → `lifting_not_started` | D A UI | U |
-| [ ] | Ineligible: within tolerance → `within_tolerance` | D A UI | U |
-| [ ] | Ineligible: missing evidence → `evidence_required` | D A UI | U |
-| [ ] | Ineligible: after loading complete → `window_closed` | D A UI | U |
-| [ ] | Eligibility returns all failing reasons at once, each with a next step | D UI | U |
-| [ ] | Classify: within tolerance → normal; clear exception → remedy; disputed → Ops | D | U |
+| [x] | Ineligible: standard lot → rule `assured` | D A UI | U C |
+| [x] | Ineligible: no valid winning transaction → rule `valid_transaction` | D A | U |
+| [x] | Ineligible: lifting not started → rule `lifting_started` | D A UI | U |
+| [x] | Ineligible: within tolerance → rule `outside_tolerance` | D A UI | U |
+| [x] | Ineligible: missing evidence → rule `evidence_supplied` | D A UI | U |
+| [x] | Ineligible: after loading complete → rule `before_loading_complete` | D A UI | U |
+| [x] | Eligibility returns all failing reasons at once, each with a next step | D UI | U |
+| [x] | Classify: within tolerance → normal; clear exception → remedy; disputed → Ops | D | U |
 | [x] | Seller responds first: accept → remedy applied, resolved; dispute → Ops queue | D A UI | U C E |
 | [x] | Only Ops decides disputed claims; decision needs reason; records actor + timestamp | D A UI | U C E(C5) |
-| [ ] | Remedy (D-008): price adjustment = (observed − tolerance) × measured MT × rate; exit = EMD + balance refunded (simulated) | D | U (CLM-1042-01 → ₹83,376) |
-| [ ] | Track record updates after completion and claim resolution | D | U |
-| [ ] | Policy per category, every entry `demo: true` | D | U |
+| [x] | Remedy (D-008): price adjustment = (observed − tolerance) × measured MT × rate; exit = EMD + balance refunded (simulated) | D | U (CLM-1042-01 → ₹83,376) |
+| [x] | Track record updates after completion and claim resolution | D | U |
+| [x] | Policy per category, every entry `demo: true` | D | U |
 
 ### Edge states (§21)
 | ✓ | State | Where | Test |
@@ -170,20 +170,63 @@ Enforced: **D** domain (`packages/domain`) · **A** API · **DB** Postgres const
 | [x] | Outbid while bidding | UI BidDialog + D | U C (E in demo mode) |
 | [x] | Below minimum increment | UI + D | U E |
 | [x] | EMD not completed | UI EmdDialog + D | E |
-| [~] | Evidence wrong type / too large / upload failed + retry | UI EvidenceUploader + A | U E (Storage upload in Phase 2) |
+| [x] | Evidence wrong type / too large / upload failed + retry | UI EvidenceUploader + A | U C E (Storage upload verified in e2e:http) |
 | [x] | Listing cannot be published | UI preview + D | U E |
-| [ ] | Duplicate submission | UI guard + A/DB | C |
+| [x] | Duplicate submission | UI guard + A/DB | C |
 | [x] | Transaction action not allowed in current state | UI disabled+reason + D | U E |
 | [x] | Claim within tolerance / no evidence / after window | UI EligibilityChecklist + D | U E |
-| [ ] | Unauthorised role access | UI guard page + A 401/403 | E C |
-| [~] | Network/API failure; backend unavailable | UI ErrorState + fallback Banner | E (network ✓; real backend-down in Phase 2) |
-| [ ] | Demo data unavailable (corrupt/missing storage) | UI → auto reset + Banner | E |
+| [x] | Unauthorised role access | UI guard page + A 401/403 | E C |
+| [x] | Network/API failure; backend unavailable | UI ErrorState + fallback Banner with retry | E (network) + verified with API stopped and restarted |
+| [x] | Demo data unavailable (corrupt/missing storage) | UI → auto reset + Banner | E |
 
 ### Journeys (§22)
 - [x] **A** (A1–A14 ✓ e2e in demo mode, both endings) A1 marketplace · A2 browse live · A3 open assured HMS lot · A4 declaration/evidence/rule/tolerance/remedy with trust tags · A5 EMD · A6 bid · A7 status · A8 Ops close · A9 transaction · A10 balance · A11 lifting · A12 weighbridge + condition · A13 complete or claim · A14 final state
 - [x] **B** (B1–B10 ✓ e2e in demo mode) B1–B2 dashboard · B3–B4 wizard 1–2 · B5 evidence · B6 reserve + dates · B7 assurance policy · B8 preview + publish · B9 correct state · B10 status
 - [x] **C** (✓ e2e: seeded CLM-1042-01 and a live claim) C1–C2 overview · C3 open CLM-1042-01 · C4 inspect · C5 decide · C6 status + audit across roles
 - [x] Same transaction state in buyer, seller and Ops views
-- [ ] Demo reset restores seed with fresh relative times
+- [x] Demo reset restores seed with fresh relative times
 
 **Acceptance (§26)** — reported item by item in Phase 7.
+
+## 6. Phase 6 hardening report
+
+### SPEC §21 — every state, its designed UI and its test
+
+| §21 state | Designed UI | Test |
+|---|---|---|
+| No matching auctions | Catalogue empty state + Clear filters | e2e catalogue |
+| No active bids | Buyer dashboard empty state → Browse auctions | e2e onboarding (new buyer) |
+| No seller listings | Lots tab empty state → Create a new lot | e2e journey-b (new seller) |
+| No transactions | Buyer dashboard empty state | e2e onboarding |
+| No open claims | Ops queue empty state | e2e operations |
+| Required field missing | Inline field errors (what + how to fix) | U listing; e2e onboarding, journey-b |
+| Invalid number / quantity / date | Inline errors; closing-before-opening blocked | U; e2e journey-b; C listings |
+| Auction already closed | Result + next action, no bid button | U; C; e2e bidding |
+| Auction not started | "Bidding hasn't opened yet" + countdown | U; C; e2e bidding |
+| Another bidder bid higher | Dialog banner "Another bidder placed …", new minimum prefilled | U; C; e2e bidding (stale) |
+| Bid below minimum increment | Inline error before review; server rejection | U; C; e2e bidding |
+| EMD not completed | "Pay EMD to bid" → EMD dialog; failure path | U; C; e2e journey-a |
+| Evidence file type not supported | Uploader error naming the allowed types | U media; C; e2e uploads |
+| Evidence file too large | Uploader error with size and limit | U media (15 MB / 50 MB) |
+| Upload interrupted or failed | Failed item with Retry / Remove | e2e uploads |
+| Listing cannot be published | Preview lists blockers with "Fix in …" links; Publish disabled with reason | U; C; e2e journey-b |
+| Duplicate submission | Request id per attempt; button locked while sending | C (5× retry storm → 1 bid) |
+| Transaction action not allowed in current state | Waiting text names who acts next; server reason | U; C |
+| Claim outside the tolerance | Live verdict + eligibility checklist | U; C; e2e claim branch |
+| Claim without mandatory evidence | Checklist "at least 2 files"; submit blocked | U; C |
+| Claim after the submission window | Checklist "Loading is already complete …" | U; C |
+| Unauthorised role access | Access-denied page with "Continue as …"; API 401/403 | e2e access + page matrix; API security matrix (111) |
+| Network/API failure | Error state with retry; never a false success | e2e bidding (network), catalogue |
+| Backend unavailable | Fallback to demo data with banner + "Try the live backend again" | Verified by stopping/starting the API |
+| Demo data unavailable | Auto-restore with "Demo data was restored" banner | e2e resilience |
+
+### Not covered, and why
+- **Real session expiry by clock** — demo sessions last 8 h; expiry is simulated by removing the account (data reset). Same UI path (`invalid_session` → sign back in, entries kept); e2e resilience.
+- **"Backend unavailable" has no automated test** — the web app is built with one data mode, so an automated check would need a second build. Verified by hand (API stopped → banner; retry while down → "Still unreachable"; API back → live data).
+- **Evidence over 15/50 MB in the browser** — unit-tested on the shared validator; no e2e with a large file (slow, no extra signal).
+- **Supabase Auth** — not wired (D-066); role security is enforced on the demo session the API verifies.
+
+### Other Phase 6 checks
+- **Role security:** every API route as guest/buyer/seller/Ops (`apps/api/src/security.test.ts`, 111 checks); every protected page as every role (e2e resilience → page access).
+- **Accessibility:** axe (WCAG 2.1 A/AA) on 25 screens plus dialogs and menus at 1440 and 390, with zero serious/critical violations. Keyboard-only journeys A, B and C, skip link, focus ring on every control type, dialog focus containment and Escape.
+- **Design rules (automated, 25 routes × 2 widths):** at most one orange primary per viewport, no "Verified/Guaranteed/Certified", ₹ always grouped, no horizontal scroll (checked after every e2e test).

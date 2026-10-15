@@ -51,8 +51,8 @@ export function ListingPreview({ id }: { id: string }) {
   const { viewer, session } = useSession();
   const toast = useToast();
   const router = useRouter();
-  const lot = useQuery(`preview:${id}:${session.userId}`, (s) => s.getLot(id, viewer));
-  const rules = useQuery(`preview-rules:${id}:${session.userId}`, (s) => s.sellerLot(id, viewer));
+  const lot = useQuery(`preview:${id}:${session.userId}`, (s) => s.getLot(id, viewer), { keepPrevious: true });
+  const rules = useQuery(`preview-rules:${id}:${session.userId}`, (s) => s.sellerLot(id, viewer), { keepPrevious: true });
   const [confirm, setConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);

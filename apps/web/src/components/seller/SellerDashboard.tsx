@@ -69,7 +69,7 @@ export function SellerDashboard() {
         </Banner>
       ))}
 
-      <section aria-label="Summary" className="grid gap-md sm:grid-cols-3 lg:grid-cols-6">
+      <section aria-label="Summary" className="grid grid-cols-2 gap-sm sm:grid-cols-3 sm:gap-md lg:grid-cols-6">
         <StatCard label="Live" value={d.stats.live} caption="Bidding now" />
         <StatCard label="Upcoming" value={d.stats.upcoming} caption="Scheduled to open" />
         <StatCard label="Drafts" value={d.stats.drafts} caption="Not published" />

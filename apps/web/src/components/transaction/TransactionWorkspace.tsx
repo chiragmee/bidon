@@ -61,7 +61,7 @@ export function TransactionWorkspace({ id }: { id: string }) {
   const { ds } = useData();
   const { viewer, session } = useSession();
   const toast = useToast();
-  const q = useQuery(`txd:${id}:${session.userId}`, (s) => s.transactionDetail(id, viewer), { pollMs: 5000 });
+  const q = useQuery(`txd:${id}:${session.userId}`, (s) => s.transactionDetail(id, viewer), { pollMs: 5000, keepPrevious: true });
   const [outcome, setOutcome] = useState<{ ok: boolean; text: string } | null>(null);
   const outcomeRef = useRef<HTMLDivElement>(null);
   useEffect(() => {

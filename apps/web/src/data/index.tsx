@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { HttpDataSource, type DataSource, type DsError, type DsResult } from '@auctionit/client';
 import { SESSION_COOKIE } from '@/lib/session';
 import { DemoDataSource } from './DemoDataSource';
@@ -12,6 +12,31 @@ interface DataCtx {
   ds: DataSource;
   /** Why we are on demo data when real mode was asked for; null when as configured. */
   fallbackReason: string | null;
+  /** Re-check the live backend and switch back to it if it answers (fallback banner's retry). */
+  retryLive: (() => Promise<boolean>) | null;
+}
+
+/** Fired when any call says the session is gone, so the app can offer to sign back in in place. */
+export const SESSION_LOST_EVENT = 'auctionit:session-lost';
+const SESSION_CODES = new Set(['invalid_session', 'unauthenticated']);
+
+/** Wrap every DataSource method to report lost sessions; results pass through unchanged. */
+function watchSessions(ds: DataSource): DataSource {
+  return new Proxy(ds, {
+    get(target, prop, receiver) {
+      const v = Reflect.get(target, prop, receiver) as unknown;
+      if (typeof v !== 'function' || prop === 'subscribe') return v;
+      return (...args: unknown[]) => {
+        const out = (v as (...a: unknown[]) => unknown).apply(target, args);
+        if (out instanceof Promise) {
+          void out.then((r: DsResult<unknown>) => {
+            if (r && !r.ok && SESSION_CODES.has(r.error.code)) window.dispatchEvent(new CustomEvent(SESSION_LOST_EVENT, { detail: r.error }));
+          });
+        }
+        return out;
+      };
+    },
+  });
 }
 
 const DataContext = createContext<DataCtx | null>(null);
@@ -29,24 +54,36 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
  * unreachable we fall back to demo data with a visible banner — never silently (CLAUDE.md).
  */
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [value, setValue] = useState<DataCtx>(() =>
-    WANT_HTTP ? { ds: new HttpDataSource({ baseUrl: API_URL, session: sessionFromCookie }), fallbackReason: null } : { ds: new DemoDataSource(), fallbackReason: null },
-  );
+  const [mode, setMode] = useState<'live' | 'demo' | 'fallback'>(WANT_HTTP ? 'live' : 'demo');
+  const [http] = useState(() => (WANT_HTTP ? new HttpDataSource({ baseUrl: API_URL, session: sessionFromCookie }) : null));
+  const [live] = useState(() => (http ? watchSessions(http) : null));
+  const [demo] = useState(() => watchSessions(new DemoDataSource()));
+
   useEffect(() => {
-    if (!(value.ds instanceof HttpDataSource)) return;
+    if (!http) return;
     let cancelled = false;
-    void value.ds.health().then((up) => {
-      if (!up && !cancelled) {
-        setValue({
-          ds: new DemoDataSource(),
-          fallbackReason: 'The live backend isn’t reachable right now, so you’re seeing demo data stored in this browser. Changes here won’t reach the server.',
-        });
-      }
+    void http.health().then((up) => {
+      if (!up && !cancelled) setMode('fallback');
     });
     return () => {
       cancelled = true;
     };
-  }, [value.ds]);
+  }, [http]);
+
+  const value = useMemo<DataCtx>(() => {
+    if (mode === 'live' && live) return { ds: live, fallbackReason: null, retryLive: null };
+    if (mode === 'fallback' && http)
+      return {
+        ds: demo,
+        fallbackReason: 'The live backend isn’t reachable right now, so you’re seeing demo data stored in this browser. Changes here won’t reach the server.',
+        retryLive: async () => {
+          const up = await http.health();
+          if (up) setMode('live');
+          return up;
+        },
+      };
+    return { ds: demo, fallbackReason: null, retryLive: null };
+  }, [mode, live, demo, http]);
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 }
 

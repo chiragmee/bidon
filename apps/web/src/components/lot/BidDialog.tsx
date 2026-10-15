@@ -129,7 +129,10 @@ export function BidDialog({
             <dd className="text-price-md text-text-strong">{formatINR(min, { perMt: true })}</dd>
           </div>
           <div className="col-span-2">
-            <Countdown to={d.lot.endAt} />
+            <dt className="sr-only">Time left</dt>
+            <dd>
+              <Countdown to={d.lot.endAt} />
+            </dd>
           </div>
         </dl>
 

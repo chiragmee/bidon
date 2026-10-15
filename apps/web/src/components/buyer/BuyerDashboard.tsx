@@ -22,7 +22,7 @@ const BID_BADGE = {
 function BidsTable({ rows }: { rows: BuyerBidRow[] }) {
   return (
     <>
-      <div className="hidden overflow-x-auto rounded-lg border border-border bg-surface md:block">
+      <div tabIndex={0} role="region" aria-label="Your active bids" className="hidden overflow-x-auto rounded-lg border border-border bg-surface md:block">
         <table className="w-full text-body-md">
           <thead className="bg-surface-muted text-overline uppercase text-on-trust-declared">
             <tr>
@@ -99,7 +99,7 @@ export function BuyerDashboard() {
       <Container>
         <div role="status" aria-label="Loading dashboard" className="flex flex-col gap-lg">
           <Skeleton className="h-10 w-1/2" />
-          <div className="grid gap-md sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid grid-cols-2 gap-sm sm:gap-md lg:grid-cols-5">
             {Array.from({ length: 5 }, (_, i) => (
               <Skeleton key={i} className="h-24" />
             ))}
@@ -139,7 +139,7 @@ export function BuyerDashboard() {
         </Banner>
       )}
 
-      <section aria-label="Summary" className="grid gap-md sm:grid-cols-2 lg:grid-cols-5">
+      <section aria-label="Summary" className="grid grid-cols-2 gap-sm sm:gap-md lg:grid-cols-5">
         <StatCard label="Active bids" value={d.stats.activeBids} caption={`${d.stats.leading} leading · ${d.stats.outbid} outbid`} />
         <StatCard label="Closing soon" value={d.stats.closingSoon} caption="Your live auctions ending within 3 hours" />
         <StatCard label="Won — next step" value={d.stats.wonNextStep} caption="Balance payment due" attention={d.stats.wonNextStep > 0} />

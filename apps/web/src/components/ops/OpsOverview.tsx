@@ -6,7 +6,21 @@ import { useState } from 'react';
 import type { OpsAuctionRow, OpsOverviewView } from '@auctionit/domain';
 import { formatAge, formatINR } from '@auctionit/domain';
 import { Container, PageHeader } from '@/components/layout/Shells';
-import { AuctionStatusBadge, Banner, Button, ButtonLink, ConfirmDialog, Countdown, EmptyState, ErrorState, RetryIcon, Skeleton, StatCard, StatusBadge, useToast } from '@/components/ui';
+import {
+  AuctionStatusBadge,
+  Banner,
+  Button,
+  ButtonLink,
+  ConfirmDialog,
+  Countdown,
+  EmptyState,
+  ErrorState,
+  RetryIcon,
+  Skeleton,
+  StatCard,
+  StatusBadge,
+  useToast,
+} from '@/components/ui';
 import { useData, useQuery } from '@/data';
 import { useSession } from '@/lib/SessionProvider';
 
@@ -21,25 +35,92 @@ export function AuctionsTable({ rows, onClosed }: { rows: OpsAuctionRow[]; onClo
   const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null);
   return (
     <>
-      {result && <Banner tone={result.ok ? 'success' : 'danger'} className="mb-sm">{result.text}</Banner>}
-      <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+      {result && (
+        <Banner tone={result.ok ? 'success' : 'danger'} className="mb-sm">
+          {result.text}
+        </Banner>
+      )}
+      {/* Phones get cards: a wide table inside a scroll box still makes mobile Chrome zoom out. */}
+      <ul className="flex flex-col gap-sm md:hidden">
+        {rows.map((r) => (
+          <li
+            key={r.lotId}
+            className="flex flex-col gap-xs rounded-lg border border-border bg-surface p-md"
+          >
+            <div className="flex items-start justify-between gap-xs">
+              <Link
+                href={`/auctions/${r.lotId}`}
+                className="text-label-md text-text-strong hover:underline"
+              >
+                {r.title}
+              </Link>
+              <AuctionStatusBadge status={r.status} />
+            </div>
+            <p className="text-caption text-text-secondary">
+              {r.lotId} · {r.seller} · {r.bidCount} bids ·{' '}
+              {r.highestBidPerMt !== null
+                ? formatINR(r.highestBidPerMt, { perMt: true })
+                : 'no bids'}{' '}
+              (reserve {formatINR(r.reservePerMt, { perMt: true })})
+            </p>
+            <div className="flex flex-wrap items-center justify-between gap-xs text-body-md">
+              {r.status === 'live' ? (
+                <Countdown to={r.endAt} />
+              ) : r.transactionId ? (
+                <Link href={`/transactions/${r.transactionId}`} className="text-primary underline">
+                  {r.transactionId}
+                </Link>
+              ) : (
+                <span className="text-caption text-text-secondary">
+                  {r.status === 'closed_unsold' ? 'Unsold' : '—'}
+                </span>
+              )}
+              {r.status === 'live' && (
+                <Button variant="demo" onClick={() => setTarget(r)}>
+                  Close now
+                </Button>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+      <div tabIndex={0} role="region" aria-label="Auctions table" className="hidden overflow-x-auto rounded-lg border border-border bg-surface md:block">
         <table className="w-full min-w-[760px] text-body-md">
           <thead className="bg-surface-muted text-overline uppercase text-on-trust-declared">
             <tr>
-              <th scope="col" className={th}>Lot</th>
-              <th scope="col" className={th}>Status</th>
-              <th scope="col" className="px-md text-right">Highest / reserve</th>
-              <th scope="col" className="px-md text-right">Bids</th>
-              <th scope="col" className={th}>Result</th>
-              <th scope="col" className="px-md text-right"><span className="sr-only">Action</span></th>
+              <th scope="col" className={th}>
+                Lot
+              </th>
+              <th scope="col" className={th}>
+                Status
+              </th>
+              <th scope="col" className="px-md text-right">
+                Highest / reserve
+              </th>
+              <th scope="col" className="px-md text-right">
+                Bids
+              </th>
+              <th scope="col" className={th}>
+                Result
+              </th>
+              <th scope="col" className="px-md text-right">
+                <span className="sr-only">Action</span>
+              </th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.lotId} className="h-12 border-t border-border hover:bg-canvas">
                 <td className="px-md">
-                  <Link href={`/auctions/${r.lotId}`} className="text-text-strong hover:text-primary hover:underline">{r.title}</Link>
-                  <span className="block text-caption text-text-secondary">{r.lotId} · {r.seller}</span>
+                  <Link
+                    href={`/auctions/${r.lotId}`}
+                    className="text-text-strong hover:text-primary hover:underline"
+                  >
+                    {r.title}
+                  </Link>
+                  <span className="block text-caption text-text-secondary">
+                    {r.lotId} · {r.seller}
+                  </span>
                 </td>
                 <td className="px-md">
                   <div className="flex flex-col items-start gap-0.5">
@@ -49,13 +130,30 @@ export function AuctionsTable({ rows, onClosed }: { rows: OpsAuctionRow[]; onClo
                 </td>
                 <td className="px-md text-right">
                   {r.highestBidPerMt !== null ? formatINR(r.highestBidPerMt, { perMt: true }) : '—'}
-                  <span className="block text-caption text-text-secondary">reserve {formatINR(r.reservePerMt, { perMt: true })}</span>
+                  <span className="block text-caption text-text-secondary">
+                    reserve {formatINR(r.reservePerMt, { perMt: true })}
+                  </span>
                 </td>
                 <td className="px-md text-right">{r.bidCount}</td>
                 <td className="px-md">
-                  {r.status === 'live' ? (r.reserveMet ? 'Reserve met so far' : 'Reserve not met yet') : r.transactionId ? (
-                    <Link href={`/transactions/${r.transactionId}`} className="text-primary underline">{r.transactionId}</Link>
-                  ) : r.status === 'closed_unsold' ? 'Unsold — no bid met the reserve' : '—'}
+                  {r.status === 'live' ? (
+                    r.reserveMet ? (
+                      'Reserve met so far'
+                    ) : (
+                      'Reserve not met yet'
+                    )
+                  ) : r.transactionId ? (
+                    <Link
+                      href={`/transactions/${r.transactionId}`}
+                      className="text-primary underline"
+                    >
+                      {r.transactionId}
+                    </Link>
+                  ) : r.status === 'closed_unsold' ? (
+                    'Unsold — no bid met the reserve'
+                  ) : (
+                    '—'
+                  )}
                 </td>
                 <td className="px-md text-right">
                   {r.status === 'live' && (
@@ -106,48 +204,121 @@ function Queue({ rows, empty }: { rows: OpsOverviewView['queue']; empty: string 
     );
   }
   return (
-    <div className="overflow-x-auto rounded-lg border border-border bg-surface">
-      <table className="w-full min-w-[900px] text-body-md">
-        <thead className="bg-surface-muted text-overline uppercase text-on-trust-declared">
-          <tr>
-            <th scope="col" className={th}>Claim / lot</th>
-            <th scope="col" className={th}>Buyer → seller</th>
-            <th scope="col" className={th}>Discrepancy</th>
-            <th scope="col" className={th}>Tolerance</th>
-            <th scope="col" className={th}>Remedy asked</th>
-            <th scope="col" className={th}>Seller</th>
-            <th scope="col" className="px-md text-right">Open for</th>
-            <th scope="col" className="px-md text-right"><span className="sr-only">Action</span></th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.claimId} className="h-12 border-t border-border hover:bg-canvas">
-              <td className="px-md py-xs">
-                <span className="block font-medium text-text-strong">{r.claimId}</span>
-                <span className="block text-caption text-text-secondary">{r.lotTitle} · {r.txId}</span>
-              </td>
-              <td className="px-md text-caption">{r.buyer} → {r.seller}</td>
-              <td className="px-md">
-                {r.discrepancy}
-                <span className="block text-caption text-text-secondary">{r.evidenceCount} evidence files</span>
-              </td>
-              <td className="px-md text-caption">{r.tolerance}</td>
-              <td className="px-md">{r.requestedRemedy}</td>
-              <td className="px-md">
-                <StatusBadge kind={r.sellerResponse === 'Disputed' ? 'warning' : r.sellerResponse === 'Accepted' ? 'success' : 'neutral'}>{r.sellerResponse}</StatusBadge>
-              </td>
-              <td className="px-md text-right">{formatAge(r.ageMs)}</td>
-              <td className="px-md text-right">
-                <Link href={`/ops/claims/${r.claimId}`} className="text-label-md text-primary underline">
-                  {r.status === 'under_review' ? 'Review' : 'View'}
-                </Link>
-              </td>
+    <>
+      <ul className="flex flex-col gap-sm md:hidden">
+        {rows.map((r) => (
+          <li
+            key={r.claimId}
+            className="flex flex-col gap-xs rounded-lg border border-border bg-surface p-md"
+          >
+            <div className="flex items-start justify-between gap-xs">
+              <Link
+                href={`/ops/claims/${r.claimId}`}
+                className="text-label-md text-text-strong hover:underline"
+              >
+                {r.claimId}
+              </Link>
+              <StatusBadge
+                kind={
+                  r.sellerResponse === 'Disputed'
+                    ? 'warning'
+                    : r.sellerResponse === 'Accepted'
+                      ? 'success'
+                      : 'neutral'
+                }
+              >
+                {r.sellerResponse}
+              </StatusBadge>
+            </div>
+            <p className="text-body-md">{r.discrepancy}</p>
+            <p className="text-caption text-text-secondary">
+              {r.lotTitle} · {r.txId} · {r.buyer} → {r.seller}
+            </p>
+            <p className="text-caption text-text-secondary">
+              {r.tolerance} · asks for {r.requestedRemedy.toLowerCase()} · open for{' '}
+              {formatAge(r.ageMs)}
+            </p>
+          </li>
+        ))}
+      </ul>
+      <div tabIndex={0} role="region" aria-label="Claims table" className="hidden overflow-x-auto rounded-lg border border-border bg-surface md:block">
+        <table className="w-full min-w-[900px] text-body-md">
+          <thead className="bg-surface-muted text-overline uppercase text-on-trust-declared">
+            <tr>
+              <th scope="col" className={th}>
+                Claim / lot
+              </th>
+              <th scope="col" className={th}>
+                Buyer → seller
+              </th>
+              <th scope="col" className={th}>
+                Discrepancy
+              </th>
+              <th scope="col" className={th}>
+                Tolerance
+              </th>
+              <th scope="col" className={th}>
+                Remedy asked
+              </th>
+              <th scope="col" className={th}>
+                Seller
+              </th>
+              <th scope="col" className="px-md text-right">
+                Open for
+              </th>
+              <th scope="col" className="px-md text-right">
+                <span className="sr-only">Action</span>
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.claimId} className="h-12 border-t border-border hover:bg-canvas">
+                <td className="px-md py-xs">
+                  <span className="block font-medium text-text-strong">{r.claimId}</span>
+                  <span className="block text-caption text-text-secondary">
+                    {r.lotTitle} · {r.txId}
+                  </span>
+                </td>
+                <td className="px-md text-caption">
+                  {r.buyer} → {r.seller}
+                </td>
+                <td className="px-md">
+                  {r.discrepancy}
+                  <span className="block text-caption text-text-secondary">
+                    {r.evidenceCount} evidence files
+                  </span>
+                </td>
+                <td className="px-md text-caption">{r.tolerance}</td>
+                <td className="px-md">{r.requestedRemedy}</td>
+                <td className="px-md">
+                  <StatusBadge
+                    kind={
+                      r.sellerResponse === 'Disputed'
+                        ? 'warning'
+                        : r.sellerResponse === 'Accepted'
+                          ? 'success'
+                          : 'neutral'
+                    }
+                  >
+                    {r.sellerResponse}
+                  </StatusBadge>
+                </td>
+                <td className="px-md text-right">{formatAge(r.ageMs)}</td>
+                <td className="px-md text-right">
+                  <Link
+                    href={`/ops/claims/${r.claimId}`}
+                    className="text-label-md text-primary underline"
+                  >
+                    {r.status === 'under_review' ? 'Review' : 'View'}
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   );
 }
 
@@ -157,7 +328,15 @@ export function OpsOverview() {
   if (q.error && !q.data) {
     return (
       <Container>
-        <ErrorState what="We couldn’t load the Operations overview." next="Try again in a moment." action={<Button onClick={q.reload} icon={<RetryIcon />}>Try again</Button>} />
+        <ErrorState
+          what="We couldn’t load the Operations overview."
+          next="Try again in a moment."
+          action={
+            <Button onClick={q.reload} icon={<RetryIcon />}>
+              Try again
+            </Button>
+          }
+        />
       </Container>
     );
   }
@@ -178,26 +357,47 @@ export function OpsOverview() {
   return (
     <Container className="flex flex-col gap-xl">
       <PageHeader overline="Operations · Sample data" title="Operations overview">
-        AuctionIT handles exceptions — it doesn’t inspect every lot. Normal transactions finish without anyone here.
+        AuctionIT handles exceptions — it doesn’t inspect every lot. Normal transactions finish
+        without anyone here.
       </PageHeader>
 
       {firstReview && (
-        <Banner tone="warning" title={`${o.queue.filter((r) => r.status === 'under_review').length} disputed claim needs a decision`} action={<ButtonLink href={`/ops/claims/${firstReview.claimId}`} variant="primary">Review {firstReview.claimId}</ButtonLink>}>
-          {firstReview.lotTitle} · {firstReview.discrepancy} · open for {formatAge(firstReview.ageMs)}
+        <Banner
+          tone="warning"
+          title={`${o.queue.filter((r) => r.status === 'under_review').length} disputed claim needs a decision`}
+          action={
+            <ButtonLink href={`/ops/claims/${firstReview.claimId}`} variant="primary">
+              Review {firstReview.claimId}
+            </ButtonLink>
+          }
+        >
+          {firstReview.lotTitle} · {firstReview.discrepancy} · open for{' '}
+          {formatAge(firstReview.ageMs)}
         </Banner>
       )}
 
-      <section aria-label="Summary" className="grid gap-md sm:grid-cols-2 lg:grid-cols-5">
+      <section aria-label="Summary" className="grid grid-cols-2 gap-sm sm:gap-md lg:grid-cols-5">
         <StatCard label="Live auctions" value={o.stats.live} caption="Sample data" />
         <StatCard label="Closed auctions" value={o.stats.closed} caption="Sample data" />
-        <StatCard label="Awaiting action" value={o.stats.awaitingAction} caption="Open transactions" />
-        <StatCard label="Open claims" value={o.stats.openClaims} caption="Waiting on seller or Operations" attention={o.stats.openClaims > 0} />
+        <StatCard
+          label="Awaiting action"
+          value={o.stats.awaitingAction}
+          caption="Open transactions"
+        />
+        <StatCard
+          label="Open claims"
+          value={o.stats.openClaims}
+          caption="Waiting on seller or Operations"
+          attention={o.stats.openClaims > 0}
+        />
         <StatCard label="Completed" value={o.stats.completed} caption="Sample data" />
       </section>
 
       <section aria-labelledby="metrics-h" className="flex flex-col gap-sm">
         <div className="flex flex-wrap items-end justify-between gap-xs">
-          <h2 id="metrics-h" className="text-h2 text-text-strong">Outcome metrics</h2>
+          <h2 id="metrics-h" className="text-h2 text-text-strong">
+            Outcome metrics
+          </h2>
           <StatusBadge kind="neutral">Simulated — computed from demo data</StatusBadge>
         </div>
         <div className="grid gap-md sm:grid-cols-2 lg:grid-cols-4">
@@ -210,7 +410,10 @@ export function OpsOverview() {
             <StatCard key={m.label} label={m.label} value={m.value} caption={m.caption} />
           ))}
         </div>
-        <p className="text-caption text-text-secondary">These figures show how the workflow connects to the business outcome. They are not live AuctionIT results and don’t prove that Lot Assurance works.</p>
+        <p className="text-caption text-text-secondary">
+          These figures show how the workflow connects to the business outcome. They are not live
+          AuctionIT results and don’t prove that Lot Assurance works.
+        </p>
       </section>
 
       <section aria-labelledby="queue-h" className="flex flex-col gap-sm">
@@ -222,22 +425,34 @@ export function OpsOverview() {
       </section>
 
       <section aria-labelledby="tx-h" className="flex flex-col gap-sm">
-        <h2 id="tx-h" className="text-h2 text-text-strong">Transactions awaiting action</h2>
+        <h2 id="tx-h" className="text-h2 text-text-strong">
+          Transactions awaiting action
+        </h2>
         {o.transactions.length === 0 ? (
           <p className="text-body-md text-text-secondary">No open transactions.</p>
         ) : (
           <ul className="divide-y divide-border rounded-lg border border-border bg-surface">
             {o.transactions.map((t) => (
-              <li key={t.id} className="flex flex-wrap items-center justify-between gap-xs px-md py-sm text-body-md">
+              <li
+                key={t.id}
+                className="flex flex-wrap items-center justify-between gap-xs px-md py-sm text-body-md"
+              >
                 <span>
-                  <Link href={`/transactions/${t.id}`} className="font-medium text-text-strong hover:text-primary hover:underline">
+                  <Link
+                    href={`/transactions/${t.id}`}
+                    className="font-medium text-text-strong hover:text-primary hover:underline"
+                  >
                     {t.id} · {t.lotTitle}
                   </Link>
                   <span className="block text-caption text-text-secondary">
                     {t.buyer} → {t.seller} · {t.waitingOn ?? t.statusLabel}
                   </span>
                 </span>
-                {t.overdue ? <StatusBadge kind="danger">Payment overdue</StatusBadge> : <StatusBadge kind="neutral">{t.statusLabel}</StatusBadge>}
+                {t.overdue ? (
+                  <StatusBadge kind="danger">Payment overdue</StatusBadge>
+                ) : (
+                  <StatusBadge kind="neutral">{t.statusLabel}</StatusBadge>
+                )}
               </li>
             ))}
           </ul>
@@ -246,22 +461,38 @@ export function OpsOverview() {
 
       <section aria-labelledby="auctions-h" className="flex flex-col gap-sm">
         <div className="flex flex-wrap items-end justify-between gap-xs">
-          <h2 id="auctions-h" className="text-h2 text-text-strong">Auctions</h2>
-          <Link href="/ops/auctions" className="text-label-md text-primary underline">All auctions and results</Link>
+          <h2 id="auctions-h" className="text-h2 text-text-strong">
+            Auctions
+          </h2>
+          <Link href="/ops/auctions" className="text-label-md text-primary underline">
+            All auctions and results
+          </Link>
         </div>
-        <AuctionsTable rows={o.auctions.filter((a) => a.status === 'live').concat(o.auctions.filter((a) => a.status !== 'live').slice(0, 3))} onClosed={q.reload} />
+        <AuctionsTable
+          rows={o.auctions
+            .filter((a) => a.status === 'live')
+            .concat(o.auctions.filter((a) => a.status !== 'live').slice(0, 3))}
+          onClosed={q.reload}
+        />
       </section>
 
       <section aria-labelledby="decided-h" className="flex flex-col gap-sm">
-        <h2 id="decided-h" className="text-h2 text-text-strong">Recently decided claims</h2>
+        <h2 id="decided-h" className="text-h2 text-text-strong">
+          Recently decided claims
+        </h2>
         <Queue rows={o.decided} empty="No decided claims yet" />
       </section>
 
       <section aria-labelledby="audit-h" className="flex flex-col gap-sm">
-        <h2 id="audit-h" className="text-h2 text-text-strong">Audit trail</h2>
+        <h2 id="audit-h" className="text-h2 text-text-strong">
+          Audit trail
+        </h2>
         <ol className="divide-y divide-border rounded-lg border border-border bg-surface">
           {o.recent.map((e) => (
-            <li key={e.id} className="flex flex-wrap justify-between gap-xs px-md py-sm text-body-md">
+            <li
+              key={e.id}
+              className="flex flex-wrap justify-between gap-xs px-md py-sm text-body-md"
+            >
               <span>
                 <span className="font-medium text-text-strong">{e.label}</span> · {e.entity}
                 <span className="block text-caption text-text-secondary">
@@ -269,7 +500,14 @@ export function OpsOverview() {
                   {e.reason ? ` — “${e.reason}”` : ''}
                 </span>
               </span>
-              <span className="text-caption text-text-secondary">{new Date(e.at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+              <span className="text-caption text-text-secondary">
+                {new Date(e.at).toLocaleString('en-IN', {
+                  day: 'numeric',
+                  month: 'short',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </span>
             </li>
           ))}
         </ol>
@@ -284,10 +522,19 @@ export function OpsAuctions() {
   return (
     <Container className="flex flex-col gap-lg">
       <PageHeader overline="Operations" title="Auctions and results">
-        Live auctions close automatically at their end time. “Close now” is a demo control; results always come from stored bids and the reserve.
+        Live auctions close automatically at their end time. “Close now” is a demo control; results
+        always come from stored bids and the reserve.
       </PageHeader>
       {q.error && !q.data ? (
-        <ErrorState what="We couldn’t load auctions." next="Try again." action={<Button onClick={q.reload} icon={<RetryIcon />}>Try again</Button>} />
+        <ErrorState
+          what="We couldn’t load auctions."
+          next="Try again."
+          action={
+            <Button onClick={q.reload} icon={<RetryIcon />}>
+              Try again
+            </Button>
+          }
+        />
       ) : !q.data ? (
         <Skeleton className="h-96" />
       ) : (

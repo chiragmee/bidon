@@ -61,7 +61,7 @@ export function SellerLotsTable({ lots, initialTab }: { lots: SellerLotRow[]; in
           </EmptyState>
         ) : (
           <>
-            <div className="hidden overflow-x-auto rounded-lg border border-border bg-surface md:block">
+            <div tabIndex={0} role="region" aria-label="Your lots" className="hidden overflow-x-auto rounded-lg border border-border bg-surface md:block">
               <table className="w-full text-body-md">
                 <thead className="bg-surface-muted text-overline uppercase text-on-trust-declared">
                   <tr>

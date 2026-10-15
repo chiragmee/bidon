@@ -31,8 +31,8 @@ export function FeaturedLots() {
   return (
     <ul className="grid gap-lg sm:grid-cols-2 lg:grid-cols-4">
       {picked.map((lot) => (
-        <li key={lot.id} className="flex">
-          <div className="flex w-full flex-col">
+        <li key={lot.id} className="flex min-w-0">
+          <div className="flex w-full min-w-0 flex-col">
             <LotCard lot={lot} />
           </div>
         </li>

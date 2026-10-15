@@ -2,7 +2,8 @@
 
 import { useSearchParams } from 'next/navigation';
 import { Lock } from 'lucide-react';
-import { draftFromLot, type WizardStep } from '@auctionit/domain';
+import { useState } from 'react';
+import { draftFromLot, type ListingDraft, type WizardStep } from '@auctionit/domain';
 import { Container } from '@/components/layout/Shells';
 import { Button, ButtonLink, EmptyState, ErrorState, RetryIcon, Skeleton } from '@/components/ui';
 import { useQuery } from '@/data';
@@ -24,10 +25,16 @@ function Loading() {
 /** New lot: prefill the yard and location from the seller's profile. */
 export function NewLotPage() {
   const { viewer, session } = useSession();
-  const q = useQuery(`me:${session.userId}`, (ds) => ds.getUser(viewer.id ?? ''));
-  if (q.data === undefined && !q.error) return <Loading />;
-  const c = q.data?.company;
-  return <ListingWizard lotId={null} initial={{}} defaults={c ? { yard: c.yard, city: c.city, state: c.state } : {}} />;
+  const q = useQuery(`me:${session.userId}`, (ds) => ds.getUser(viewer.id ?? ''), { keepPrevious: true });
+  // Capture the profile defaults once; later refetches (e.g. after signing back in) must not
+  // remount the wizard and lose what was typed.
+  const [defaults, setDefaults] = useState<ListingDraft | null>(null);
+  if (defaults === null && (q.data !== undefined || q.error)) {
+    const c = q.data?.company;
+    setDefaults(c ? { yard: c.yard, city: c.city, state: c.state } : {});
+  }
+  if (defaults === null) return <Loading />;
+  return <ListingWizard lotId={null} initial={{}} defaults={defaults} />;
 }
 
 /** Edit a draft or a scheduled lot; live and closed lots explain why they can't be edited. */
@@ -35,8 +42,8 @@ export function EditLotPage({ id }: { id: string }) {
   const { viewer, session } = useSession();
   const stepParam = Number(useSearchParams().get('step'));
   const step = ([1, 2, 3, 4] as const).includes(stepParam as WizardStep) ? (stepParam as WizardStep) : 1;
-  const lot = useQuery(`lot-edit:${id}:${session.userId}`, (ds) => ds.getLot(id, viewer));
-  const rules = useQuery(`lot-rules:${id}:${session.userId}`, (ds) => ds.sellerLot(id, viewer));
+  const lot = useQuery(`lot-edit:${id}:${session.userId}`, (ds) => ds.getLot(id, viewer), { keepPrevious: true });
+  const rules = useQuery(`lot-rules:${id}:${session.userId}`, (ds) => ds.sellerLot(id, viewer), { keepPrevious: true });
 
   if ((lot.error && !lot.data) || (rules.error && !rules.data)) {
     return (

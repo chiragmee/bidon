@@ -3,23 +3,44 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ArrowLeftRight, ClipboardList, Gavel, LayoutDashboard, PlusSquare, ShieldCheck } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { Role } from '@auctionit/domain';
-import { Banner } from '@/components/ui';
+import { Banner, Button } from '@/components/ui';
 import { useData, useDataRecovered } from '@/data';
 import { cn } from '@/lib/cn';
 import { useSession } from '@/lib/SessionProvider';
 import { AppHeader, isActive } from './AppHeader';
 
 function DataBanners() {
-  const { fallbackReason } = useData();
+  const { fallbackReason, retryLive } = useData();
   const recovered = useDataRecovered();
+  const [checking, setChecking] = useState(false);
+  const [stillDown, setStillDown] = useState(false);
   if (!fallbackReason && !recovered) return null;
   return (
     <div className="mx-auto flex max-w-[1280px] flex-col gap-xs px-4 pt-md md:px-lg">
       {fallbackReason && (
-        <Banner tone="warning" title="Showing demo data">
+        <Banner
+          tone="warning"
+          title="Showing demo data"
+          action={
+            retryLive && (
+              <Button
+                loading={checking}
+                onClick={async () => {
+                  setChecking(true);
+                  const up = await retryLive();
+                  setChecking(false);
+                  setStillDown(!up);
+                }}
+              >
+                Try the live backend again
+              </Button>
+            )
+          }
+        >
           {fallbackReason}
+          {stillDown && ' Still unreachable — try again in a moment.'}
         </Banner>
       )}
       {recovered && (

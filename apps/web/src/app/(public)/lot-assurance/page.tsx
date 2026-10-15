@@ -44,7 +44,7 @@ export default function LotAssurancePage() {
           <h2 className="text-h2 text-text-strong">Pilot categories and tolerances</h2>
           <DemoPolicyCaption />
         </div>
-        <div className="overflow-x-auto rounded-lg border border-border bg-surface">
+        <div tabIndex={0} role="region" aria-label="Pilot categories and tolerances" className="overflow-x-auto rounded-lg border border-border bg-surface">
           <table className="w-full text-body-md">
             <thead className="bg-surface-muted text-overline uppercase text-on-trust-declared">
               <tr>

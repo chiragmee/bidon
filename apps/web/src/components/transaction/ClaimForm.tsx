@@ -245,7 +245,7 @@ function Checklist({ checks, eligible }: { checks: ReturnType<typeof claimEligib
 /** /transactions/[id]/claim — eligibility first, then the SPEC §16.4 form. */
 export function ClaimPage({ id }: { id: string }) {
   const { viewer, session } = useSession();
-  const q = useQuery(`claimform:${id}:${session.userId}`, (s) => s.transactionDetail(id, viewer));
+  const q = useQuery(`claimform:${id}:${session.userId}`, (s) => s.transactionDetail(id, viewer), { keepPrevious: true });
   if (q.error && !q.data) {
     return (
       <Container>
