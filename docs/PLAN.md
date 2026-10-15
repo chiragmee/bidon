@@ -21,7 +21,7 @@ Run one phase per session ("Run Phase N from docs/PHASES.md"). Each ends: typech
 - [x] **Phase 4** (2026-10-15) — Seller onboarding, dashboard, 4-step wizard, preview/publish, lot management · e2e B1–B9
 - [x] **Phase 5** (2026-10-15) — `/transactions/[id]`, lifting check, claims + seller response, `/ops`, track record, notifications · e2e A8–A14, B10, C
 - [x] **Phase 6** (2026-10-15) — Hardening: §21 walk, role security matrix, resilience, a11y, visual pass vs Stitch
-- [ ] **Phase 7** — Env, README, DEPLOY.md, DEMO_SCRIPT.md, clean-clone run, §26 report
+- [x] **Phase 7** (2026-10-15) — Env, README, DEPLOY.md, DEMO_SCRIPT.md, clean-clone run, §26 report
 
 **Chosen order: fast track 1 → 3 → 5 → 4 → 2 → 6 → 7** (D-015). Phases 3–5 and 4 run on `DemoDataSource`, which moves from Phase 2.6 into Phase 3 (D-011). Phase 2 then adds Supabase + API + `HttpDataSource` + contract tests behind the same interface.
 
