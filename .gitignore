@@ -12,3 +12,6 @@ test-results/
 .vercel
 next-env.d.ts
 *.tsbuildinfo
+
+# Local media workspace (stock clips, hero video builds; ~1.5 GB)
+Images/
