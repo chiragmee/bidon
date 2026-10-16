@@ -15,7 +15,7 @@ is on sale, how to start (sign up → get approved → trade), and why it can be
 
 ## Home, top to bottom
 
-1. **Hero** — headline, one sentence, primary "Browse auctions", secondary "Start selling"; yard photograph.
+1. **Hero** — headline, one sentence, primary "Browse auctions", secondary "Start selling"; the "listing to lifting" journey video (D-106).
 2. **Trust strip** — four short facts: approved businesses only · payments go straight to the seller · highest bid meeting the reserve wins · quantity settled at the weighbridge.
 3. **Live and upcoming auctions** — real lots; a useful empty state when none are open.
 4. **What's traded** — photo cards linking to the filtered catalogue.

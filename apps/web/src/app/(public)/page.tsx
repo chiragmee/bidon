@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { ButtonLink, LotAssuranceBadge, Overline } from '@/components/ui';
 import { FeaturedLots } from '@/components/marketing/FeaturedLots';
+import { HeroVideo } from '@/components/marketing/HeroVideo';
 import { HowToStart } from '@/components/marketing/HowToStart';
 import { RoleEntry } from '@/components/marketing/RoleEntry';
 import { GuestOnly, WorkspaceButton } from '@/components/auth/GuestOnly';
@@ -122,16 +123,7 @@ export default function Landing() {
               </p>
             </GuestOnly>
           </div>
-          <div className="relative aspect-[4/3] min-w-0 overflow-hidden rounded-lg lg:aspect-[16/12]">
-            <Image
-              src="/images/home/hero-yard-crane.jpg"
-              alt="Gantry crane lifting steel scrap in a yard, with a truck loading beams"
-              fill
-              priority
-              sizes="(min-width: 1024px) 48vw, 100vw"
-              className="object-cover"
-            />
-          </div>
+          <HeroVideo />
         </div>
         {/* 2. Trust strip */}
         <ul className="mx-auto grid max-w-[1280px] grid-cols-1 gap-sm px-4 pb-xl sm:grid-cols-2 md:px-lg lg:grid-cols-4">
